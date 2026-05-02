@@ -92,6 +92,19 @@ export const SetupProfile: React.FC = () => {
           <Button type="submit" className="w-full" loading={loading}>
             Complete Setup
           </Button>
+
+          <div className="pt-4 text-center">
+            <button
+              type="button"
+              onClick={async () => {
+                await supabase.auth.signOut();
+                window.location.href = '/login';
+              }}
+              className="text-sm text-text-muted hover:text-red transition-colors"
+            >
+              Sign out & start over
+            </button>
+          </div>
         </form>
       </div>
     </div>
