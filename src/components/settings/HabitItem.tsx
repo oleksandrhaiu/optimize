@@ -152,13 +152,11 @@ export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete 
             )
           )}
 
-          {/* Type chip — just label, no dot */}
+          {/* Type dot */}
           <span className={clx(
-            'text-[10px] font-medium px-1.5 py-0.5 rounded-md flex-shrink-0',
-            habit.type === 'checkbox' ? 'text-blue/70 bg-blue/8' : 'text-amber/70 bg-amber/8',
-          )} >
-            {habit.type === 'checkbox' ? '✓' : '#'}
-          </span>
+            'w-2 h-2 rounded-full flex-shrink-0',
+            habit.type === 'checkbox' ? 'bg-blue/60' : 'bg-amber/60',
+          )} title={habit.type} />
 
           {/* Calorie toggle — numeric only */}
           {habit.type === 'numeric' && (
