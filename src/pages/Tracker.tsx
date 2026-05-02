@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Navbar } from '@/components/ui/Navbar';
 import { MyHabitsColumn } from '@/components/tracker/MyHabitsColumn';
 import { FriendCard } from '@/components/tracker/FriendCard';
-import { Leaderboard } from '@/components/tracker/Leaderboard';
 import { HabitHistoryModal } from '@/components/tracker/HabitHistoryModal';
 import { MonthNav } from '@/components/tracker/MonthNav';
 import { Confetti } from '@/components/ui/Confetti';
@@ -17,15 +16,12 @@ import { usePresence } from '@/hooks/usePresence';
 import { currentMonthYear, calcWeekScores, calcDayScore, todayStr, dateKey, getDaysArray } from '@/lib/utils';
 import type { MonthYear, Habit } from '@/types';
 
-type RightTab = 'stats' | 'leaderboard' | 'friends';
-
 export const Tracker: React.FC = () => {
   const { profile, session } = useAuthStore();
   const userId = session?.user.id;
 
   const [monthYear, setMonthYear]   = useState<MonthYear>(currentMonthYear);
   const [selectedDay, setSelectedDay] = useState<number>(new Date().getDate());
-  const [rightTab, setRightTab]     = useState<RightTab>('stats');
   const [historyHabit, setHistoryHabit] = useState<Habit | null>(null);
 
   const { habits, loading: habitsLoading } = useHabits(userId);
@@ -89,12 +85,6 @@ export const Tracker: React.FC = () => {
 
   const onlineFriends = friends.filter(f => onlineIds.has(f.profile.id)).length;
   const scoreColor    = todayScore >= 80 ? 'text-accent-green' : todayScore >= 50 ? 'text-amber' : 'text-red';
-
-  const RIGHT_TABS: { id: RightTab; label: string }[] = [
-    { id: 'stats',       label: 'Stats' },
-    { id: 'leaderboard', label: '🏆 Board' },
-    { id: 'friends',     label: `Friends${friends.length ? ` (${friends.length})` : ''}` },
-  ];
 
   return (
     <div className="min-h-screen bg-bg">
@@ -161,22 +151,8 @@ export const Tracker: React.FC = () => {
 
           {/* Right column */}
           <div className="space-y-4">
-            {/* Tab switcher */}
-            <div className="flex gap-1 bg-card border border-border rounded-xl p-1 w-fit">
-              {RIGHT_TABS.map(t => (
-                <button key={t.id} onClick={() => setRightTab(t.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                    rightTab === t.id
-                      ? 'bg-white/[0.07] text-text-primary shadow-sm'
-                      : 'text-text-muted hover:text-text-primary'
-                  }`}>
-                  {t.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Stats tab */}
-            {rightTab === 'stats' && !habitsLoading && (
+            {/* Stats section */}
+            {!habitsLoading && (
               <div className="space-y-4 animate-fade-in">
                 <div className="grid grid-cols-3 gap-3">
                   <div className="bg-card border border-border rounded-2xl p-4 shadow-card">
@@ -222,20 +198,17 @@ export const Tracker: React.FC = () => {
               </div>
             )}
 
-            {/* Leaderboard tab */}
-            {rightTab === 'leaderboard' && (
-              <div className="bg-card border border-border rounded-2xl p-4 shadow-card animate-fade-in">
-                <p className="text-sm font-medium text-text-primary mb-3">Weekly ranking</p>
-                <Leaderboard
-                  self={profile ? { profile: { username: profile.username, avatar_color: profile.avatar_color }, weekAvg: avgWeek, todayScore } : null}
-                  friends={friends}
-                />
-              </div>
-            )}
-
-            {/* Friends tab */}
-            {rightTab === 'friends' && (
-              <div className="space-y-3 animate-fade-in">
+            {/* Friends section - back at the bottom */}
+            <div className="space-y-3 animate-fade-in">
+              <div className="flex items-center justify-between">
+                <h2 className="font-heading font-semibold text-text-primary">
+                  Friends
+                  {!friendsLoading && (
+                    <span className="ml-2 font-mono text-sm text-text-muted font-normal">
+                      ({friends.length})
+                    </span>
+                  )}
+                </h2>
                 <div className="flex items-center gap-3">
                   {onlineFriends > 0 && (
                     <span className="text-xs text-accent-green font-medium">{onlineFriends} online</span>
@@ -245,27 +218,27 @@ export const Tracker: React.FC = () => {
                     Live
                   </span>
                 </div>
-                {friendsLoading ? (
-                  <div className="flex gap-3">
-                    {[1, 2].map(i => <Skeleton key={i} className="h-52 rounded-2xl min-w-[200px]" />)}
-                  </div>
-                ) : friends.length === 0 ? (
-                  <div className="bg-card border border-dashed border-border/60 rounded-2xl p-8 text-center space-y-2">
-                    <p className="text-3xl">👥</p>
-                    <p className="font-heading font-medium text-text-primary">No friends yet</p>
-                    <p className="text-text-muted text-sm">Go to Settings → Friends to invite people!</p>
-                  </div>
-                ) : (
-                  <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                    {friends.map(friend => (
-                      <FriendCard key={friend.profile.id} friend={friend}
-                        isOnline={onlineIds.has(friend.profile.id)}
-                        lastSeen={lastSeen.get(friend.profile.id)} />
-                    ))}
-                  </div>
-                )}
               </div>
-            )}
+              {friendsLoading ? (
+                <div className="flex gap-3 overflow-x-auto pb-2">
+                  {[1, 2].map(i => <Skeleton key={i} className="h-52 rounded-2xl min-w-[200px]" />)}
+                </div>
+              ) : friends.length === 0 ? (
+                <div className="bg-card border border-dashed border-border/60 rounded-2xl p-8 text-center space-y-2">
+                  <p className="text-3xl">👥</p>
+                  <p className="font-heading font-medium text-text-primary">No friends yet</p>
+                  <p className="text-text-muted text-sm">Go to Settings → Friends to invite people!</p>
+                </div>
+              ) : (
+                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                  {friends.map(friend => (
+                    <FriendCard key={friend.profile.id} friend={friend}
+                      isOnline={onlineIds.has(friend.profile.id)}
+                      lastSeen={lastSeen.get(friend.profile.id)} />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </main>

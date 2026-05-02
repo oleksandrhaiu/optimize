@@ -1,8 +1,6 @@
 -- ============================================================
--- Habit Tracker – Full Schema (v2)
+-- Habit Tracker – Full Schema (v2.1)
 -- Run this in your Supabase SQL Editor
--- Drop old tables first if you're starting fresh:
--- DROP SCHEMA public CASCADE; CREATE SCHEMA public;
 -- ============================================================
 
 create extension if not exists "pgcrypto";
@@ -16,7 +14,6 @@ alter default privileges in schema public
   grant all on sequences to anon, authenticated, service_role;
 alter default privileges in schema public
   grant all on routines  to anon, authenticated, service_role;
-
 
 -- ─── users ────────────────────────────────────────────────────────────────────
 create table if not exists public.users (
@@ -44,8 +41,6 @@ create table if not exists public.habits (
   created_at        timestamptz not null default now()
 );
 
-create index if not exists habits_user_id_idx on public.habits(user_id);
-
 -- ─── habit_logs ───────────────────────────────────────────────────────────────
 create table if not exists public.habit_logs (
   id         uuid primary key default gen_random_uuid(),
@@ -58,53 +53,70 @@ create table if not exists public.habit_logs (
   unique(habit_id, date)
 );
 
-create index if not exists habit_logs_user_date_idx on public.habit_logs(user_id, date);
-create index if not exists habit_logs_habit_id_idx  on public.habit_logs(habit_id);
-
 -- ─── friendships ──────────────────────────────────────────────────────────────
 create table if not exists public.friendships (
   id         uuid primary key default gen_random_uuid(),
   user_a_id  uuid not null references public.users(id) on delete cascade,
   user_b_id  uuid not null references public.users(id) on delete cascade,
-  status     text not null check (status in ('pending', 'accepted')) default 'accepted',
+  status     text not null default 'accepted',         -- for future pending requests
   created_at timestamptz not null default now(),
   unique(user_a_id, user_b_id)
 );
 
-create index if not exists friendships_user_a_idx on public.friendships(user_a_id);
-create index if not exists friendships_user_b_idx on public.friendships(user_b_id);
-
--- ─── invite_tokens ────────────────────────────────────────────────────────────
+-- ─── invite_tokens ───────────────────────────────────────────────────────────
 create table if not exists public.invite_tokens (
-  id               uuid primary key default gen_random_uuid(),
-  creator_user_id  uuid not null references public.users(id) on delete cascade,
-  token            text not null unique,
-  used             boolean not null default false,
-  created_at       timestamptz not null default now()
+  id              uuid primary key default gen_random_uuid(),
+  creator_user_id uuid not null references public.users(id) on delete cascade,
+  token           text not null unique,
+  used            boolean not null default false,
+  created_at      timestamptz not null default now()
 );
 
--- ============================================================
--- Row Level Security
--- ============================================================
+-- ─── Functions ────────────────────────────────────────────────────────────────
+create or replace function public.are_friends(uid_a uuid, uid_b uuid)
+returns boolean as $$
+begin
+  return exists (
+    select 1 from public.friendships
+    where (user_a_id = uid_a and user_b_id = uid_b)
+       or (user_a_id = uid_b and user_b_id = uid_a)
+  );
+end;
+$$ language plpgsql security definer;
 
+-- ─── RLS ──────────────────────────────────────────────────────────────────────
 alter table public.users         enable row level security;
 alter table public.habits        enable row level security;
 alter table public.habit_logs    enable row level security;
 alter table public.friendships   enable row level security;
 alter table public.invite_tokens enable row level security;
 
--- ─── Helper: are_friends(uid_a, uid_b) ───────────────────────────────────────
-create or replace function public.are_friends(uid_a uuid, uid_b uuid)
-returns boolean language sql security definer as $$
-  select exists (
-    select 1 from public.friendships
-    where status = 'accepted'
-      and ((user_a_id = uid_a and user_b_id = uid_b)
-        or (user_a_id = uid_b and user_b_id = uid_a))
-  );
-$$;
+-- Drop existing policies to avoid "already exists" errors
+drop policy if exists "Users: read any"    on public.users;
+drop policy if exists "Users: insert own"  on public.users;
+drop policy if exists "Users: update own"  on public.users;
 
--- ─── users RLS ────────────────────────────────────────────────────────────────
+drop policy if exists "Habits: read own"   on public.habits;
+drop policy if exists "Habits: read friend" on public.habits;
+drop policy if exists "Habits: insert own" on public.habits;
+drop policy if exists "Habits: update own" on public.habits;
+drop policy if exists "Habits: delete own" on public.habits;
+
+drop policy if exists "Logs: read own"     on public.habit_logs;
+drop policy if exists "Logs: read friend"  on public.habit_logs;
+drop policy if exists "Logs: insert own"   on public.habit_logs;
+drop policy if exists "Logs: upsert own"   on public.habit_logs;
+drop policy if exists "Logs: delete own"   on public.habit_logs;
+
+drop policy if exists "Friends: read own"  on public.friendships;
+drop policy if exists "Friends: insert"    on public.friendships;
+drop policy if exists "Friends: delete own" on public.friendships;
+
+drop policy if exists "Tokens: read any"   on public.invite_tokens;
+drop policy if exists "Tokens: insert own" on public.invite_tokens;
+drop policy if exists "Tokens: update any" on public.invite_tokens;
+
+-- users
 create policy "Users: read any" on public.users
   for select using (auth.uid() is not null);
 
@@ -114,7 +126,7 @@ create policy "Users: insert own" on public.users
 create policy "Users: update own" on public.users
   for update using (auth.uid() = id);
 
--- ─── habits RLS ───────────────────────────────────────────────────────────────
+-- habits
 create policy "Habits: read own" on public.habits
   for select using (auth.uid() = user_id);
 
@@ -130,7 +142,7 @@ create policy "Habits: update own" on public.habits
 create policy "Habits: delete own" on public.habits
   for delete using (auth.uid() = user_id);
 
--- ─── habit_logs RLS ───────────────────────────────────────────────────────────
+-- habit_logs
 create policy "Logs: read own" on public.habit_logs
   for select using (auth.uid() = user_id);
 
@@ -146,7 +158,7 @@ create policy "Logs: upsert own" on public.habit_logs
 create policy "Logs: delete own" on public.habit_logs
   for delete using (auth.uid() = user_id);
 
--- ─── friendships RLS ──────────────────────────────────────────────────────────
+-- friendships
 create policy "Friends: read own" on public.friendships
   for select using (auth.uid() = user_a_id or auth.uid() = user_b_id);
 
@@ -156,7 +168,7 @@ create policy "Friends: insert" on public.friendships
 create policy "Friends: delete own" on public.friendships
   for delete using (auth.uid() = user_a_id or auth.uid() = user_b_id);
 
--- ─── invite_tokens RLS ────────────────────────────────────────────────────────
+-- invite_tokens
 create policy "Tokens: read any" on public.invite_tokens
   for select using (auth.uid() is not null);
 
@@ -169,6 +181,16 @@ create policy "Tokens: update any" on public.invite_tokens
 -- ============================================================
 -- Realtime
 -- ============================================================
-alter publication supabase_realtime add table public.habit_logs;
-alter publication supabase_realtime add table public.habits;
-alter publication supabase_realtime add table public.users;
+-- Using DO block to avoid errors if already in publication
+do $$
+begin
+  if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'habit_logs') then
+    alter publication supabase_realtime add table public.habit_logs;
+  end if;
+  if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'habits') then
+    alter publication supabase_realtime add table public.habits;
+  end if;
+  if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = 'users') then
+    alter publication supabase_realtime add table public.users;
+  end if;
+end $$;
