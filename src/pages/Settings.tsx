@@ -25,7 +25,7 @@ export const Settings: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('profile');
 
   const { habits, loading: habitsLoading, addHabit, updateHabit, deleteHabit, reorderHabits } = useHabits(userId);
-  const { friends, loading: friendsLoading, removeFriend } = useFriends(userId);
+  const { friends, loading: friendsLoading, removeFriend, refetch: refetchFriends } = useFriends(userId);
 
   const isLoading = habitsLoading || friendsLoading;
 
@@ -117,7 +117,7 @@ export const Settings: React.FC = () => {
                       <h2 className="font-heading font-semibold text-lg text-text-primary">Friends</h2>
                       <p className="text-text-muted text-sm mt-1">Share your tracker and stay accountable.</p>
                     </div>
-                    <FriendsManager friends={friends} onRemove={removeFriend} />
+                    <FriendsManager friends={friends} onRemove={removeFriend} onRefetch={refetchFriends} />
                   </div>
                 )}
               </div>

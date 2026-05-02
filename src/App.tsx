@@ -8,6 +8,7 @@ import { Tracker } from '@/pages/Tracker';
 import { Dashboard } from '@/pages/Dashboard';
 import { Settings } from '@/pages/Settings';
 import { SetupProfile } from '@/pages/SetupProfile';
+import { UserProfilePage } from '@/pages/UserProfile';
 import { PageLoader } from '@/components/ui/LoadingSpinner';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -54,6 +55,7 @@ const App: React.FC = () => {
       <Route path="/tracker" element={<ProtectedRoute><Tracker /></ProtectedRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+      <Route path="/u/:username" element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />
       
       <Route path="*" element={<Navigate to="/tracker" replace />} />
     </Routes>
