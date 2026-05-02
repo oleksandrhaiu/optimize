@@ -124,7 +124,7 @@ const NavSearch: React.FC = () => {
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="Search by username…"
-              className="flex-1 bg-transparent border-none focus:outline-none text-sm text-text-primary placeholder-text-subtle"
+              className="flex-1 bg-transparent border-none focus:outline-none text-base sm:text-sm text-text-primary placeholder-text-subtle"
             />
             {searching && (
               <svg width="13" height="13" viewBox="0 0 24 24" className="animate-spin flex-shrink-0 text-text-subtle" fill="none">

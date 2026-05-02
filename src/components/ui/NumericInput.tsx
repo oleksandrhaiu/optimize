@@ -92,7 +92,7 @@ export const NumericInput: React.FC<NumericInputProps> = ({
           placeholder={placeholder}
           min={0}
           className={clx(
-            'w-14 sm:w-10 bg-transparent border-none text-center text-sm sm:text-xs font-mono py-2 sm:py-1 focus:outline-none',
+            'w-14 sm:w-10 bg-transparent border-none text-center text-base sm:text-xs font-mono py-2 sm:py-1 focus:outline-none',
             zoneText[zone],
             'placeholder-text-muted',
             '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',

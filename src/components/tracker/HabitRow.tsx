@@ -127,7 +127,7 @@ export const HabitRow: React.FC<HabitRowProps> = ({
             placeholder="Add a note for today…"
             autoFocus
             rows={2}
-            className="w-full bg-bg border border-border/60 focus:border-accent-green/40 rounded-xl px-3 py-2 text-xs text-text-primary placeholder-text-muted resize-none focus:outline-none transition-colors"
+            className="w-full bg-bg border border-border/60 focus:border-accent-green/40 rounded-xl px-3 py-2 text-base sm:text-xs text-text-primary placeholder-text-muted resize-none focus:outline-none transition-colors"
           />
         </div>
       )}
