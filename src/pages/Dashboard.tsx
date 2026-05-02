@@ -132,14 +132,19 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Stat Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className={clx(
+          "grid gap-4",
+          calorieHabit ? "grid-cols-2 md:grid-cols-4" : "grid-cols-1 md:grid-cols-3"
+        )}>
           {loading ? (
             [1, 2, 3, 4].map(i => <Skeleton key={i} className="h-28 rounded-2xl" />)
           ) : (
             <>
               <StatCard label="Current Streak" value={stats.currentStreak} unit="days" icon="🔥" color="amber" subtitle="Keep it up!" />
               <StatCard label="Best Streak" value={stats.bestStreak} unit="days" icon="🏆" color="amber" />
-              <StatCard label="Avg Calories" value={stats.avgCalories} unit="kcal" icon="⚡" color="blue" />
+              {calorieHabit && (
+                <StatCard label="Avg Calories" value={stats.avgCalories} unit="kcal" icon="⚡" color="blue" />
+              )}
               <StatCard label="Green Days" value={stats.greenDays} unit="days" icon="✅" color="green" subtitle="80%+ completion" />
             </>
           )}
@@ -147,17 +152,19 @@ export const Dashboard: React.FC = () => {
 
         {/* Charts */}
         <div className={loading ? 'space-y-6' : 'space-y-6 animate-fade-in'}>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className={clx("grid gap-6", calorieHabit ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1")}>
             {loading ? (
               <><Skeleton className="h-64 rounded-2xl" /><Skeleton className="h-64 rounded-2xl" /></>
             ) : (
               <>
                 <CompletionChart data={stats.dailyStats} />
-                <CalorieChart
-                  data={stats.dailyStats}
-                  calMin={calorieHabit?.cal_min ?? null}
-                  calMax={calorieHabit?.cal_max ?? null}
-                />
+                {calorieHabit && (
+                  <CalorieChart
+                    data={stats.dailyStats}
+                    calMin={calorieHabit?.cal_min ?? null}
+                    calMax={calorieHabit?.cal_max ?? null}
+                  />
+                )}
               </>
             )}
           </div>
