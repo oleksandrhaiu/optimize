@@ -18,6 +18,8 @@ interface MyHabitsColumnProps {
   selectedDay: number;
   onDaySelect: (day: number) => void;
   onToggle: (habitId: string, date: string, value: string) => void;
+  onNote?: (habitId: string, date: string, note: string) => void;
+  onHabitClick?: (habit: Habit) => void;
 }
 
 export const MyHabitsColumn: React.FC<MyHabitsColumnProps> = ({
@@ -28,6 +30,8 @@ export const MyHabitsColumn: React.FC<MyHabitsColumnProps> = ({
   selectedDay,
   onDaySelect,
   onToggle,
+  onNote,
+  onHabitClick,
 }) => {
   const days = getDaysArray(month, year);
   const today = todayStr();
@@ -151,6 +155,8 @@ export const MyHabitsColumn: React.FC<MyHabitsColumnProps> = ({
                   date={selectedDate}
                   log={logs.find(l => l.habit_id === habit.id && l.date === selectedDate)}
                   onToggle={onToggle}
+                  onNote={onNote}
+                  onNameClick={onHabitClick}
                 />
               ))}
             </div>

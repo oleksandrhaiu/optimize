@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { CustomCheckbox } from '@/components/ui/CustomCheckbox';
 import { NumericInput } from '@/components/ui/NumericInput';
 import type { Habit, HabitLog } from '@/types';
@@ -9,62 +9,128 @@ interface HabitRowProps {
   date: string;
   log: HabitLog | undefined;
   onToggle: (habitId: string, date: string, value: string) => void;
+  onNote?: (habitId: string, date: string, note: string) => void;
+  onNameClick?: (habit: Habit) => void;
   readOnly?: boolean;
 }
 
-export const HabitRow: React.FC<HabitRowProps> = ({ habit, date, log, onToggle, readOnly = false }) => {
-  const checked = log?.value === 'true';
+export const HabitRow: React.FC<HabitRowProps> = ({
+  habit, date, log, onToggle, onNote, onNameClick, readOnly = false,
+}) => {
+  const [showNote, setShowNote] = useState(false);
+  const [noteText, setNoteText] = useState(log?.note ?? '');
+
+  const checked     = log?.value === 'true';
   const numericValue = log ? (parseFloat(log.value) || null) : null;
 
-  const handleCheckbox = (checked: boolean) => {
-    onToggle(habit.id, date, checked ? 'true' : 'false');
-  };
-
-  const handleNumeric = (value: number | null) => {
-    if (value === null) return;
-    onToggle(habit.id, date, String(value));
-  };
-
-  // step based on unit
   const unit = habit.unit ?? undefined;
-  const step = unit === 'ml' ? 50 : unit === 'L' ? 0.1 : unit === 'km' || unit === 'mi' ? 0.1 : 1;
+  const step = unit === 'ml' ? 50 : ['L', 'km', 'mi', 'hrs'].includes(unit ?? '') ? 0.1 : 1;
+
+  // goal progress
+  const hasGoal = habit.goal != null && habit.goal > 0 && habit.type === 'numeric';
+  const progress = hasGoal ? Math.min(100, Math.round(((numericValue ?? 0) / habit.goal!) * 100)) : null;
+
+  const handleCheckbox = (v: boolean) => onToggle(habit.id, date, v ? 'true' : 'false');
+  const handleNumeric  = (v: number | null) => { if (v !== null) onToggle(habit.id, date, String(v)); };
+  const handleNoteSave = () => { onNote?.(habit.id, date, noteText); setShowNote(false); };
 
   return (
-    <div
-      className={clx(
+    <div className="group">
+      <div className={clx(
         'flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl transition-colors',
         !readOnly && 'hover:bg-white/[0.03]',
-      )}
-    >
-      {/* Left: icon + name */}
-      <div className="flex items-center gap-2.5 min-w-0">
-        {habit.icon && (
-          <span className="text-lg leading-normal flex-shrink-0">{habit.icon}</span>
-        )}
-        <span className={clx('text-sm truncate', readOnly ? 'text-text-muted' : 'text-text-primary')}>
-          {habit.name}
-        </span>
-        {habit.type === 'numeric' && unit && (
-          <span className="text-[10px] text-text-subtle flex-shrink-0">{unit}</span>
-        )}
+      )}>
+        {/* Left: icon + name */}
+        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+          {habit.icon && (
+            <span className="text-lg leading-normal flex-shrink-0">{habit.icon}</span>
+          )}
+          <button
+            type="button"
+            onClick={() => onNameClick?.(habit)}
+            className={clx(
+              'text-sm truncate text-left',
+              readOnly ? 'text-text-muted' : 'text-text-primary',
+              onNameClick && !readOnly && 'hover:text-accent-green transition-colors cursor-pointer',
+            )}
+          >
+            {habit.name}
+            {unit && <span className="text-[10px] text-text-subtle ml-1.5">({unit})</span>}
+          </button>
+        </div>
+
+        {/* Right: control + note toggle */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {/* Note icon — only non-readOnly */}
+          {!readOnly && onNote && (
+            <button
+              onClick={() => setShowNote(v => !v)}
+              title={log?.note ? 'Edit note' : 'Add note'}
+              className={clx(
+                'opacity-0 group-hover:opacity-100 w-5 h-5 flex items-center justify-center rounded transition-all',
+                showNote || log?.note ? 'opacity-100 text-accent-green' : 'text-text-subtle hover:text-text-muted',
+              )}
+            >
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                <path d="M2 2h10v8H8l-3 2v-2H2V2z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
+              </svg>
+            </button>
+          )}
+
+          {/* Goal progress badge */}
+          {hasGoal && numericValue !== null && (
+            <span className={clx(
+              'text-[10px] font-mono flex-shrink-0',
+              progress! >= 100 ? 'text-accent-green' : 'text-text-subtle',
+            )}>
+              {Math.round(numericValue)}/{habit.goal}
+            </span>
+          )}
+
+          {/* Input control */}
+          {habit.type === 'checkbox' ? (
+            <CustomCheckbox checked={checked} onChange={handleCheckbox} disabled={readOnly} size="sm" />
+          ) : (
+            <NumericInput
+              value={numericValue}
+              onChange={handleNumeric}
+              calMin={habit.cal_min}
+              calMax={habit.cal_max}
+              disabled={readOnly}
+              unit={undefined}     // unit already shown in name
+              step={step}
+            />
+          )}
+        </div>
       </div>
 
-      {/* Right: control */}
-      <div className="flex-shrink-0">
-        {habit.type === 'checkbox' ? (
-          <CustomCheckbox checked={checked} onChange={handleCheckbox} disabled={readOnly} size="sm" />
-        ) : (
-          <NumericInput
-            value={numericValue}
-            onChange={handleNumeric}
-            calMin={habit.cal_min}
-            calMax={habit.cal_max}
-            disabled={readOnly}
-            unit={unit}
-            step={step}
+      {/* Goal progress bar */}
+      {hasGoal && (
+        <div className="mx-3 mb-1 h-0.5 bg-border/40 rounded-full overflow-hidden">
+          <div
+            className={clx(
+              'h-full rounded-full transition-all duration-500',
+              progress! >= 100 ? 'bg-accent-green' : 'bg-accent-green/40',
+            )}
+            style={{ width: `${progress}%` }}
           />
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Inline note textarea */}
+      {showNote && (
+        <div className="px-3 pb-2.5 animate-fade-in">
+          <textarea
+            value={noteText}
+            onChange={e => setNoteText(e.target.value)}
+            onBlur={handleNoteSave}
+            placeholder="Add a note for today…"
+            autoFocus
+            rows={2}
+            className="w-full bg-bg border border-border/60 focus:border-accent-green/40 rounded-xl px-3 py-2 text-xs text-text-primary placeholder-text-muted resize-none focus:outline-none transition-colors"
+          />
+        </div>
+      )}
     </div>
   );
 };

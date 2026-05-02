@@ -14,9 +14,10 @@ export interface Habit {
   user_id: string;
   name: string;
   type: 'checkbox' | 'numeric';
-  unit: string | null;          // e.g. 'glasses', 'km', 'kcal', 'hrs'
+  unit: string | null;
   icon: string | null;
   order: number;
+  goal: number | null;          // target value for numeric habits
   cal_min: number | null;
   cal_max: number | null;
   is_calorie_habit: boolean;
@@ -28,7 +29,8 @@ export interface HabitLog {
   habit_id: string;
   user_id: string;
   date: string; // YYYY-MM-DD
-  value: string; // 'true'/'false' for checkbox, numeric string for numeric
+  value: string;
+  note: string | null;   // optional daily note
   created_at: string;
 }
 

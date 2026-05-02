@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase';
 import { formatDate, todayStr, currentMonthYear } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/LoadingSpinner';
 import { clx } from '@/lib/utils';
+import { exportHabitsCsv } from '@/lib/exportCsv';
 import type { HabitLog } from '@/types';
 
 import { StatCard } from '@/components/dashboard/StatCard';
@@ -97,6 +98,19 @@ export const Dashboard: React.FC = () => {
             <p className="text-text-muted text-sm mt-0.5">Analytics for {rangeLabel}</p>
           </div>
 
+          <div className="flex items-center gap-2">
+            {/* CSV Export */}
+            <button
+              onClick={() => exportHabitsCsv(habits, logs)}
+              disabled={logs.length === 0}
+              title="Export CSV"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border/60 text-xs text-text-muted hover:text-text-primary hover:border-border transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                <path d="M7 1v8M4 6l3 3 3-3M2 11h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              Export CSV
+            </button>
           {/* Range switcher */}
           <div className="flex items-center gap-1 bg-card border border-border rounded-xl p-1">
             {RANGES.map(r => (
@@ -113,7 +127,8 @@ export const Dashboard: React.FC = () => {
                 {r.label}
               </button>
             ))}
-          </div>
+          </div> {/* end range switcher */}
+          </div> {/* end flex gap-2 */}
         </div>
 
         {/* Stat Cards */}

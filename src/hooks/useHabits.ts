@@ -3,11 +3,11 @@ import { supabase } from '@/lib/supabase';
 import type { Habit } from '@/types';
 
 const DEFAULT_HABITS: Omit<Habit, 'id' | 'user_id' | 'created_at'>[] = [
-  { name: 'Water', type: 'numeric', unit: 'glasses', icon: '💧', order: 0, cal_min: null, cal_max: null, is_calorie_habit: false },
-  { name: 'Workout', type: 'checkbox', unit: null, icon: '🏋️', order: 1, cal_min: null, cal_max: null, is_calorie_habit: false },
-  { name: 'Calories', type: 'numeric', unit: 'kcal', icon: '🔥', order: 2, cal_min: 1800, cal_max: 2400, is_calorie_habit: true },
-  { name: 'Reading', type: 'numeric', unit: 'pages', icon: '📖', order: 3, cal_min: null, cal_max: null, is_calorie_habit: false },
-  { name: 'Sleep', type: 'numeric', unit: 'hrs', icon: '😴', order: 4, cal_min: null, cal_max: null, is_calorie_habit: false },
+  { name: 'Water', type: 'numeric', unit: 'glasses', icon: '💧', order: 0, goal: 8, cal_min: null, cal_max: null, is_calorie_habit: false },
+  { name: 'Workout', type: 'checkbox', unit: null, icon: '🏋️', order: 1, goal: null, cal_min: null, cal_max: null, is_calorie_habit: false },
+  { name: 'Calories', type: 'numeric', unit: 'kcal', icon: '🔥', order: 2, goal: null, cal_min: 1800, cal_max: 2400, is_calorie_habit: true },
+  { name: 'Reading', type: 'numeric', unit: 'pages', icon: '📖', order: 3, goal: 20, cal_min: null, cal_max: null, is_calorie_habit: false },
+  { name: 'Sleep', type: 'numeric', unit: 'hrs', icon: '😴', order: 4, goal: 8, cal_min: null, cal_max: null, is_calorie_habit: false },
 ];
 
 export function useHabits(userId: string | undefined) {

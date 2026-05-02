@@ -39,6 +39,7 @@ create table if not exists public.habits (
   "order"           integer not null default 0,
   cal_min           numeric,
   cal_max           numeric,
+  goal              numeric,                            -- daily target for numeric habits
   is_calorie_habit  boolean not null default false,
   created_at        timestamptz not null default now()
 );
@@ -52,6 +53,7 @@ create table if not exists public.habit_logs (
   user_id    uuid not null references public.users(id) on delete cascade,
   date       date not null,
   value      text not null,
+  note       text,                                     -- optional daily note
   created_at timestamptz not null default now(),
   unique(habit_id, date)
 );

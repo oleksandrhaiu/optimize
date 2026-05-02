@@ -54,6 +54,7 @@ export interface Database {
           date: string
           habit_id: string
           id: string
+          note: string | null
           user_id: string
           value: string
         }
@@ -62,6 +63,7 @@ export interface Database {
           date: string
           habit_id: string
           id?: string
+          note?: string | null
           user_id: string
           value: string
         }
@@ -70,6 +72,7 @@ export interface Database {
           date?: string
           habit_id?: string
           id?: string
+          note?: string | null
           user_id?: string
           value?: string
         }
@@ -95,6 +98,7 @@ export interface Database {
           cal_max: number | null
           cal_min: number | null
           created_at: string
+          goal: number | null
           unit: string | null
           icon: string | null
           id: string
@@ -108,6 +112,7 @@ export interface Database {
           cal_max?: number | null
           cal_min?: number | null
           created_at?: string
+          goal?: number | null
           unit?: string | null
           icon?: string | null
           id?: string
@@ -121,6 +126,7 @@ export interface Database {
           cal_max?: number | null
           cal_min?: number | null
           created_at?: string
+          goal?: number | null
           unit?: string | null
           icon?: string | null
           id?: string

@@ -180,6 +180,19 @@ export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete 
         </div>
       </div>
 
+      {/* Goal row — numeric, non-calorie only */}
+      {habit.type === 'numeric' && !habit.is_calorie_habit && (
+        <div className="flex items-center gap-2 pl-12 pb-2.5">
+          <span className="text-[10px] text-text-subtle">🎯 daily goal</span>
+          <input type="number" placeholder="e.g. 8"
+            value={habit.goal ?? ''}
+            onChange={e => onUpdate(habit.id, { goal: e.target.value ? parseFloat(e.target.value) : null })}
+            className="w-16 bg-bg border border-border/60 rounded-lg px-2 py-1 text-xs text-center text-text-primary focus:outline-none focus:border-accent-green/40 font-mono transition-colors"
+          />
+          {habit.unit && <span className="text-[10px] text-text-subtle">{habit.unit}</span>}
+        </div>
+      )}
+
       {/* Calorie range — expands below */}
       {habit.is_calorie_habit && (
         <div className="flex items-center gap-2 pl-12 pb-2.5 animate-fade-in">

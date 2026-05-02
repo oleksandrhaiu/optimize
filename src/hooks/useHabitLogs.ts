@@ -7,7 +7,7 @@ export function useHabitLogs(userId: string | undefined, year: number, month: nu
   const [loading, setLoading] = useState(true);
 
   const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`;
-  const endDate = `${year}-${String(month + 1).padStart(2, '0')}-31`;
+  const endDate   = `${year}-${String(month + 1).padStart(2, '0')}-31`;
 
   const fetchLogs = useCallback(async () => {
     if (!userId) return;
@@ -24,18 +24,24 @@ export function useHabitLogs(userId: string | undefined, year: number, month: nu
 
   useEffect(() => { fetchLogs(); }, [fetchLogs]);
 
-  /** Upsert a log (insert or update on conflict) */
+  /** Upsert value (and optionally note) */
   const setLog = useCallback(async (
     habitId: string,
     date: string,
     value: string,
+    note?: string,
   ) => {
     if (!userId) return;
+    const payload: Record<string, unknown> = { habit_id: habitId, user_id: userId, date, value };
+    if (note !== undefined) payload.note = note;
+
     const { data, error } = await supabase
       .from('habit_logs')
-      .upsert({ habit_id: habitId, user_id: userId, date, value }, { onConflict: 'habit_id,date' })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .upsert(payload as any, { onConflict: 'habit_id,date' })
       .select()
       .single();
+
     if (!error && data) {
       setLogs(prev => {
         const filtered = prev.filter(l => !(l.habit_id === habitId && l.date === date));
@@ -45,6 +51,14 @@ export function useHabitLogs(userId: string | undefined, year: number, month: nu
     return error;
   }, [userId]);
 
+  /** Update only the note of an existing log */
+  const setNote = useCallback(async (habitId: string, date: string, note: string) => {
+    if (!userId) return;
+    const existing = logs.find(l => l.habit_id === habitId && l.date === date);
+    if (!existing) return; // can't add note without a value
+    return setLog(habitId, date, existing.value, note);
+  }, [userId, logs, setLog]);
+
   /** Merge external logs (from realtime) */
   const mergeLog = useCallback((log: HabitLog) => {
     setLogs(prev => {
@@ -53,10 +67,10 @@ export function useHabitLogs(userId: string | undefined, year: number, month: nu
     });
   }, []);
 
-  return { logs, loading, setLog, mergeLog, refetch: fetchLogs };
+  return { logs, loading, setLog, setNote, mergeLog, refetch: fetchLogs };
 }
 
-/** Fetch logs for a specific user (friends) */
+/** Fetch logs for a specific user (friends / history) */
 export async function fetchLogsForUser(
   userId: string,
   startDate: string,
