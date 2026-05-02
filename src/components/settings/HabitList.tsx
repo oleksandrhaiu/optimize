@@ -105,9 +105,15 @@ export const HabitList: React.FC<HabitListProps> = ({
           <button
             type="button"
             onClick={() => setShowTemplates(v => !v)}
-            className="btn-ghost text-xs"
+            className="btn-ghost text-xs flex items-center gap-1.5"
           >
-            {showTemplates ? '▲ Hide' : '⚡ Templates'}
+            <svg
+              width="12" height="12" viewBox="0 0 12 12" fill="none"
+              className={`transition-transform duration-200 ${showTemplates ? 'rotate-180' : ''}`}
+            >
+              <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+            Templates
           </button>
         </div>
       </form>

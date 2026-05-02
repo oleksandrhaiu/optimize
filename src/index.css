@@ -40,6 +40,21 @@
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #2A2C3A; border-radius: 4px; }
   ::-webkit-scrollbar-thumb:hover { background: #3A3D50; }
+
+  /* Fix webkit autofill background flash */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0px 1000px #161820 inset !important;
+    -webkit-text-fill-color: #E2E4F0 !important;
+    caret-color: #E2E4F0;
+    transition: background-color 9999s ease-in-out 0s;
+  }
+
+  /* Remove tap highlight on mobile */
+  button, a, [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
 }
 
 @layer components {
@@ -104,9 +119,11 @@
 
   /* ── Input base ──────────────────────────────────────────── */
   .input-base {
-    @apply w-full bg-bg border border-border rounded-xl px-4 py-3 text-text-primary placeholder-text-muted
-           focus:outline-none focus:border-blue/50 focus:ring-2 focus:ring-blue/10
-           transition-all duration-150 text-sm;
+    @apply w-full bg-bg border border-border/70 rounded-xl px-4 py-3 text-text-primary placeholder-text-subtle
+           focus:outline-none focus:border-accent-green/40
+           transition-colors duration-150 text-sm;
+    /* No box-shadow ring - prevents white flash on webkit */
+    -webkit-tap-highlight-color: transparent;
   }
 
   /* ── Buttons ─────────────────────────────────────────────── */
