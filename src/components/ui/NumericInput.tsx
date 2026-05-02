@@ -13,11 +13,18 @@ interface NumericInputProps {
   step?: number;
 }
 
-const zoneStyles: Record<CalorieZone, { border: string; text: string; bg: string }> = {
-  green: { border: 'border-accent-green/60', text: 'text-accent-green', bg: 'bg-accent-green/5' },
-  amber: { border: 'border-amber/60',       text: 'text-amber',        bg: 'bg-amber/5' },
-  red:   { border: 'border-red/60',         text: 'text-red',          bg: 'bg-red/5' },
-  none:  { border: 'border-border',         text: 'text-text-primary', bg: 'bg-bg' },
+const zoneRing: Record<CalorieZone, string> = {
+  green: 'ring-1 ring-accent-green/50',
+  amber: 'ring-1 ring-amber/50',
+  red:   'ring-1 ring-red/50',
+  none:  '',
+};
+
+const zoneText: Record<CalorieZone, string> = {
+  green: 'text-accent-green',
+  amber: 'text-amber',
+  red:   'text-red',
+  none:  'text-text-primary',
 };
 
 export const NumericInput: React.FC<NumericInputProps> = ({
@@ -37,11 +44,9 @@ export const NumericInput: React.FC<NumericInputProps> = ({
   }, [value]);
 
   const zone: CalorieZone =
-    value !== null && calMin !== undefined && calMax !== undefined
-      ? getCalorieZone(value, calMin ?? null, calMax ?? null)
+    value !== null && calMin != null && calMax != null
+      ? getCalorieZone(value, calMin, calMax)
       : 'none';
-
-  const styles = zoneStyles[zone];
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value;
@@ -52,65 +57,63 @@ export const NumericInput: React.FC<NumericInputProps> = ({
 
   const increment = () => {
     const cur = value ?? 0;
-    const next = parseFloat((cur + step).toFixed(2));
-    onChange(next);
+    onChange(parseFloat((cur + step).toFixed(2)));
   };
 
   const decrement = () => {
     const cur = value ?? 0;
-    const next = Math.max(0, parseFloat((cur - step).toFixed(2)));
-    onChange(next);
+    onChange(Math.max(0, parseFloat((cur - step).toFixed(2))));
   };
 
   return (
-    <div className={clx(
-      'inline-flex items-center rounded-xl border transition-all duration-150',
-      styles.border,
-      styles.bg,
-      disabled && 'opacity-50',
-    )}>
-      {/* Minus */}
-      <button
-        type="button"
-        onClick={decrement}
-        disabled={disabled}
-        className="w-7 h-7 flex items-center justify-center text-text-muted hover:text-text-primary transition-colors disabled:cursor-not-allowed rounded-l-xl"
-      >
-        <svg width="10" height="2" viewBox="0 0 10 2" fill="none">
-          <path d="M1 1h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
-      </button>
+    <div className="flex items-center gap-1.5">
+      {/* Stepper */}
+      <div className={clx(
+        'inline-flex items-center bg-bg border border-border rounded-lg transition-all duration-150',
+        zoneRing[zone],
+        disabled && 'opacity-50',
+      )}>
+        <button
+          type="button"
+          onClick={decrement}
+          disabled={disabled}
+          className="w-6 h-6 flex items-center justify-center text-text-subtle hover:text-text-primary transition-colors disabled:cursor-not-allowed rounded-l-lg hover:bg-white/[0.04]"
+        >
+          <svg width="8" height="2" viewBox="0 0 8 2" fill="none">
+            <path d="M1 1h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        </button>
 
-      {/* Input */}
-      <input
-        type="number"
-        value={inputValue}
-        onChange={handleChange}
-        disabled={disabled}
-        placeholder={placeholder}
-        min={0}
-        className={clx(
-          'font-mono-nums w-14 bg-transparent border-none text-center text-sm py-1 focus:outline-none',
-          styles.text,
-          'placeholder-text-muted',
-          '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
-        )}
-      />
+        <input
+          type="number"
+          value={inputValue}
+          onChange={handleChange}
+          disabled={disabled}
+          placeholder={placeholder}
+          min={0}
+          className={clx(
+            'w-10 bg-transparent border-none text-center text-xs font-mono py-1 focus:outline-none',
+            zoneText[zone],
+            'placeholder-text-muted',
+            '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
+          )}
+        />
 
-      {/* Plus */}
-      <button
-        type="button"
-        onClick={increment}
-        disabled={disabled}
-        className="w-7 h-7 flex items-center justify-center text-text-muted hover:text-text-primary transition-colors disabled:cursor-not-allowed rounded-r-xl"
-      >
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-          <path d="M5 1v8M1 5h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
-      </button>
+        <button
+          type="button"
+          onClick={increment}
+          disabled={disabled}
+          className="w-6 h-6 flex items-center justify-center text-text-subtle hover:text-text-primary transition-colors disabled:cursor-not-allowed rounded-r-lg hover:bg-white/[0.04]"
+        >
+          <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+            <path d="M4 1v6M1 4h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        </button>
+      </div>
 
+      {/* Unit — outside the stepper, small and unobtrusive */}
       {unit && (
-        <span className={clx('pr-2 text-xs font-mono', styles.text, 'opacity-70')}>
+        <span className="text-[10px] text-text-subtle font-mono leading-none whitespace-nowrap">
           {unit}
         </span>
       )}

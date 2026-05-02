@@ -140,17 +140,19 @@ export const HabitList: React.FC<HabitListProps> = ({
       {/* Habit list */}
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={habits.map(h => h.id)} strategy={verticalListSortingStrategy}>
-          <div className="space-y-2">
-            {habits.map(habit => (
-              <HabitItem key={habit.id} habit={habit} onUpdate={onUpdate} onDelete={onDelete} />
-            ))}
-            {habits.length === 0 && (
-              <div className="text-center py-10 text-text-muted">
-                <p className="text-2xl mb-2">📋</p>
-                <p className="text-sm">No habits yet. Use templates or add your own!</p>
-              </div>
-            )}
-          </div>
+          {habits.length === 0 ? (
+            <div className="text-center py-12 text-text-muted">
+              <p className="text-3xl mb-3">📋</p>
+              <p className="text-sm">No habits yet.</p>
+              <p className="text-xs text-text-subtle mt-1">Use templates above or type a name and hit Add.</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-border/30">
+              {habits.map(habit => (
+                <HabitItem key={habit.id} habit={habit} onUpdate={onUpdate} onDelete={onDelete} />
+              ))}
+            </div>
+          )}
         </SortableContext>
       </DndContext>
     </div>
