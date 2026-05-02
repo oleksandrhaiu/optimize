@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { clx } from '@/lib/utils';
@@ -6,7 +6,7 @@ import type { Habit } from '@/types';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 
 const ALL_UNITS = [
-  { value: '',         label: 'No unit' },
+  { value: '',         label: 'None' },
   { value: 'glasses',  label: 'Glasses' },
   { value: 'ml',       label: 'ml' },
   { value: 'L',        label: 'Liters' },
@@ -26,9 +26,70 @@ const ALL_UNITS = [
   { value: 'lbs',      label: 'lbs' },
   { value: 'reps',     label: 'Reps' },
   { value: 'sets',     label: 'Sets' },
-  { value: 'items',    label: 'Items' },
   { value: 'times',    label: 'Times' },
 ];
+
+// Curated emoji palette for habits
+const HABIT_EMOJIS = [
+  '💪','🏋️','🧘','🏃','🚴','🤸','⛹️','🥊',
+  '💧','🥗','🍎','☕','🍵','🥦','🥑','🍳',
+  '😴','🧠','📖','📝','💊','🩺','🌿','✨',
+  '🔥','⚡','🎯','🚀','🏆','💎','🌙','🌊',
+  '🎵','🎨','📷','🖥️','💻','📱','✉️','📅',
+  '🐕','🐈','🌱','🌻','⭐','🎲','🎮','🏅',
+];
+
+/* ── Emoji Picker Popup ─────────────────────────────────────── */
+const EmojiPicker: React.FC<{
+  current: string | null;
+  onSelect: (e: string | null) => void;
+  onClose: () => void;
+}> = ({ current, onSelect, onClose }) => {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) onClose();
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [onClose]);
+
+  return (
+    <div
+      ref={ref}
+      className="absolute left-0 top-[calc(100%+4px)] z-50 bg-card border border-border rounded-2xl p-3 shadow-card animate-slide-up"
+      style={{ width: '224px' }}
+    >
+      <p className="text-[10px] text-text-subtle uppercase tracking-wider mb-2 font-medium">Pick an icon</p>
+      <div className="grid grid-cols-8 gap-1">
+        {/* Clear option */}
+        <button
+          onClick={() => { onSelect(null); onClose(); }}
+          className={clx(
+            'w-7 h-7 rounded-lg text-xs flex items-center justify-center transition-all',
+            !current ? 'bg-accent-green/15 ring-1 ring-accent-green/40' : 'hover:bg-white/[0.05]',
+          )}
+          title="No icon"
+        >
+          <span className="text-text-subtle">–</span>
+        </button>
+        {HABIT_EMOJIS.map(emoji => (
+          <button
+            key={emoji}
+            onClick={() => { onSelect(emoji); onClose(); }}
+            className={clx(
+              'w-7 h-7 rounded-lg text-base flex items-center justify-center transition-all leading-none',
+              current === emoji ? 'bg-accent-green/15 ring-1 ring-accent-green/40 scale-110' : 'hover:bg-white/[0.05] hover:scale-110',
+            )}
+          >
+            {emoji}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 interface HabitItemProps {
   habit: Habit;
@@ -37,8 +98,8 @@ interface HabitItemProps {
 }
 
 export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete }) => {
-  // show unit picker only if habit already has a unit, or user clicked "add unit"
   const [showUnitPicker, setShowUnitPicker] = useState(!!habit.group);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const {
     attributes, listeners, setNodeRef, transform, transition, isDragging,
@@ -78,10 +139,26 @@ export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete 
           </svg>
         </div>
 
-        {habit.icon && (
-          <span className="text-xl leading-normal flex-shrink-0">{habit.icon}</span>
-        )}
+        {/* Icon (clickable emoji picker trigger) */}
+        <div className="relative flex-shrink-0">
+          <button
+            type="button"
+            onClick={() => setShowEmojiPicker(v => !v)}
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-xl leading-none hover:bg-white/[0.05] transition-colors border border-transparent hover:border-border/60"
+            title="Change icon"
+          >
+            {habit.icon ?? <span className="text-text-subtle text-sm">+</span>}
+          </button>
+          {showEmojiPicker && (
+            <EmojiPicker
+              current={habit.icon}
+              onSelect={emoji => onUpdate(habit.id, { icon: emoji })}
+              onClose={() => setShowEmojiPicker(false)}
+            />
+          )}
+        </div>
 
+        {/* Name */}
         <input
           value={habit.name}
           onChange={e => onUpdate(habit.id, { name: e.target.value })}
@@ -89,7 +166,7 @@ export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete 
           placeholder="Habit name"
         />
 
-        {/* Unit area — only for numeric */}
+        {/* Unit — only for numeric */}
         {habit.type === 'numeric' && (
           <>
             {showUnitPicker ? (
@@ -103,7 +180,7 @@ export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete 
               <button
                 type="button"
                 onClick={() => setShowUnitPicker(true)}
-                className="text-[10px] text-text-subtle hover:text-text-muted px-2 py-1 rounded-lg border border-dashed border-border/60 hover:border-border transition-all flex-shrink-0"
+                className="text-[10px] text-text-subtle hover:text-text-muted px-2 py-1 rounded-lg border border-dashed border-border/60 hover:border-border transition-all flex-shrink-0 whitespace-nowrap"
               >
                 + unit
               </button>
@@ -111,31 +188,46 @@ export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete 
           </>
         )}
 
-        {/* Type badge */}
-        <span className={clx(
-          'text-[10px] font-medium px-2 py-0.5 rounded-full flex-shrink-0',
-          habit.type === 'checkbox' ? 'bg-blue/10 text-blue' : 'bg-amber/10 text-amber',
+        {/* Type badge — clean SVG icons */}
+        <div className={clx(
+          'flex items-center gap-1 px-2 py-1 rounded-full flex-shrink-0',
+          habit.type === 'checkbox' ? 'bg-blue/10' : 'bg-amber/10',
         )}>
-          {habit.type === 'checkbox' ? '☑' : '#'}
-        </span>
+          {habit.type === 'checkbox' ? (
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+              <rect x="1" y="1" width="10" height="10" rx="2.5" stroke="#4B9EFF" strokeWidth="1.5" />
+              <path d="M3.5 6l2 2 3-3.5" stroke="#4B9EFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          ) : (
+            <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+              <path d="M2 9.5L4.5 2.5M7.5 9.5L10 2.5M1.5 6.5h9" stroke="#F5A623" strokeWidth="1.5" strokeLinecap="round" />
+            </svg>
+          )}
+          <span className={clx('text-[10px] font-medium', habit.type === 'checkbox' ? 'text-blue' : 'text-amber')}>
+            {habit.type === 'checkbox' ? 'check' : 'num'}
+          </span>
+        </div>
 
-        {/* Calorie toggle (numeric only) */}
+        {/* Calorie toggle */}
         {habit.type === 'numeric' && (
           <button
             onClick={() => onUpdate(habit.id, { is_calorie_habit: !habit.is_calorie_habit })}
             title={habit.is_calorie_habit ? 'Calorie tracking ON' : 'Enable calorie tracking'}
             className={clx(
-              'flex-shrink-0 p-1 rounded-lg text-base transition-colors leading-none',
-              habit.is_calorie_habit ? 'text-amber' : 'text-text-subtle hover:text-text-muted',
+              'flex-shrink-0 w-6 h-6 rounded-lg flex items-center justify-center text-sm leading-none transition-all',
+              habit.is_calorie_habit
+                ? 'bg-amber/15 text-amber'
+                : 'text-text-subtle hover:text-amber hover:bg-amber/10',
             )}
           >
             🔥
           </button>
         )}
 
+        {/* Delete */}
         <button
           onClick={() => onDelete(habit.id)}
-          className="text-text-subtle hover:text-red p-1 transition-colors flex-shrink-0 opacity-0 group-hover:opacity-100"
+          className="text-text-subtle hover:text-red p-1 transition-all flex-shrink-0 opacity-0 group-hover:opacity-100 rounded-lg hover:bg-red/10"
           title="Delete"
         >
           <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
@@ -146,7 +238,7 @@ export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete 
 
       {/* Calorie target sub-row */}
       {habit.is_calorie_habit && (
-        <div className="flex items-center gap-3 px-3 pb-2.5 border-t border-border/30 pt-2">
+        <div className="flex items-center gap-2.5 px-3 pb-2.5 border-t border-border/30 pt-2">
           <span className="text-xs text-text-muted flex-shrink-0">🎯 Range:</span>
           <input
             type="number"

@@ -26,7 +26,7 @@ export const Tracker: React.FC = () => {
   const { friends, loading: friendsLoading, updateFriendLog } = useFriends(userId);
 
   useRealtimeSync({ friendIds: friends.map(f => f.profile.id), onLogChange: updateFriendLog });
-  const onlineIds = usePresence(userId, friends.map(f => f.profile.id));
+  const { onlineIds, lastSeen } = usePresence(userId, friends.map(f => f.profile.id));
 
   const handleToggle = async (habitId: string, date: string, value: string) => {
     await setLog(habitId, date, value);
@@ -217,10 +217,11 @@ export const Tracker: React.FC = () => {
               ) : (
                 <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide animate-fade-in">
                   {friends.map(friend => (
-                    <FriendCard
+                  <FriendCard
                       key={friend.profile.id}
                       friend={friend}
                       isOnline={onlineIds.has(friend.profile.id)}
+                      lastSeen={lastSeen.get(friend.profile.id)}
                     />
                   ))}
                 </div>

@@ -2,20 +2,32 @@ import React from 'react';
 import { Avatar } from '@/components/ui/Avatar';
 import { ScorePill } from './ScorePill';
 import { Sparkline } from './Sparkline';
+import { formatLastSeen } from '@/hooks/usePresence';
 import type { FriendWithData } from '@/types';
 import { todayStr, clx } from '@/lib/utils';
 
 interface FriendCardProps {
   friend: FriendWithData;
   isOnline?: boolean;
+  lastSeen?: Date;
 }
 
-export const FriendCard: React.FC<FriendCardProps> = ({ friend, isOnline = false }) => {
+export const FriendCard: React.FC<FriendCardProps> = ({
+  friend,
+  isOnline = false,
+  lastSeen,
+}) => {
   const { profile, habits, logs, todayScore, weekScores } = friend;
   const today = todayStr();
   const avgWeek = weekScores.length > 0
     ? Math.round(weekScores.reduce((a, b) => a + b, 0) / weekScores.length)
     : 0;
+
+  const presenceLabel = isOnline
+    ? '● online now'
+    : formatLastSeen(lastSeen);
+
+  const presenceColor = isOnline ? 'text-accent-green' : 'text-text-subtle';
 
   return (
     <div className="bg-card border border-border rounded-2xl p-4 flex flex-col gap-3 min-w-[200px] max-w-[240px] flex-shrink-0 shadow-card">
@@ -23,10 +35,9 @@ export const FriendCard: React.FC<FriendCardProps> = ({ friend, isOnline = false
       <div className="flex items-center gap-2.5">
         <div className="relative flex-shrink-0">
           <Avatar username={profile.username} color={profile.avatar_color} size="md" />
-          {/* Online dot */}
           <span className={clx(
-            'absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-card',
-            isOnline ? 'bg-accent-green' : 'bg-text-subtle',
+            'absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-card transition-colors duration-300',
+            isOnline ? 'bg-accent-green' : 'bg-text-subtle/40',
           )} />
         </div>
         <div className="min-w-0 flex-1">
@@ -35,12 +46,14 @@ export const FriendCard: React.FC<FriendCardProps> = ({ friend, isOnline = false
           </p>
           <div className="flex items-center gap-1.5 mt-0.5">
             <ScorePill score={todayScore} />
-            {isOnline && (
-              <span className="text-[10px] text-accent-green font-medium">● online</span>
-            )}
           </div>
         </div>
       </div>
+
+      {/* Presence status */}
+      <p className={clx('text-[10px] font-medium -mt-1', presenceColor)}>
+        {presenceLabel}
+      </p>
 
       {/* Sparkline */}
       <div className="flex items-center gap-3 bg-bg rounded-xl p-2">
