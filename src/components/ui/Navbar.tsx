@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { Avatar } from './Avatar';
 import { clx } from '@/lib/utils';
+import { supabase } from '@/lib/supabase';
+import type { UserProfile } from '@/types';
 
 const NAV_ITEMS = [
   {
@@ -37,6 +39,125 @@ const NAV_ITEMS = [
     ),
   },
 ];
+
+/** Quick user search dropdown in the Navbar */
+const NavSearch: React.FC = () => {
+  const navigate = useNavigate();
+  const { session } = useAuthStore();
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<UserProfile[]>([]);
+  const [searching, setSearching] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    const fn = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+        setQuery('');
+        setResults([]);
+      }
+    };
+    document.addEventListener('mousedown', fn);
+    return () => document.removeEventListener('mousedown', fn);
+  }, []);
+
+  // Focus input when opened
+  useEffect(() => {
+    if (open) setTimeout(() => inputRef.current?.focus(), 50);
+  }, [open]);
+
+  // Debounced search
+  useEffect(() => {
+    if (!query.trim()) { setResults([]); return; }
+    const q = query.trim().replace(/^@/, '');
+    const timer = setTimeout(async () => {
+      setSearching(true);
+      const { data } = await supabase
+        .from('users')
+        .select('*')
+        .ilike('username', `%${q}%`)
+        .neq('id', session?.user.id ?? '')
+        .limit(5);
+      setResults((data as UserProfile[]) ?? []);
+      setSearching(false);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  const goToProfile = (username: string) => {
+    navigate(`/u/${username}`);
+    setOpen(false);
+    setQuery('');
+    setResults([]);
+  };
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen(v => !v)}
+        className={clx(
+          'p-2 rounded-lg transition-all duration-150',
+          open ? 'text-text-primary bg-white/[0.06]' : 'text-text-muted hover:text-text-primary hover:bg-white/[0.04]',
+        )}
+        title="Find users"
+      >
+        <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
+          <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.7"/>
+          <path d="M15 15l3.5 3.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
+        </svg>
+      </button>
+
+      {open && (
+        <div className="absolute right-0 top-[calc(100%+8px)] w-72 bg-card border border-border rounded-2xl shadow-card z-50 overflow-hidden animate-slide-up">
+          {/* Input */}
+          <div className="flex items-center gap-2 px-3 py-2.5 border-b border-border/50">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="none" className="text-text-subtle flex-shrink-0">
+              <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.7"/>
+              <path d="M15 15l3.5 3.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
+            </svg>
+            <input
+              ref={inputRef}
+              type="text"
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              placeholder="Search by username…"
+              className="flex-1 bg-transparent border-none focus:outline-none text-sm text-text-primary placeholder-text-subtle"
+            />
+            {searching && (
+              <svg width="13" height="13" viewBox="0 0 24 24" className="animate-spin flex-shrink-0 text-text-subtle" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.5" opacity="0.25"/>
+                <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+              </svg>
+            )}
+          </div>
+
+          {/* Results */}
+          {results.length > 0 ? (
+            <div className="py-1">
+              {results.map(u => (
+                <button
+                  key={u.id}
+                  onClick={() => goToProfile(u.username)}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-white/[0.04] transition-colors text-left"
+                >
+                  <Avatar username={u.username} color={u.avatar_color} size="sm" />
+                  <span className="text-sm font-medium text-text-primary">@{u.username}</span>
+                </button>
+              ))}
+            </div>
+          ) : query.trim() && !searching ? (
+            <p className="px-4 py-4 text-xs text-text-muted text-center">No users found</p>
+          ) : !query.trim() ? (
+            <p className="px-4 py-4 text-xs text-text-subtle text-center">Type a username to search</p>
+          ) : null}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export const Navbar: React.FC = () => {
   const { profile, signOut } = useAuthStore();
@@ -106,6 +227,9 @@ export const Navbar: React.FC = () => {
             </NavLink>
           ))}
         </div>
+
+        {/* Search */}
+        <NavSearch />
 
         {/* User menu */}
         {profile && (

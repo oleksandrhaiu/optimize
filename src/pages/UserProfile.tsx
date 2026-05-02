@@ -40,7 +40,7 @@ export const UserProfilePage: React.FC = () => {
       const { data: profileData } = await supabase
         .from('users')
         .select('*')
-        .eq('username', username.toLowerCase())
+        .ilike('username', username)
         .maybeSingle();
 
       if (!profileData) { setNotFound(true); setLoading(false); return; }

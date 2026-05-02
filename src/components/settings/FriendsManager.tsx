@@ -54,7 +54,7 @@ export const FriendsManager: React.FC<Props> = ({ friends, onRemove, onRefetch }
   // ── Search ──────────────────────────────────────────────────
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    const q = searchQuery.trim().toLowerCase().replace(/^@/, '');
+    const q = searchQuery.trim().replace(/^@/, '');
     if (!q) return;
     setSearching(true);
     setSearchResult(null);
@@ -63,7 +63,7 @@ export const FriendsManager: React.FC<Props> = ({ friends, onRemove, onRefetch }
     const { data } = await supabase
       .from('users')
       .select('*')
-      .eq('username', q)
+      .ilike('username', q)
       .maybeSingle();
 
     setSearching(false);

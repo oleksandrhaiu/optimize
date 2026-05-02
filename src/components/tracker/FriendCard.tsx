@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Avatar } from '@/components/ui/Avatar';
 import { ScorePill } from './ScorePill';
 import { Sparkline } from './Sparkline';
@@ -17,6 +18,7 @@ export const FriendCard: React.FC<FriendCardProps> = ({
   isOnline = false,
   lastSeen,
 }) => {
+  const navigate = useNavigate();
   const { profile, habits, logs, todayScore, weekScores } = friend;
   const today = todayStr();
   const avgWeek = weekScores.length > 0
@@ -30,7 +32,10 @@ export const FriendCard: React.FC<FriendCardProps> = ({
   const presenceColor = isOnline ? 'text-accent-green' : 'text-text-subtle';
 
   return (
-    <div className="bg-card border border-border rounded-2xl p-4 flex flex-col gap-3 min-w-[200px] max-w-[240px] flex-shrink-0 shadow-card">
+    <div
+      onClick={() => navigate(`/u/${profile.username}`)}
+      className="bg-card border border-border rounded-2xl p-4 flex flex-col gap-3 min-w-[200px] max-w-[240px] flex-shrink-0 shadow-card cursor-pointer hover:border-border/80 hover:bg-card/80 transition-all duration-150 group"
+    >
       {/* Header */}
       <div className="flex items-center gap-2.5">
         <div className="relative flex-shrink-0">
@@ -41,7 +46,7 @@ export const FriendCard: React.FC<FriendCardProps> = ({
           )} />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="font-heading font-semibold text-text-primary text-sm truncate">
+          <p className="font-heading font-semibold text-text-primary text-sm truncate group-hover:text-accent-green transition-colors">
             @{profile.username}
           </p>
           <div className="flex items-center gap-1.5 mt-0.5">
