@@ -25,7 +25,7 @@ export const Tracker: React.FC = () => {
   const [historyHabit, setHistoryHabit] = useState<Habit | null>(null);
 
   const { habits, loading: habitsLoading } = useHabits(userId);
-  const { logs, setLog, setNote } = useHabitLogs(userId, monthYear.year, monthYear.month);
+  const { logs, loading: logsLoading, setLog, setNote } = useHabitLogs(userId, monthYear.year, monthYear.month);
   const { friends, loading: friendsLoading, updateFriendLog } = useFriends(userId);
 
   useRealtimeSync({ friendIds: friends.map(f => f.profile.id), onLogChange: updateFriendLog });
@@ -44,6 +44,8 @@ export const Tracker: React.FC = () => {
   const isFirstRun = useRef(true);
 
   useEffect(() => {
+    if (habitsLoading || logsLoading) return;
+
     if (isFirstRun.current) {
       prevScoreRef.current = todayScore;
       isFirstRun.current = false;
@@ -55,7 +57,7 @@ export const Tracker: React.FC = () => {
       setTimeout(() => setCelebrate(false), 4000);
     }
     prevScoreRef.current = todayScore;
-  }, [todayScore, habits.length]);
+  }, [todayScore, habits.length, habitsLoading, logsLoading]);
 
   const handleToggle = async (habitId: string, date: string, value: string) => {
     await setLog(habitId, date, value);
