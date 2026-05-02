@@ -9,7 +9,7 @@ export default {
         'card-hover': '#1C1E28',
         border: '#2A2C3A',
         'border-subtle': '#1F2130',
-        'accent': 'var(--color-accent)',
+        'accent': 'rgb(var(--color-accent) / <alpha-value>)',
         blue: '#4B9EFF',
         amber: '#F5A623',
         red: '#FF5F5F',

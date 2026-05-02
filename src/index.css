@@ -16,22 +16,22 @@
     --color-muted: #8B8FA8;
     
     /* Default Green Theme */
-    --color-accent: #00C896;
+    --color-accent: 0 200 150;
     --color-accent-glow: rgba(0, 200, 150, 0.12);
   }
 
   html[data-theme="blue"] {
-    --color-accent: #4B9EFF;
+    --color-accent: 75 158 255;
     --color-accent-glow: rgba(75, 158, 255, 0.12);
   }
 
   html[data-theme="purple"] {
-    --color-accent: #B055FF;
+    --color-accent: 176 85 255;
     --color-accent-glow: rgba(176, 85, 255, 0.12);
   }
 
   html[data-theme="orange"] {
-    --color-accent: #FF7B00;
+    --color-accent: 255 123 0;
     --color-accent-glow: rgba(255, 123, 0, 0.12);
   }
 
@@ -182,7 +182,7 @@
     font-family: 'Syne', sans-serif;
   }
   .text-gradient-accent {
-    background: linear-gradient(135deg, var(--color-accent), #4B9EFF);
+    background: linear-gradient(135deg, rgb(var(--color-accent)), #4B9EFF);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
