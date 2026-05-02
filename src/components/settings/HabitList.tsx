@@ -12,37 +12,24 @@ import { Button } from '@/components/ui/Button';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 import type { Habit } from '@/types';
 
-/* ── Units by type ───────────────────────────────────────────── */
-export const UNIT_OPTIONS: Record<string, Array<{ value: string; label: string }>> = {
-  water:    [{ value: 'glasses', label: 'Glasses' }, { value: 'ml', label: 'ml' }, { value: 'L', label: 'Liters' }, { value: 'oz', label: 'oz' }],
-  sleep:    [{ value: 'hrs', label: 'Hours' }, { value: 'min', label: 'Minutes' }],
-  running:  [{ value: 'km', label: 'km' }, { value: 'mi', label: 'Miles' }, { value: 'min', label: 'Minutes' }],
-  steps:    [{ value: 'k steps', label: 'K steps' }, { value: 'steps', label: 'Steps' }],
-  reading:  [{ value: 'pages', label: 'Pages' }, { value: 'min', label: 'Minutes' }, { value: 'chapters', label: 'Chapters' }],
-  calories: [{ value: 'kcal', label: 'kcal' }, { value: 'cal', label: 'cal' }],
-  mood:     [{ value: '/ 10', label: 'Out of 10' }, { value: '/ 5', label: 'Out of 5' }],
-  weight:   [{ value: 'kg', label: 'kg' }, { value: 'lbs', label: 'lbs' }],
-  generic:  [{ value: 'reps', label: 'Reps' }, { value: 'sets', label: 'Sets' }, { value: 'min', label: 'Minutes' }, { value: 'hrs', label: 'Hours' }, { value: 'items', label: 'Items' }],
-};
-
 /* ── Quick-start templates ───────────────────────────────────── */
 const TEMPLATES: Array<{
   icon: string; name: string; type: 'checkbox' | 'numeric';
-  group?: string;
+  unit?: string;
   is_calorie_habit?: boolean; cal_min?: number; cal_max?: number;
 }> = [
-  { icon: '🏋️', name: 'Workout', type: 'checkbox' },
+  { icon: '🏋️', name: 'Workout',  type: 'checkbox' },
   { icon: '🧘', name: 'Meditation', type: 'checkbox' },
   { icon: '🥗', name: 'Ate healthy', type: 'checkbox' },
-  { icon: '📖', name: 'Reading', type: 'numeric', group: 'pages' },
-  { icon: '💧', name: 'Water', type: 'numeric', group: 'glasses' },
-  { icon: '🔥', name: 'Calories', type: 'numeric', group: 'kcal', is_calorie_habit: true, cal_min: 1700, cal_max: 2300 },
-  { icon: '🏃', name: 'Running', type: 'numeric', group: 'km' },
-  { icon: '😴', name: 'Sleep', type: 'numeric', group: 'hrs' },
-  { icon: '🚶', name: 'Steps', type: 'numeric', group: 'k steps' },
-  { icon: '💊', name: 'Vitamins', type: 'checkbox' },
-  { icon: '😊', name: 'Mood', type: 'numeric', group: '/ 10' },
-  { icon: '⚖️', name: 'Weight', type: 'numeric', group: 'kg' },
+  { icon: '📖', name: 'Reading',   type: 'numeric', unit: 'pages' },
+  { icon: '💧', name: 'Water',     type: 'numeric', unit: 'glasses' },
+  { icon: '🔥', name: 'Calories',  type: 'numeric', unit: 'kcal', is_calorie_habit: true, cal_min: 1700, cal_max: 2300 },
+  { icon: '🏃', name: 'Running',   type: 'numeric', unit: 'km' },
+  { icon: '😴', name: 'Sleep',     type: 'numeric', unit: 'hrs' },
+  { icon: '🚶', name: 'Steps',     type: 'numeric', unit: 'k steps' },
+  { icon: '💊', name: 'Vitamins',  type: 'checkbox' },
+  { icon: '😊', name: 'Mood',      type: 'numeric', unit: '/ 10' },
+  { icon: '⚖️', name: 'Weight',   type: 'numeric', unit: 'kg' },
 ];
 
 const TYPE_OPTIONS = [
@@ -114,9 +101,7 @@ export const HabitList: React.FC<HabitListProps> = ({
           />
         </div>
         <div className="flex gap-2 flex-wrap">
-          <Button type="submit" disabled={!newName.trim()}>
-            + Add Habit
-          </Button>
+          <Button type="submit" disabled={!newName.trim()}>+ Add Habit</Button>
           <button
             type="button"
             onClick={() => setShowTemplates(v => !v)}
@@ -142,7 +127,7 @@ export const HabitList: React.FC<HabitListProps> = ({
                 <span className="text-xl leading-none">{tpl.icon}</span>
                 <div className="min-w-0">
                   <p className="text-xs font-medium text-text-primary truncate">{tpl.name}</p>
-                  <p className="text-[10px] text-text-subtle">{tpl.group ? `${tpl.type} · ${tpl.group}` : tpl.type}</p>
+                  <p className="text-[10px] text-text-subtle">{tpl.unit ? `${tpl.type} · ${tpl.unit}` : tpl.type}</p>
                 </div>
               </button>
             ))}
@@ -162,7 +147,7 @@ export const HabitList: React.FC<HabitListProps> = ({
             {habits.length === 0 && (
               <div className="text-center py-10 text-text-muted">
                 <p className="text-2xl mb-2">📋</p>
-                <p className="text-sm">No habits yet. Use templates above or add your own!</p>
+                <p className="text-sm">No habits yet. Use templates or add your own!</p>
               </div>
             )}
           </div>

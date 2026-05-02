@@ -9,7 +9,7 @@ import { todayStr, clx } from '@/lib/utils';
 interface FriendCardProps {
   friend: FriendWithData;
   isOnline?: boolean;
-  lastSeen?: Date;
+  lastSeen?: Date;         // in-session leave time
 }
 
 export const FriendCard: React.FC<FriendCardProps> = ({
@@ -25,7 +25,7 @@ export const FriendCard: React.FC<FriendCardProps> = ({
 
   const presenceLabel = isOnline
     ? '● online now'
-    : formatLastSeen(lastSeen);
+    : formatLastSeen(lastSeen, profile.last_seen_at);
 
   const presenceColor = isOnline ? 'text-accent-green' : 'text-text-subtle';
 

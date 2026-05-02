@@ -95,7 +95,7 @@ export interface Database {
           cal_max: number | null
           cal_min: number | null
           created_at: string
-          group: string | null
+          unit: string | null
           icon: string | null
           id: string
           is_calorie_habit: boolean
@@ -108,7 +108,7 @@ export interface Database {
           cal_max?: number | null
           cal_min?: number | null
           created_at?: string
-          group?: string | null
+          unit?: string | null
           icon?: string | null
           id?: string
           is_calorie_habit?: boolean
@@ -121,7 +121,7 @@ export interface Database {
           cal_max?: number | null
           cal_min?: number | null
           created_at?: string
-          group?: string | null
+          unit?: string | null
           icon?: string | null
           id?: string
           is_calorie_habit?: boolean
@@ -178,6 +178,7 @@ export interface Database {
           created_at: string
           email: string
           id: string
+          last_seen_at: string | null
           username: string
         }
         Insert: {
@@ -185,6 +186,7 @@ export interface Database {
           created_at?: string
           email: string
           id: string
+          last_seen_at?: string | null
           username: string
         }
         Update: {
@@ -192,6 +194,7 @@ export interface Database {
           created_at?: string
           email?: string
           id?: string
+          last_seen_at?: string | null
           username?: string
         }
         Relationships: [

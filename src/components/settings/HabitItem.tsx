@@ -98,7 +98,7 @@ interface HabitItemProps {
 }
 
 export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete }) => {
-  const [showUnitPicker, setShowUnitPicker] = useState(!!habit.group);
+  const [showUnitPicker, setShowUnitPicker] = useState(!!habit.unit);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const {
@@ -108,7 +108,7 @@ export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete 
   const style = { transform: CSS.Transform.toString(transform), transition };
 
   const handleUnitChange = (v: string) => {
-    onUpdate(habit.id, { group: v || null });
+    onUpdate(habit.id, { unit: v || null });
     if (!v) setShowUnitPicker(false);
   };
 
@@ -171,7 +171,7 @@ export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete 
           <>
             {showUnitPicker ? (
               <CustomSelect
-                value={habit.group ?? ''}
+                value={habit.unit ?? ''}
                 onChange={handleUnitChange}
                 options={ALL_UNITS}
                 className="w-28 flex-shrink-0"
@@ -255,7 +255,7 @@ export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete 
             onChange={e => onUpdate(habit.id, { cal_max: e.target.value ? parseFloat(e.target.value) : null })}
             className="input-base py-1 px-2 text-xs w-20 text-center font-mono-nums"
           />
-          <span className="text-xs text-text-muted">{habit.group || 'kcal'}</span>
+          <span className="text-xs text-text-muted">{habit.unit || 'kcal'}</span>
           {habit.cal_min && habit.cal_max && (
             <span className="text-[10px] text-text-subtle ml-auto">
               ±{Math.round((habit.cal_max - habit.cal_min) / 2)} buffer

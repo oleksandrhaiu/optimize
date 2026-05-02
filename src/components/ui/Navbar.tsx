@@ -32,8 +32,10 @@ const NAV_ITEMS = [
     label: 'Settings',
     icon: (
       <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-        <circle cx="8" cy="8" r="2.5" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M8 1.5v1M8 13.5v1M1.5 8h1M13.5 8h1M3.05 3.05l.71.71M12.24 12.24l.71.71M12.24 3.76l-.71.71M3.76 12.24l-.71.71" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <circle cx="5" cy="4" r="1.5" fill="currentColor" />
+        <circle cx="11" cy="8" r="1.5" fill="currentColor" />
+        <circle cx="8" cy="12" r="1.5" fill="currentColor" />
       </svg>
     ),
   },

@@ -5,6 +5,7 @@ export interface UserProfile {
   username: string;
   email: string;
   avatar_color: string;
+  last_seen_at: string | null;
   created_at: string;
 }
 
@@ -13,7 +14,7 @@ export interface Habit {
   user_id: string;
   name: string;
   type: 'checkbox' | 'numeric';
-  group: string | null;   // repurposed as unit for numeric habits (e.g. 'ml', 'glasses', 'hrs')
+  unit: string | null;          // e.g. 'glasses', 'km', 'kcal', 'hrs'
   icon: string | null;
   order: number;
   cal_min: number | null;

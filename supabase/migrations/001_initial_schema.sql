@@ -1,9 +1,10 @@
 -- ============================================================
--- Habit Tracker – Initial Schema
--- Run this in your Supabase SQL Editor (Dashboard > SQL Editor)
+-- Habit Tracker – Full Schema (v2)
+-- Run this in your Supabase SQL Editor
+-- Drop old tables first if you're starting fresh:
+-- DROP SCHEMA public CASCADE; CREATE SCHEMA public;
 -- ============================================================
 
--- Enable UUID extension
 create extension if not exists "pgcrypto";
 
 -- ─── users ────────────────────────────────────────────────────────────────────
@@ -12,6 +13,7 @@ create table if not exists public.users (
   username      text not null unique,
   email         text not null,
   avatar_color  text not null default '#00C896',
+  last_seen_at  timestamptz,                          -- for "last seen X ago"
   created_at    timestamptz not null default now()
 );
 
@@ -21,7 +23,7 @@ create table if not exists public.habits (
   user_id           uuid not null references public.users(id) on delete cascade,
   name              text not null,
   type              text not null check (type in ('checkbox', 'numeric')),
-  "group"           text,
+  unit              text,                             -- e.g. 'glasses', 'km', 'kcal'
   icon              text,
   "order"           integer not null default 0,
   cal_min           numeric,
@@ -78,7 +80,7 @@ alter table public.habit_logs    enable row level security;
 alter table public.friendships   enable row level security;
 alter table public.invite_tokens enable row level security;
 
--- ─── Helper: is_friend(user_a, user_b) ───────────────────────────────────────
+-- ─── Helper: are_friends(uid_a, uid_b) ───────────────────────────────────────
 create or replace function public.are_friends(uid_a uuid, uid_b uuid)
 returns boolean language sql security definer as $$
   select exists (
@@ -90,7 +92,6 @@ returns boolean language sql security definer as $$
 $$;
 
 -- ─── users RLS ────────────────────────────────────────────────────────────────
--- Anyone authenticated can read profiles (needed for friend cards)
 create policy "Users: read any" on public.users
   for select using (auth.uid() is not null);
 
@@ -153,7 +154,8 @@ create policy "Tokens: update any" on public.invite_tokens
   for update using (auth.uid() is not null);
 
 -- ============================================================
--- Realtime – enable for habit_logs
+-- Realtime
 -- ============================================================
 alter publication supabase_realtime add table public.habit_logs;
 alter publication supabase_realtime add table public.habits;
+alter publication supabase_realtime add table public.users;

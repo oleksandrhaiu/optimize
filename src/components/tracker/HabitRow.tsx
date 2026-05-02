@@ -26,7 +26,7 @@ export const HabitRow: React.FC<HabitRowProps> = ({ habit, date, log, onToggle, 
   };
 
   // step based on unit
-  const unit = habit.group ?? undefined;
+  const unit = habit.unit ?? undefined;
   const step = unit === 'ml' ? 50 : unit === 'L' ? 0.1 : unit === 'km' || unit === 'mi' ? 0.1 : 1;
 
   return (
