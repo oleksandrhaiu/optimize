@@ -37,7 +37,7 @@ export const HabitRow: React.FC<HabitRowProps> = ({
   return (
     <div className="group">
       <div className={clx(
-        'flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl transition-colors',
+        'flex items-center justify-between gap-3 px-3 py-3.5 sm:py-2.5 rounded-xl transition-colors',
         !readOnly && 'hover:bg-white/[0.03]',
       )}>
         {/* Left: icon + name */}
@@ -67,8 +67,8 @@ export const HabitRow: React.FC<HabitRowProps> = ({
               onClick={() => setShowNote(v => !v)}
               title={log?.note ? 'Edit note' : 'Add note'}
               className={clx(
-                'opacity-0 group-hover:opacity-100 w-5 h-5 flex items-center justify-center rounded transition-all',
-                showNote || log?.note ? 'opacity-100 text-accent-green' : 'text-text-subtle hover:text-text-muted',
+                'sm:opacity-0 group-hover:opacity-100 opacity-100 w-8 h-8 sm:w-5 sm:h-5 flex items-center justify-center rounded transition-all',
+                showNote || log?.note ? 'sm:opacity-100 text-accent-green' : 'text-text-subtle hover:text-text-muted',
               )}
             >
               <svg width="12" height="12" viewBox="0 0 14 14" fill="none">

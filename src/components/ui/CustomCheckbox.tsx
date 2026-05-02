@@ -25,7 +25,7 @@ export const CustomCheckbox: React.FC<CustomCheckboxProps> = ({
     }
   };
 
-  const sizeClass = size === 'sm' ? 'w-5 h-5' : 'w-6 h-6';
+  const sizeClass = size === 'sm' ? 'w-7 h-7 sm:w-5 sm:h-5' : 'w-8 h-8 sm:w-6 sm:h-6';
 
   return (
     <div
@@ -49,9 +49,7 @@ export const CustomCheckbox: React.FC<CustomCheckboxProps> = ({
     >
       {checked && (
         <svg
-          className="text-accent-green"
-          width={size === 'sm' ? 10 : 12}
-          height={size === 'sm' ? 10 : 12}
+          className={clx('text-accent-green', size === 'sm' ? 'w-3.5 h-3.5 sm:w-2.5 sm:h-2.5' : 'w-4 h-4 sm:w-3 sm:h-3')}
           viewBox="0 0 12 12"
           fill="none"
         >

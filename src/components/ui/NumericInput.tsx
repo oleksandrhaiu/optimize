@@ -77,7 +77,7 @@ export const NumericInput: React.FC<NumericInputProps> = ({
           type="button"
           onClick={decrement}
           disabled={disabled}
-          className="w-6 h-6 flex items-center justify-center text-text-subtle hover:text-text-primary transition-colors disabled:cursor-not-allowed rounded-l-lg hover:bg-white/[0.04]"
+          className="w-10 h-10 sm:w-6 sm:h-6 flex items-center justify-center text-text-subtle hover:text-text-primary transition-colors disabled:cursor-not-allowed rounded-l-lg hover:bg-white/[0.04]"
         >
           <svg width="8" height="2" viewBox="0 0 8 2" fill="none">
             <path d="M1 1h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -92,7 +92,7 @@ export const NumericInput: React.FC<NumericInputProps> = ({
           placeholder={placeholder}
           min={0}
           className={clx(
-            'w-10 bg-transparent border-none text-center text-xs font-mono py-1 focus:outline-none',
+            'w-14 sm:w-10 bg-transparent border-none text-center text-sm sm:text-xs font-mono py-2 sm:py-1 focus:outline-none',
             zoneText[zone],
             'placeholder-text-muted',
             '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
@@ -103,7 +103,7 @@ export const NumericInput: React.FC<NumericInputProps> = ({
           type="button"
           onClick={increment}
           disabled={disabled}
-          className="w-6 h-6 flex items-center justify-center text-text-subtle hover:text-text-primary transition-colors disabled:cursor-not-allowed rounded-r-lg hover:bg-white/[0.04]"
+          className="w-10 h-10 sm:w-6 sm:h-6 flex items-center justify-center text-text-subtle hover:text-text-primary transition-colors disabled:cursor-not-allowed rounded-r-lg hover:bg-white/[0.04]"
         >
           <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
             <path d="M4 1v6M1 4h6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
