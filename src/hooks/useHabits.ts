@@ -26,14 +26,7 @@ export function useHabits(userId: string | undefined) {
 
     if (error) { setError(error.message); setLoading(false); return; }
 
-    // Seed default habits for new users
-    if (!data || data.length === 0) {
-      const inserts = DEFAULT_HABITS.map(h => ({ ...h, user_id: userId }));
-      const { data: seeded } = await supabase.from('habits').insert(inserts).select();
-      setHabits((seeded as Habit[]) ?? []);
-    } else {
-      setHabits(data as Habit[]);
-    }
+    setHabits(data as Habit[] ?? []);
     setLoading(false);
   }, [userId]);
 
