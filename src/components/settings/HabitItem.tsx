@@ -3,6 +3,33 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { clx } from '@/lib/utils';
 import type { Habit } from '@/types';
+import { UNIT_OPTIONS } from './HabitList';
+import { CustomSelect } from '@/components/ui/CustomSelect';
+
+const ALL_UNITS = [
+  { value: '',         label: 'No unit' },
+  { value: 'glasses',  label: 'Glasses' },
+  { value: 'ml',       label: 'ml' },
+  { value: 'L',        label: 'Liters' },
+  { value: 'oz',       label: 'oz' },
+  { value: 'hrs',      label: 'Hours' },
+  { value: 'min',      label: 'Minutes' },
+  { value: 'km',       label: 'km' },
+  { value: 'mi',       label: 'Miles' },
+  { value: 'k steps',  label: 'K steps' },
+  { value: 'steps',    label: 'Steps' },
+  { value: 'pages',    label: 'Pages' },
+  { value: 'chapters', label: 'Chapters' },
+  { value: 'kcal',     label: 'kcal' },
+  { value: 'cal',      label: 'cal' },
+  { value: '/ 10',     label: 'Out of 10' },
+  { value: '/ 5',      label: 'Out of 5' },
+  { value: 'kg',       label: 'kg' },
+  { value: 'lbs',      label: 'lbs' },
+  { value: 'reps',     label: 'Reps' },
+  { value: 'sets',     label: 'Sets' },
+  { value: 'items',    label: 'Items' },
+];
 
 interface HabitItemProps {
   habit: Habit;
@@ -11,9 +38,6 @@ interface HabitItemProps {
 }
 
 export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete }) => {
-  const [showCalorie, setShowCalorie] = useState(
-    habit.is_calorie_habit && (habit.cal_min !== null || habit.cal_max !== null),
-  );
   const {
     attributes, listeners, setNodeRef, transform, transition, isDragging,
   } = useSortable({ id: habit.id });
@@ -49,41 +73,43 @@ export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete 
 
         {/* Icon */}
         {habit.icon && (
-          <span className="text-lg leading-normal flex-shrink-0">{habit.icon}</span>
+          <span className="text-xl leading-normal flex-shrink-0">{habit.icon}</span>
         )}
 
         {/* Name */}
         <input
           value={habit.name}
-          onChange={(e) => onUpdate(habit.id, { name: e.target.value })}
+          onChange={e => onUpdate(habit.id, { name: e.target.value })}
           className="bg-transparent border-none focus:outline-none text-text-primary text-sm flex-1 min-w-0 placeholder-text-muted"
           placeholder="Habit name"
         />
 
+        {/* Unit selector (numeric only) */}
+        {habit.type === 'numeric' && (
+          <CustomSelect
+            value={habit.group ?? ''}
+            onChange={v => onUpdate(habit.id, { group: v || null })}
+            options={ALL_UNITS}
+            className="w-28 flex-shrink-0 text-xs"
+          />
+        )}
+
         {/* Type badge */}
         <span className={clx(
           'text-[10px] font-medium px-2 py-0.5 rounded-full flex-shrink-0',
-          habit.type === 'checkbox'
-            ? 'bg-blue/10 text-blue'
-            : 'bg-amber/10 text-amber',
+          habit.type === 'checkbox' ? 'bg-blue/10 text-blue' : 'bg-amber/10 text-amber',
         )}>
-          {habit.type === 'checkbox' ? '☑ check' : '# numeric'}
+          {habit.type === 'checkbox' ? '☑' : '#'}
         </span>
 
-        {/* Calorie toggle (only for numeric) */}
+        {/* Calorie toggle (numeric only) */}
         {habit.type === 'numeric' && (
           <button
-            onClick={() => {
-              const next = !habit.is_calorie_habit;
-              onUpdate(habit.id, { is_calorie_habit: next });
-              setShowCalorie(next);
-            }}
-            title={habit.is_calorie_habit ? 'Calorie tracking ON' : 'Enable calorie tracking'}
+            onClick={() => onUpdate(habit.id, { is_calorie_habit: !habit.is_calorie_habit })}
+            title={habit.is_calorie_habit ? 'Calorie tracking ON — click to disable' : 'Enable calorie tracking'}
             className={clx(
-              'flex-shrink-0 px-1.5 py-0.5 rounded-lg text-[10px] font-medium transition-colors',
-              habit.is_calorie_habit
-                ? 'bg-accent-green/15 text-accent-green'
-                : 'text-text-subtle hover:text-text-muted',
+              'flex-shrink-0 p-1 rounded-lg text-base transition-colors',
+              habit.is_calorie_habit ? 'text-amber' : 'text-text-subtle hover:text-text-muted',
             )}
           >
             🔥
@@ -104,33 +130,29 @@ export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete 
 
       {/* Calorie target sub-row */}
       {habit.is_calorie_habit && (
-        <div className="flex items-center gap-3 px-3 pb-2.5 border-t border-border/30 pt-2 mt-0.5">
-          <span className="text-xs text-text-muted flex-shrink-0">Target range:</span>
-          <div className="flex items-center gap-1.5 flex-1">
-            <input
-              type="number"
-              placeholder="Min"
-              value={habit.cal_min ?? ''}
-              onChange={e => onUpdate(habit.id, { cal_min: e.target.value ? parseFloat(e.target.value) : null })}
-              className="input-base py-1 px-2 text-xs w-20 text-center font-mono-nums"
-              min={0}
-            />
-            <span className="text-text-subtle text-xs">–</span>
-            <input
-              type="number"
-              placeholder="Max"
-              value={habit.cal_max ?? ''}
-              onChange={e => onUpdate(habit.id, { cal_max: e.target.value ? parseFloat(e.target.value) : null })}
-              className="input-base py-1 px-2 text-xs w-20 text-center font-mono-nums"
-              min={0}
-            />
-            <span className="text-xs text-text-muted">kcal</span>
-          </div>
-          <div className="flex-shrink-0 text-[10px] text-text-subtle">
-            {habit.cal_min && habit.cal_max
-              ? `±${Math.round(((habit.cal_max - habit.cal_min) / 2))} kcal buffer`
-              : 'Set range'}
-          </div>
+        <div className="flex items-center gap-3 px-3 pb-2.5 border-t border-border/30 pt-2">
+          <span className="text-xs text-text-muted flex-shrink-0">🎯 Target range:</span>
+          <input
+            type="number"
+            placeholder="Min"
+            value={habit.cal_min ?? ''}
+            onChange={e => onUpdate(habit.id, { cal_min: e.target.value ? parseFloat(e.target.value) : null })}
+            className="input-base py-1 px-2 text-xs w-20 text-center font-mono-nums"
+          />
+          <span className="text-text-subtle text-xs">–</span>
+          <input
+            type="number"
+            placeholder="Max"
+            value={habit.cal_max ?? ''}
+            onChange={e => onUpdate(habit.id, { cal_max: e.target.value ? parseFloat(e.target.value) : null })}
+            className="input-base py-1 px-2 text-xs w-20 text-center font-mono-nums"
+          />
+          <span className="text-xs text-text-muted">{habit.group || 'kcal'}</span>
+          {habit.cal_min && habit.cal_max && (
+            <span className="text-[10px] text-text-subtle ml-auto">
+              ±{Math.round((habit.cal_max - habit.cal_min) / 2)} buffer
+            </span>
+          )}
         </div>
       )}
     </div>

@@ -25,24 +25,28 @@ export const HabitRow: React.FC<HabitRowProps> = ({ habit, date, log, onToggle, 
     onToggle(habit.id, date, String(value));
   };
 
+  // step based on unit
+  const unit = habit.group ?? undefined;
+  const step = unit === 'ml' ? 50 : unit === 'L' ? 0.1 : unit === 'km' || unit === 'mi' ? 0.1 : 1;
+
   return (
     <div
       className={clx(
-        'flex items-center justify-between gap-3 px-3 py-2 rounded-xl transition-colors',
-        !readOnly && 'hover:bg-white/[0.02]',
+        'flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl transition-colors',
+        !readOnly && 'hover:bg-white/[0.03]',
       )}
     >
       {/* Left: icon + name */}
-      <div className="flex items-center gap-2 min-w-0">
-        {habit.icon && <span className="text-lg leading-normal flex-shrink-0">{habit.icon}</span>}
-        <span
-          className={clx(
-            'text-sm truncate',
-            readOnly ? 'text-text-muted' : 'text-text-primary',
-          )}
-        >
+      <div className="flex items-center gap-2.5 min-w-0">
+        {habit.icon && (
+          <span className="text-lg leading-normal flex-shrink-0">{habit.icon}</span>
+        )}
+        <span className={clx('text-sm truncate', readOnly ? 'text-text-muted' : 'text-text-primary')}>
           {habit.name}
         </span>
+        {habit.type === 'numeric' && unit && (
+          <span className="text-[10px] text-text-subtle flex-shrink-0">{unit}</span>
+        )}
       </div>
 
       {/* Right: control */}
@@ -56,6 +60,8 @@ export const HabitRow: React.FC<HabitRowProps> = ({ habit, date, log, onToggle, 
             calMin={habit.cal_min}
             calMax={habit.cal_max}
             disabled={readOnly}
+            unit={unit}
+            step={step}
           />
         )}
       </div>

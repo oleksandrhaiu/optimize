@@ -3,6 +3,7 @@ import { Navbar } from '@/components/ui/Navbar';
 import { MyHabitsColumn } from '@/components/tracker/MyHabitsColumn';
 import { FriendCard } from '@/components/tracker/FriendCard';
 import { MonthNav } from '@/components/tracker/MonthNav';
+import { Sparkline } from '@/components/tracker/Sparkline';
 import { Skeleton } from '@/components/ui/LoadingSpinner';
 import { useAuthStore } from '@/store/authStore';
 import { useHabits } from '@/hooks/useHabits';
@@ -10,7 +11,7 @@ import { useHabitLogs } from '@/hooks/useHabitLogs';
 import { useFriends } from '@/hooks/useFriends';
 import { useRealtimeSync } from '@/hooks/useRealtimeSync';
 import { usePresence } from '@/hooks/usePresence';
-import { currentMonthYear } from '@/lib/utils';
+import { currentMonthYear, calcWeekScores, calcDayScore, todayStr, dateKey, getDaysArray } from '@/lib/utils';
 import type { MonthYear } from '@/types';
 
 export const Tracker: React.FC = () => {
@@ -24,7 +25,6 @@ export const Tracker: React.FC = () => {
   const { logs, setLog } = useHabitLogs(userId, monthYear.year, monthYear.month);
   const { friends, loading: friendsLoading, updateFriendLog } = useFriends(userId);
 
-  // Realtime: sync friend logs + presence
   useRealtimeSync({ friendIds: friends.map(f => f.profile.id), onLogChange: updateFriendLog });
   const onlineIds = usePresence(userId, friends.map(f => f.profile.id));
 
@@ -48,7 +48,33 @@ export const Tracker: React.FC = () => {
     setSelectedDay(1);
   };
 
+  // Stats for the right panel
+  const today = todayStr();
+  const weekScores = calcWeekScores(habits, logs);
+  const todayScore = calcDayScore(habits, logs, today);
+  const avgWeek = weekScores.length > 0
+    ? Math.round(weekScores.reduce((a, b) => a + b, 0) / weekScores.length)
+    : 0;
+
+  // Streak calculation
+  const days = getDaysArray(monthYear.month, monthYear.year);
+  const greenDays = days.filter(d => {
+    const s = calcDayScore(habits, logs, dateKey(monthYear.year, monthYear.month, d));
+    return s >= 80;
+  }).length;
+
+  // Completion for selected habits today
+  const completedToday = habits.filter(h => {
+    const log = logs.find(l => l.habit_id === h.id && l.date === today);
+    if (!log) return false;
+    return h.type === 'checkbox' ? log.value === 'true' : parseFloat(log.value) > 0;
+  }).length;
+
   const onlineFriends = friends.filter(f => onlineIds.has(f.profile.id)).length;
+
+  const scoreColor =
+    todayScore >= 80 ? 'text-accent-green' :
+    todayScore >= 50 ? 'text-amber' : 'text-red';
 
   return (
     <div className="min-h-screen bg-bg">
@@ -68,7 +94,7 @@ export const Tracker: React.FC = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6">
 
-          {/* My habits */}
+          {/* My habits column */}
           {habitsLoading ? (
             <div className="flex flex-col gap-3">
               <Skeleton className="h-64 rounded-2xl" />
@@ -88,55 +114,118 @@ export const Tracker: React.FC = () => {
             </div>
           )}
 
-          {/* Friends */}
+          {/* Right column */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="font-heading font-semibold text-text-primary">
-                Friends
-                {!friendsLoading && (
-                  <span className="ml-2 font-mono text-sm text-text-muted font-normal">
-                    ({friends.length})
-                  </span>
-                )}
-              </h2>
-              <div className="flex items-center gap-3">
-                {onlineFriends > 0 && (
-                  <span className="text-xs text-accent-green font-medium">
-                    {onlineFriends} online
-                  </span>
-                )}
-                <span className="flex items-center gap-1.5 text-xs text-text-muted">
-                  <span className="w-1.5 h-1.5 rounded-full bg-accent-green animate-pulse-soft" />
-                  Live
-                </span>
-              </div>
-            </div>
 
-            {friendsLoading ? (
-              <div className="flex gap-4">
-                {[1, 2].map(i => (
-                  <Skeleton key={i} className="h-52 rounded-2xl min-w-[200px]" />
-                ))}
-              </div>
-            ) : friends.length === 0 ? (
-              <div className="border border-dashed border-border/60 rounded-2xl p-10 text-center space-y-2">
-                <p className="text-3xl">👥</p>
-                <p className="font-heading font-medium text-text-primary">No friends yet</p>
-                <p className="text-text-muted text-sm">
-                  Go to Settings → Friends to generate an invite link.
-                </p>
-              </div>
-            ) : (
-              <div className="flex gap-4 overflow-x-auto pb-2 flex-wrap animate-fade-in">
-                {friends.map(friend => (
-                  <FriendCard
-                    key={friend.profile.id}
-                    friend={friend}
-                    isOnline={onlineIds.has(friend.profile.id)}
-                  />
-                ))}
+            {/* Today's summary cards */}
+            {!habitsLoading && (
+              <div className="grid grid-cols-3 gap-3 animate-fade-in">
+                {/* Today's score */}
+                <div className="bg-card border border-border rounded-2xl p-4 shadow-card">
+                  <p className="text-xs text-text-muted mb-1">Today</p>
+                  <p className={`font-heading text-2xl font-bold ${scoreColor}`}>{todayScore}%</p>
+                  <p className="text-[10px] text-text-subtle mt-1">
+                    {completedToday}/{habits.length} done
+                  </p>
+                </div>
+
+                {/* Weekly avg */}
+                <div className="bg-card border border-border rounded-2xl p-4 shadow-card">
+                  <p className="text-xs text-text-muted mb-1">This week</p>
+                  <p className="font-heading text-2xl font-bold text-text-primary">{avgWeek}%</p>
+                  <p className="text-[10px] text-text-subtle mt-1">avg score</p>
+                </div>
+
+                {/* Green days this month */}
+                <div className="bg-card border border-border rounded-2xl p-4 shadow-card">
+                  <p className="text-xs text-text-muted mb-1">Green days</p>
+                  <p className="font-heading text-2xl font-bold text-accent-green">{greenDays}</p>
+                  <p className="text-[10px] text-text-subtle mt-1">this month</p>
+                </div>
               </div>
             )}
+
+            {/* Weekly sparkline */}
+            {!habitsLoading && weekScores.some(s => s > 0) && (
+              <div className="bg-card border border-border rounded-2xl p-4 shadow-card animate-fade-in">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-sm font-medium text-text-primary">Last 7 days</p>
+                  <span className="text-xs text-text-muted font-mono">{avgWeek}% avg</span>
+                </div>
+                <div className="flex items-end gap-1.5">
+                  {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((day, i) => {
+                    const score = weekScores[i] ?? 0;
+                    const h = Math.max(4, Math.round((score / 100) * 48));
+                    const color =
+                      score >= 80 ? 'bg-accent-green' :
+                      score >= 50 ? 'bg-amber' :
+                      score > 0   ? 'bg-red/70' : 'bg-border';
+                    const isToday = i === 6;
+                    return (
+                      <div key={day} className="flex-1 flex flex-col items-center gap-1">
+                        <div
+                          className={`w-full rounded-md transition-all ${color} ${isToday ? 'ring-1 ring-offset-1 ring-offset-card ring-accent-green/40' : ''}`}
+                          style={{ height: `${h}px` }}
+                          title={`${day}: ${score}%`}
+                        />
+                        <span className={`text-[9px] ${isToday ? 'text-accent-green font-medium' : 'text-text-subtle'}`}>
+                          {day}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Friends section */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h2 className="font-heading font-semibold text-text-primary">
+                  Friends
+                  {!friendsLoading && (
+                    <span className="ml-2 font-mono text-sm text-text-muted font-normal">
+                      ({friends.length})
+                    </span>
+                  )}
+                </h2>
+                <div className="flex items-center gap-3">
+                  {onlineFriends > 0 && (
+                    <span className="text-xs text-accent-green font-medium">
+                      {onlineFriends} online
+                    </span>
+                  )}
+                  <span className="flex items-center gap-1.5 text-xs text-text-muted">
+                    <span className="w-1.5 h-1.5 rounded-full bg-accent-green animate-pulse-soft" />
+                    Live
+                  </span>
+                </div>
+              </div>
+
+              {friendsLoading ? (
+                <div className="flex gap-3">
+                  {[1, 2].map(i => <Skeleton key={i} className="h-52 rounded-2xl min-w-[200px]" />)}
+                </div>
+              ) : friends.length === 0 ? (
+                <div className="bg-card border border-dashed border-border/60 rounded-2xl p-8 text-center space-y-2">
+                  <p className="text-3xl">👥</p>
+                  <p className="font-heading font-medium text-text-primary">No friends yet</p>
+                  <p className="text-text-muted text-sm">
+                    Go to Settings → Friends to generate an invite link and compete together!
+                  </p>
+                </div>
+              ) : (
+                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide animate-fade-in">
+                  {friends.map(friend => (
+                    <FriendCard
+                      key={friend.profile.id}
+                      friend={friend}
+                      isOnline={onlineIds.has(friend.profile.id)}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </main>

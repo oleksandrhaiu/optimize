@@ -13,7 +13,7 @@ export interface Habit {
   user_id: string;
   name: string;
   type: 'checkbox' | 'numeric';
-  group: string | null;
+  group: string | null;   // repurposed as unit for numeric habits (e.g. 'ml', 'glasses', 'hrs')
   icon: string | null;
   order: number;
   cal_min: number | null;

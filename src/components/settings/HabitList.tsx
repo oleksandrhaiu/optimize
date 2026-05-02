@@ -12,23 +12,37 @@ import { Button } from '@/components/ui/Button';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 import type { Habit } from '@/types';
 
+/* ── Units by type ───────────────────────────────────────────── */
+export const UNIT_OPTIONS: Record<string, Array<{ value: string; label: string }>> = {
+  water:    [{ value: 'glasses', label: 'Glasses' }, { value: 'ml', label: 'ml' }, { value: 'L', label: 'Liters' }, { value: 'oz', label: 'oz' }],
+  sleep:    [{ value: 'hrs', label: 'Hours' }, { value: 'min', label: 'Minutes' }],
+  running:  [{ value: 'km', label: 'km' }, { value: 'mi', label: 'Miles' }, { value: 'min', label: 'Minutes' }],
+  steps:    [{ value: 'k steps', label: 'K steps' }, { value: 'steps', label: 'Steps' }],
+  reading:  [{ value: 'pages', label: 'Pages' }, { value: 'min', label: 'Minutes' }, { value: 'chapters', label: 'Chapters' }],
+  calories: [{ value: 'kcal', label: 'kcal' }, { value: 'cal', label: 'cal' }],
+  mood:     [{ value: '/ 10', label: 'Out of 10' }, { value: '/ 5', label: 'Out of 5' }],
+  weight:   [{ value: 'kg', label: 'kg' }, { value: 'lbs', label: 'lbs' }],
+  generic:  [{ value: 'reps', label: 'Reps' }, { value: 'sets', label: 'Sets' }, { value: 'min', label: 'Minutes' }, { value: 'hrs', label: 'Hours' }, { value: 'items', label: 'Items' }],
+};
+
 /* ── Quick-start templates ───────────────────────────────────── */
 const TEMPLATES: Array<{
   icon: string; name: string; type: 'checkbox' | 'numeric';
+  group?: string;
   is_calorie_habit?: boolean; cal_min?: number; cal_max?: number;
 }> = [
-  { icon: '💪', name: 'Workout', type: 'checkbox' },
-  { icon: '💧', name: 'Water (glasses)', type: 'numeric' },
-  { icon: '📚', name: 'Reading (pages)', type: 'numeric' },
-  { icon: '🏃', name: 'Running (km)', type: 'numeric' },
-  { icon: '😴', name: 'Sleep (hours)', type: 'numeric' },
-  { icon: '🔥', name: 'Calories', type: 'numeric', is_calorie_habit: true, cal_min: 1700, cal_max: 2200 },
+  { icon: '🏋️', name: 'Workout', type: 'checkbox' },
   { icon: '🧘', name: 'Meditation', type: 'checkbox' },
-  { icon: '🚶', name: 'Steps (000s)', type: 'numeric' },
   { icon: '🥗', name: 'Ate healthy', type: 'checkbox' },
-  { icon: '📝', name: 'Journaling', type: 'checkbox' },
-  { icon: '⭐', name: 'Mood (1–10)', type: 'numeric' },
+  { icon: '📖', name: 'Reading', type: 'numeric', group: 'pages' },
+  { icon: '💧', name: 'Water', type: 'numeric', group: 'glasses' },
+  { icon: '🔥', name: 'Calories', type: 'numeric', group: 'kcal', is_calorie_habit: true, cal_min: 1700, cal_max: 2300 },
+  { icon: '🏃', name: 'Running', type: 'numeric', group: 'km' },
+  { icon: '😴', name: 'Sleep', type: 'numeric', group: 'hrs' },
+  { icon: '🚶', name: 'Steps', type: 'numeric', group: 'k steps' },
   { icon: '💊', name: 'Vitamins', type: 'checkbox' },
+  { icon: '😊', name: 'Mood', type: 'numeric', group: '/ 10' },
+  { icon: '⚖️', name: 'Weight', type: 'numeric', group: 'kg' },
 ];
 
 const TYPE_OPTIONS = [
@@ -108,7 +122,7 @@ export const HabitList: React.FC<HabitListProps> = ({
             onClick={() => setShowTemplates(v => !v)}
             className="btn-ghost text-xs"
           >
-            {showTemplates ? '▲ Hide templates' : '⚡ Quick templates'}
+            {showTemplates ? '▲ Hide' : '⚡ Templates'}
           </button>
         </div>
       </form>
@@ -116,21 +130,19 @@ export const HabitList: React.FC<HabitListProps> = ({
       {/* Templates */}
       {showTemplates && (
         <div className="animate-fade-in">
-          <p className="text-xs font-medium text-text-muted mb-2 uppercase tracking-wider">
-            Quick-start templates
-          </p>
+          <p className="text-xs font-medium text-text-muted mb-2 uppercase tracking-wider">Quick-start templates</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {TEMPLATES.map(tpl => (
               <button
                 key={tpl.name}
                 type="button"
                 onClick={() => handleTemplate(tpl)}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border/60 bg-bg hover:border-accent-green/40 hover:bg-accent-green/5 text-left transition-all duration-150 group"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border/60 bg-bg hover:border-accent-green/40 hover:bg-accent-green/5 text-left transition-all duration-150"
               >
-                <span className="text-lg leading-none">{tpl.icon}</span>
+                <span className="text-xl leading-none">{tpl.icon}</span>
                 <div className="min-w-0">
                   <p className="text-xs font-medium text-text-primary truncate">{tpl.name}</p>
-                  <p className="text-[10px] text-text-subtle">{tpl.type}</p>
+                  <p className="text-[10px] text-text-subtle">{tpl.group ? `${tpl.type} · ${tpl.group}` : tpl.type}</p>
                 </div>
               </button>
             ))}
@@ -138,7 +150,6 @@ export const HabitList: React.FC<HabitListProps> = ({
         </div>
       )}
 
-      {/* Divider */}
       {habits.length > 0 && <div className="border-t border-border/40" />}
 
       {/* Habit list */}
@@ -146,12 +157,7 @@ export const HabitList: React.FC<HabitListProps> = ({
         <SortableContext items={habits.map(h => h.id)} strategy={verticalListSortingStrategy}>
           <div className="space-y-2">
             {habits.map(habit => (
-              <HabitItem
-                key={habit.id}
-                habit={habit}
-                onUpdate={onUpdate}
-                onDelete={onDelete}
-              />
+              <HabitItem key={habit.id} habit={habit} onUpdate={onUpdate} onDelete={onDelete} />
             ))}
             {habits.length === 0 && (
               <div className="text-center py-10 text-text-muted">

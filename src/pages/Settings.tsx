@@ -4,17 +4,15 @@ import { useAuthStore } from '@/store/authStore';
 import { useHabits } from '@/hooks/useHabits';
 import { useFriends } from '@/hooks/useFriends';
 import { HabitList } from '@/components/settings/HabitList';
-import { CalorieTargetForm } from '@/components/settings/CalorieTargetForm';
 import { FriendsManager } from '@/components/settings/FriendsManager';
 import { Skeleton } from '@/components/ui/LoadingSpinner';
 import { clx } from '@/lib/utils';
 
-type Tab = 'habits' | 'calories' | 'friends';
+type Tab = 'habits' | 'friends';
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
-  { id: 'habits', label: 'My Habits', icon: '📝' },
-  { id: 'calories', label: 'Calorie Target', icon: '🔥' },
-  { id: 'friends', label: 'Friends', icon: '👥' },
+  { id: 'habits',  label: 'My Habits', icon: '📋' },
+  { id: 'friends', label: 'Friends',   icon: '👥' },
 ];
 
 export const Settings: React.FC = () => {
@@ -34,14 +32,14 @@ export const Settings: React.FC = () => {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-6">
         <div>
           <h1 className="font-heading text-2xl font-bold text-text-primary">Settings</h1>
-          <p className="text-text-muted text-sm mt-0.5">Manage your account and preferences.</p>
+          <p className="text-text-muted text-sm mt-0.5">Manage your habits and account.</p>
         </div>
 
         <div className="flex flex-col md:flex-row gap-6">
           {/* Sidebar */}
           <aside className="md:w-44 flex-shrink-0">
             <nav className="flex md:flex-col gap-1 overflow-x-auto pb-2 scrollbar-hide">
-              {TABS.map((tab) => (
+              {TABS.map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
@@ -75,7 +73,9 @@ export const Settings: React.FC = () => {
                   <div className="space-y-5">
                     <div>
                       <h2 className="font-heading font-semibold text-lg text-text-primary">Manage Habits</h2>
-                      <p className="text-text-muted text-sm mt-1">Add, remove, or drag to reorder your habits.</p>
+                      <p className="text-text-muted text-sm mt-1">
+                        Add, reorder, or configure your habits. Enable 🔥 to set calorie targets inline.
+                      </p>
                     </div>
                     <HabitList
                       habits={habits}
@@ -84,15 +84,6 @@ export const Settings: React.FC = () => {
                       onDelete={deleteHabit}
                       onReorder={reorderHabits}
                     />
-                  </div>
-                )}
-                {activeTab === 'calories' && (
-                  <div className="space-y-5">
-                    <div>
-                      <h2 className="font-heading font-semibold text-lg text-text-primary">Calorie Target</h2>
-                      <p className="text-text-muted text-sm mt-1">Set your daily min and max ranges for your calorie habit.</p>
-                    </div>
-                    <CalorieTargetForm habits={habits} onUpdate={updateHabit} />
                   </div>
                 )}
                 {activeTab === 'friends' && (
