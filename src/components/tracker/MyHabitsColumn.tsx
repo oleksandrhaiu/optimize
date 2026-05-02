@@ -64,8 +64,8 @@ export const MyHabitsColumn: React.FC<MyHabitsColumnProps> = ({
           <span className="text-xs font-medium text-text-muted">
             {MONTH_NAMES[month]} {year}
           </span>
-          <span className="text-xs font-mono text-accent-green">
-            {greenDays} ✦ green
+          <span className={`text-xs font-mono ${greenDays > 0 ? 'text-accent-green' : 'text-text-subtle'}`}>
+            {greenDays > 0 ? `${greenDays} perfect days` : 'Start tracking!'}
           </span>
         </div>
 

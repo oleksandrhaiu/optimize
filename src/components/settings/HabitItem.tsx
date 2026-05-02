@@ -3,7 +3,6 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { clx } from '@/lib/utils';
 import type { Habit } from '@/types';
-import { UNIT_OPTIONS } from './HabitList';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 
 const ALL_UNITS = [
@@ -21,7 +20,6 @@ const ALL_UNITS = [
   { value: 'pages',    label: 'Pages' },
   { value: 'chapters', label: 'Chapters' },
   { value: 'kcal',     label: 'kcal' },
-  { value: 'cal',      label: 'cal' },
   { value: '/ 10',     label: 'Out of 10' },
   { value: '/ 5',      label: 'Out of 5' },
   { value: 'kg',       label: 'kg' },
@@ -29,6 +27,7 @@ const ALL_UNITS = [
   { value: 'reps',     label: 'Reps' },
   { value: 'sets',     label: 'Sets' },
   { value: 'items',    label: 'Items' },
+  { value: 'times',    label: 'Times' },
 ];
 
 interface HabitItemProps {
@@ -38,11 +37,19 @@ interface HabitItemProps {
 }
 
 export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete }) => {
+  // show unit picker only if habit already has a unit, or user clicked "add unit"
+  const [showUnitPicker, setShowUnitPicker] = useState(!!habit.group);
+
   const {
     attributes, listeners, setNodeRef, transform, transition, isDragging,
   } = useSortable({ id: habit.id });
 
   const style = { transform: CSS.Transform.toString(transform), transition };
+
+  const handleUnitChange = (v: string) => {
+    onUpdate(habit.id, { group: v || null });
+    if (!v) setShowUnitPicker(false);
+  };
 
   return (
     <div
@@ -71,12 +78,10 @@ export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete 
           </svg>
         </div>
 
-        {/* Icon */}
         {habit.icon && (
           <span className="text-xl leading-normal flex-shrink-0">{habit.icon}</span>
         )}
 
-        {/* Name */}
         <input
           value={habit.name}
           onChange={e => onUpdate(habit.id, { name: e.target.value })}
@@ -84,14 +89,26 @@ export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete 
           placeholder="Habit name"
         />
 
-        {/* Unit selector (numeric only) */}
+        {/* Unit area — only for numeric */}
         {habit.type === 'numeric' && (
-          <CustomSelect
-            value={habit.group ?? ''}
-            onChange={v => onUpdate(habit.id, { group: v || null })}
-            options={ALL_UNITS}
-            className="w-28 flex-shrink-0 text-xs"
-          />
+          <>
+            {showUnitPicker ? (
+              <CustomSelect
+                value={habit.group ?? ''}
+                onChange={handleUnitChange}
+                options={ALL_UNITS}
+                className="w-28 flex-shrink-0"
+              />
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowUnitPicker(true)}
+                className="text-[10px] text-text-subtle hover:text-text-muted px-2 py-1 rounded-lg border border-dashed border-border/60 hover:border-border transition-all flex-shrink-0"
+              >
+                + unit
+              </button>
+            )}
+          </>
         )}
 
         {/* Type badge */}
@@ -106,9 +123,9 @@ export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete 
         {habit.type === 'numeric' && (
           <button
             onClick={() => onUpdate(habit.id, { is_calorie_habit: !habit.is_calorie_habit })}
-            title={habit.is_calorie_habit ? 'Calorie tracking ON — click to disable' : 'Enable calorie tracking'}
+            title={habit.is_calorie_habit ? 'Calorie tracking ON' : 'Enable calorie tracking'}
             className={clx(
-              'flex-shrink-0 p-1 rounded-lg text-base transition-colors',
+              'flex-shrink-0 p-1 rounded-lg text-base transition-colors leading-none',
               habit.is_calorie_habit ? 'text-amber' : 'text-text-subtle hover:text-text-muted',
             )}
           >
@@ -116,7 +133,6 @@ export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete 
           </button>
         )}
 
-        {/* Delete */}
         <button
           onClick={() => onDelete(habit.id)}
           className="text-text-subtle hover:text-red p-1 transition-colors flex-shrink-0 opacity-0 group-hover:opacity-100"
@@ -131,7 +147,7 @@ export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete 
       {/* Calorie target sub-row */}
       {habit.is_calorie_habit && (
         <div className="flex items-center gap-3 px-3 pb-2.5 border-t border-border/30 pt-2">
-          <span className="text-xs text-text-muted flex-shrink-0">🎯 Target range:</span>
+          <span className="text-xs text-text-muted flex-shrink-0">🎯 Range:</span>
           <input
             type="number"
             placeholder="Min"

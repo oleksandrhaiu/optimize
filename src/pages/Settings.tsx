@@ -5,21 +5,24 @@ import { useHabits } from '@/hooks/useHabits';
 import { useFriends } from '@/hooks/useFriends';
 import { HabitList } from '@/components/settings/HabitList';
 import { FriendsManager } from '@/components/settings/FriendsManager';
+import { ProfileSettings } from '@/components/settings/ProfileSettings';
 import { Skeleton } from '@/components/ui/LoadingSpinner';
+import { Avatar } from '@/components/ui/Avatar';
 import { clx } from '@/lib/utils';
 
-type Tab = 'habits' | 'friends';
+type Tab = 'profile' | 'habits' | 'friends';
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
+  { id: 'profile', label: 'Profile',   icon: '👤' },
   { id: 'habits',  label: 'My Habits', icon: '📋' },
   { id: 'friends', label: 'Friends',   icon: '👥' },
 ];
 
 export const Settings: React.FC = () => {
-  const { session } = useAuthStore();
+  const { session, profile } = useAuthStore();
   const userId = session?.user.id;
 
-  const [activeTab, setActiveTab] = useState<Tab>('habits');
+  const [activeTab, setActiveTab] = useState<Tab>('profile');
 
   const { habits, loading: habitsLoading, addHabit, updateHabit, deleteHabit, reorderHabits } = useHabits(userId);
   const { friends, loading: friendsLoading, removeFriend } = useFriends(userId);
@@ -37,7 +40,20 @@ export const Settings: React.FC = () => {
 
         <div className="flex flex-col md:flex-row gap-6">
           {/* Sidebar */}
-          <aside className="md:w-44 flex-shrink-0">
+          <aside className="md:w-48 flex-shrink-0">
+            {/* Profile card in sidebar */}
+            {profile && (
+              <div className="bg-card border border-border rounded-2xl p-3 mb-3 shadow-card">
+                <div className="flex items-center gap-2.5">
+                  <Avatar username={profile.username} color={profile.avatar_color} size="sm" />
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-text-primary truncate">@{profile.username}</p>
+                    <p className="text-xs text-text-subtle truncate">{profile.email}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <nav className="flex md:flex-col gap-1 overflow-x-auto pb-2 scrollbar-hide">
               {TABS.map(tab => (
                 <button
@@ -59,7 +75,7 @@ export const Settings: React.FC = () => {
 
           {/* Content */}
           <section className="flex-1 min-w-0">
-            {isLoading ? (
+            {(activeTab !== 'profile' && isLoading) ? (
               <div className="bg-card border border-border rounded-2xl p-6 space-y-3">
                 <Skeleton className="h-6 w-40" />
                 <Skeleton className="h-4 w-64" />
@@ -69,12 +85,21 @@ export const Settings: React.FC = () => {
               </div>
             ) : (
               <div className="bg-card border border-border rounded-2xl p-6 animate-fade-in shadow-card">
+                {activeTab === 'profile' && (
+                  <div className="space-y-5">
+                    <div>
+                      <h2 className="font-heading font-semibold text-lg text-text-primary">Edit Profile</h2>
+                      <p className="text-text-muted text-sm mt-1">Customize your username and appearance.</p>
+                    </div>
+                    <ProfileSettings />
+                  </div>
+                )}
                 {activeTab === 'habits' && (
                   <div className="space-y-5">
                     <div>
                       <h2 className="font-heading font-semibold text-lg text-text-primary">Manage Habits</h2>
                       <p className="text-text-muted text-sm mt-1">
-                        Add, reorder, or configure your habits. Enable 🔥 to set calorie targets inline.
+                        Add, reorder, or configure your habits. Enable 🔥 for calorie tracking.
                       </p>
                     </div>
                     <HabitList
@@ -90,7 +115,7 @@ export const Settings: React.FC = () => {
                   <div className="space-y-5">
                     <div>
                       <h2 className="font-heading font-semibold text-lg text-text-primary">Friends</h2>
-                      <p className="text-text-muted text-sm mt-1">Share your tracker and stay accountable together.</p>
+                      <p className="text-text-muted text-sm mt-1">Share your tracker and stay accountable.</p>
                     </div>
                     <FriendsManager friends={friends} onRemove={removeFriend} />
                   </div>
