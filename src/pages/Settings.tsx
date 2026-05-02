@@ -6,25 +6,27 @@ import { useFriends } from '@/hooks/useFriends';
 import { HabitList } from '@/components/settings/HabitList';
 import { CalorieTargetForm } from '@/components/settings/CalorieTargetForm';
 import { FriendsManager } from '@/components/settings/FriendsManager';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { Skeleton } from '@/components/ui/LoadingSpinner';
 import { clx } from '@/lib/utils';
 
 type Tab = 'habits' | 'calories' | 'friends';
 
+const TABS: { id: Tab; label: string; icon: string }[] = [
+  { id: 'habits', label: 'My Habits', icon: '📝' },
+  { id: 'calories', label: 'Calorie Target', icon: '🔥' },
+  { id: 'friends', label: 'Friends', icon: '👥' },
+];
+
 export const Settings: React.FC = () => {
   const { session } = useAuthStore();
   const userId = session?.user.id;
-  
+
   const [activeTab, setActiveTab] = useState<Tab>('habits');
 
   const { habits, loading: habitsLoading, addHabit, updateHabit, deleteHabit, reorderHabits } = useHabits(userId);
   const { friends, loading: friendsLoading, removeFriend } = useFriends(userId);
 
-  const tabs: { id: Tab; label: string; icon: string }[] = [
-    { id: 'habits', label: 'My Habits', icon: '📝' },
-    { id: 'calories', label: 'Calorie Target', icon: '🔥' },
-    { id: 'friends', label: 'Friends', icon: '👥' },
-  ];
+  const isLoading = habitsLoading || friendsLoading;
 
   return (
     <div className="min-h-screen bg-bg">
@@ -32,25 +34,25 @@ export const Settings: React.FC = () => {
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-6">
         <div>
           <h1 className="font-heading text-2xl font-bold text-text-primary">Settings</h1>
-          <p className="text-text-muted text-sm">Manage your account and preferences.</p>
+          <p className="text-text-muted text-sm mt-0.5">Manage your account and preferences.</p>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-8">
+        <div className="flex flex-col md:flex-row gap-6">
           {/* Sidebar */}
-          <aside className="md:w-48 flex-shrink-0">
-            <nav className="flex md:flex-col gap-2 overflow-x-auto pb-2 scrollbar-hide">
-              {tabs.map((tab) => (
+          <aside className="md:w-44 flex-shrink-0">
+            <nav className="flex md:flex-col gap-1 overflow-x-auto pb-2 scrollbar-hide">
+              {TABS.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={clx(
-                    'flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors whitespace-nowrap',
+                    'flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 whitespace-nowrap',
                     activeTab === tab.id
-                      ? 'bg-card border border-border text-text-primary'
-                      : 'text-text-muted hover:bg-card/50 hover:text-text-primary'
+                      ? 'bg-white/[0.07] border border-border text-text-primary shadow-card'
+                      : 'text-text-muted hover:bg-white/[0.04] hover:text-text-primary',
                   )}
                 >
-                  <span>{tab.icon}</span>
+                  <span className="text-base leading-none">{tab.icon}</span>
                   {tab.label}
                 </button>
               ))}
@@ -59,17 +61,21 @@ export const Settings: React.FC = () => {
 
           {/* Content */}
           <section className="flex-1 min-w-0">
-            {habitsLoading || friendsLoading ? (
-              <div className="flex justify-center py-16">
-                <LoadingSpinner size={32} />
+            {isLoading ? (
+              <div className="bg-card border border-border rounded-2xl p-6 space-y-3">
+                <Skeleton className="h-6 w-40" />
+                <Skeleton className="h-4 w-64" />
+                <div className="space-y-2 pt-2">
+                  {[1, 2, 3].map(i => <Skeleton key={i} className="h-12 rounded-xl" />)}
+                </div>
               </div>
             ) : (
-              <div className="bg-card border border-border rounded-2xl p-6 animate-fade-in">
+              <div className="bg-card border border-border rounded-2xl p-6 animate-fade-in shadow-card">
                 {activeTab === 'habits' && (
-                  <div className="space-y-6">
+                  <div className="space-y-5">
                     <div>
-                      <h2 className="font-heading font-semibold text-lg text-text-primary mb-1">Manage Habits</h2>
-                      <p className="text-text-muted text-sm mb-4">Add, remove, or drag to reorder your habits.</p>
+                      <h2 className="font-heading font-semibold text-lg text-text-primary">Manage Habits</h2>
+                      <p className="text-text-muted text-sm mt-1">Add, remove, or drag to reorder your habits.</p>
                     </div>
                     <HabitList
                       habits={habits}
@@ -81,19 +87,19 @@ export const Settings: React.FC = () => {
                   </div>
                 )}
                 {activeTab === 'calories' && (
-                  <div className="space-y-6">
+                  <div className="space-y-5">
                     <div>
-                      <h2 className="font-heading font-semibold text-lg text-text-primary mb-1">Calorie Target</h2>
-                      <p className="text-text-muted text-sm mb-4">Set your daily min and max ranges for your calorie habit.</p>
+                      <h2 className="font-heading font-semibold text-lg text-text-primary">Calorie Target</h2>
+                      <p className="text-text-muted text-sm mt-1">Set your daily min and max ranges for your calorie habit.</p>
                     </div>
                     <CalorieTargetForm habits={habits} onUpdate={updateHabit} />
                   </div>
                 )}
                 {activeTab === 'friends' && (
-                  <div className="space-y-6">
+                  <div className="space-y-5">
                     <div>
-                      <h2 className="font-heading font-semibold text-lg text-text-primary mb-1">Friends</h2>
-                      <p className="text-text-muted text-sm mb-4">Share your tracker and stay accountable together.</p>
+                      <h2 className="font-heading font-semibold text-lg text-text-primary">Friends</h2>
+                      <p className="text-text-muted text-sm mt-1">Share your tracker and stay accountable together.</p>
                     </div>
                     <FriendsManager friends={friends} onRemove={removeFriend} />
                   </div>

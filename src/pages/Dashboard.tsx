@@ -5,7 +5,7 @@ import { useHabits } from '@/hooks/useHabits';
 import { useHabitLogs } from '@/hooks/useHabitLogs';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { currentMonthYear } from '@/lib/utils';
-import { DashboardSkeleton } from '@/components/ui/LoadingSpinner';
+import { Skeleton } from '@/components/ui/LoadingSpinner';
 
 import { StatCard } from '@/components/dashboard/StatCard';
 import { CompletionChart } from '@/components/dashboard/CompletionChart';
@@ -32,64 +32,61 @@ export const Dashboard: React.FC = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
         <div>
           <h1 className="font-heading text-2xl font-bold text-text-primary">Dashboard</h1>
-          <p className="text-text-muted text-sm">Your analytics for {monthYear.month + 1}/{monthYear.year}</p>
+          <p className="text-text-muted text-sm mt-0.5">
+            Your analytics for {monthYear.month + 1}/{monthYear.year}
+          </p>
         </div>
 
-        {loading ? (
-          <DashboardSkeleton />
-        ) : (
-          <div className="space-y-6 animate-fade-in">
-            {/* Stat Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <StatCard
-                label="Current Streak"
-                value={stats.currentStreak}
-                unit="days"
-                icon="🔥"
-                color="amber"
-                subtitle="Keep it up!"
-              />
-              <StatCard
-                label="Best Streak"
-                value={stats.bestStreak}
-                unit="days"
-                icon="🏆"
-                color="amber"
-              />
-              <StatCard
-                label="Avg Calories"
-                value={stats.avgCalories}
-                unit="kcal"
-                icon="⚡"
-                color="blue"
-              />
-              <StatCard
-                label="Green Days"
-                value={stats.greenDays}
-                unit="days"
-                icon="✅"
-                color="green"
-                subtitle="80%+ completion"
-              />
-            </div>
+        {/* Stat Cards — skeleton only here */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {loading ? (
+            [1, 2, 3, 4].map(i => <Skeleton key={i} className="h-28 rounded-2xl" />)
+          ) : (
+            <>
+              <StatCard label="Current Streak" value={stats.currentStreak} unit="days" icon="🔥" color="amber" subtitle="Keep it up!" />
+              <StatCard label="Best Streak" value={stats.bestStreak} unit="days" icon="🏆" color="amber" />
+              <StatCard label="Avg Calories" value={stats.avgCalories} unit="kcal" icon="⚡" color="blue" />
+              <StatCard label="Green Days" value={stats.greenDays} unit="days" icon="✅" color="green" subtitle="80%+ completion" />
+            </>
+          )}
+        </div>
 
-            {/* Charts Row 1 */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <CompletionChart data={stats.dailyStats} />
-              <CalorieChart
-                data={stats.dailyStats}
-                calMin={calorieHabit?.cal_min ?? null}
-                calMax={calorieHabit?.cal_max ?? null}
-              />
-            </div>
-
-            {/* Charts Row 2 */}
-            <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-6">
-              <WeekdayChart weekdayAvg={stats.weekdayAvg} />
-              <HeatmapGrid habits={habits} logs={logs} />
-            </div>
+        {/* Charts — show skeleton then content with fade-in */}
+        <div className={loading ? 'space-y-6' : 'space-y-6 animate-fade-in'}>
+          {/* Charts Row 1 */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {loading ? (
+              <>
+                <Skeleton className="h-64 rounded-2xl" />
+                <Skeleton className="h-64 rounded-2xl" />
+              </>
+            ) : (
+              <>
+                <CompletionChart data={stats.dailyStats} />
+                <CalorieChart
+                  data={stats.dailyStats}
+                  calMin={calorieHabit?.cal_min ?? null}
+                  calMax={calorieHabit?.cal_max ?? null}
+                />
+              </>
+            )}
           </div>
-        )}
+
+          {/* Charts Row 2 */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-6">
+            {loading ? (
+              <>
+                <Skeleton className="h-48 rounded-2xl" />
+                <Skeleton className="h-48 rounded-2xl" />
+              </>
+            ) : (
+              <>
+                <WeekdayChart weekdayAvg={stats.weekdayAvg} />
+                <HeatmapGrid habits={habits} logs={logs} />
+              </>
+            )}
+          </div>
+        </div>
       </main>
     </div>
   );
