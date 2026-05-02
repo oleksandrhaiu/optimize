@@ -5,7 +5,7 @@ import { useHabits } from '@/hooks/useHabits';
 import { useHabitLogs } from '@/hooks/useHabitLogs';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { currentMonthYear } from '@/lib/utils';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { DashboardSkeleton } from '@/components/ui/LoadingSpinner';
 
 import { StatCard } from '@/components/dashboard/StatCard';
 import { CompletionChart } from '@/components/dashboard/CompletionChart';
@@ -36,9 +36,7 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {loading ? (
-          <div className="flex justify-center py-16">
-            <LoadingSpinner size={32} />
-          </div>
+          <DashboardSkeleton />
         ) : (
           <div className="space-y-6 animate-fade-in">
             {/* Stat Cards */}

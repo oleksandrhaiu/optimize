@@ -16,9 +16,9 @@ const variants = {
 };
 
 const sizes = {
-  sm: 'text-xs px-3 py-1.5',
+  sm: 'text-xs px-3 py-1.5 rounded-lg',
   md: '',
-  lg: 'text-base px-6 py-3',
+  lg: 'text-base px-6 py-3.5',
 };
 
 export const Button: React.FC<ButtonProps> = ({
@@ -38,9 +38,17 @@ export const Button: React.FC<ButtonProps> = ({
     >
       {loading ? (
         <span className="inline-flex items-center gap-2">
-          <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3V4a8 8 0 00-8 8h4z" />
+          {/* Thin spinning arc */}
+          <svg
+            className="animate-spin"
+            style={{ animationDuration: '0.75s' }}
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.5" strokeOpacity="0.2" />
+            <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
           </svg>
           Loading…
         </span>

@@ -3,7 +3,7 @@ import { Navbar } from '@/components/ui/Navbar';
 import { MyHabitsColumn } from '@/components/tracker/MyHabitsColumn';
 import { FriendCard } from '@/components/tracker/FriendCard';
 import { MonthNav } from '@/components/tracker/MonthNav';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { TrackerSkeleton, FriendsSkeleton } from '@/components/ui/LoadingSpinner';
 import { useAuthStore } from '@/store/authStore';
 import { useHabits } from '@/hooks/useHabits';
 import { useHabitLogs } from '@/hooks/useHabitLogs';
@@ -67,9 +67,7 @@ export const Tracker: React.FC = () => {
           </div>
   
           {habitsLoading ? (
-            <div className="flex justify-center py-16">
-              <LoadingSpinner size={32} />
-            </div>
+            <TrackerSkeleton />
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-6">
               {/* My habits */}
@@ -99,9 +97,7 @@ export const Tracker: React.FC = () => {
                 </div>
   
                 {friendsLoading ? (
-                  <div className="flex justify-center py-12">
-                    <LoadingSpinner size={24} />
-                  </div>
+                  <FriendsSkeleton />
                 ) : friends.length === 0 ? (
                   <div className="border border-dashed border-border rounded-2xl p-8 text-center space-y-2">
                     <p className="text-2xl">👥</p>
