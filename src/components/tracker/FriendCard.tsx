@@ -54,7 +54,7 @@ export const FriendCard: React.FC<FriendCardProps> = ({ friend }) => {
             return (
               <div key={habit.id} className="flex items-center justify-between gap-2">
                 <span className="text-xs text-text-muted truncate flex items-center gap-1">
-                  {habit.icon && <span>{habit.icon}</span>}
+                  {habit.icon && <span className="leading-normal">{habit.icon}</span>}
                   {habit.name}
                 </span>
                 <span className={`text-sm flex-shrink-0 ${done ? 'text-accent-green' : 'text-text-muted opacity-40'}`}>

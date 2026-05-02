@@ -34,7 +34,7 @@ export const HabitRow: React.FC<HabitRowProps> = ({ habit, date, log, onToggle, 
     >
       {/* Left: icon + name */}
       <div className="flex items-center gap-2 min-w-0">
-        {habit.icon && <span className="text-base leading-none flex-shrink-0">{habit.icon}</span>}
+        {habit.icon && <span className="text-lg leading-normal flex-shrink-0">{habit.icon}</span>}
         <span
           className={clx(
             'text-sm truncate',

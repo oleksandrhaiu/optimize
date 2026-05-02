@@ -51,7 +51,7 @@ export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete 
       </div>
 
       <div className="flex-1 flex gap-2 items-center">
-        {habit.icon && <span className="text-lg">{habit.icon}</span>}
+        {habit.icon && <span className="text-xl leading-normal">{habit.icon}</span>}
         <input
           value={habit.name}
           onChange={(e) => onUpdate(habit.id, { name: e.target.value })}
