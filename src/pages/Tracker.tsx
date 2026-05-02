@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Navbar } from '@/components/ui/Navbar';
 import { MyHabitsColumn } from '@/components/tracker/MyHabitsColumn';
 import { FriendCard } from '@/components/tracker/FriendCard';
@@ -9,6 +9,7 @@ import { useHabits } from '@/hooks/useHabits';
 import { useHabitLogs } from '@/hooks/useHabitLogs';
 import { useFriends } from '@/hooks/useFriends';
 import { useRealtimeSync } from '@/hooks/useRealtimeSync';
+import { usePresence } from '@/hooks/usePresence';
 import { currentMonthYear } from '@/lib/utils';
 import type { MonthYear } from '@/types';
 
@@ -23,10 +24,9 @@ export const Tracker: React.FC = () => {
   const { logs, setLog } = useHabitLogs(userId, monthYear.year, monthYear.month);
   const { friends, loading: friendsLoading, updateFriendLog } = useFriends(userId);
 
-  useRealtimeSync({
-    friendIds: friends.map(f => f.profile.id),
-    onLogChange: updateFriendLog,
-  });
+  // Realtime: sync friend logs + presence
+  useRealtimeSync({ friendIds: friends.map(f => f.profile.id), onLogChange: updateFriendLog });
+  const onlineIds = usePresence(userId, friends.map(f => f.profile.id));
 
   const handleToggle = async (habitId: string, date: string, value: string) => {
     await setLog(habitId, date, value);
@@ -48,6 +48,8 @@ export const Tracker: React.FC = () => {
     setSelectedDay(1);
   };
 
+  const onlineFriends = friends.filter(f => onlineIds.has(f.profile.id)).length;
+
   return (
     <div className="min-h-screen bg-bg">
       <Navbar />
@@ -64,7 +66,6 @@ export const Tracker: React.FC = () => {
           <MonthNav monthYear={monthYear} onPrev={handlePrevMonth} onNext={handleNextMonth} />
         </div>
 
-        {/* Main grid — always rendered, no skeleton flash */}
         <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6">
 
           {/* My habits */}
@@ -87,7 +88,7 @@ export const Tracker: React.FC = () => {
             </div>
           )}
 
-          {/* Friends section */}
+          {/* Friends */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="font-heading font-semibold text-text-primary">
@@ -98,17 +99,23 @@ export const Tracker: React.FC = () => {
                   </span>
                 )}
               </h2>
-              <span className="flex items-center gap-1.5 text-xs text-accent-green">
-                <span className="w-1.5 h-1.5 rounded-full bg-accent-green animate-pulse-soft" />
-                Live
-              </span>
+              <div className="flex items-center gap-3">
+                {onlineFriends > 0 && (
+                  <span className="text-xs text-accent-green font-medium">
+                    {onlineFriends} online
+                  </span>
+                )}
+                <span className="flex items-center gap-1.5 text-xs text-text-muted">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent-green animate-pulse-soft" />
+                  Live
+                </span>
+              </div>
             </div>
 
             {friendsLoading ? (
-              /* Skeleton cards that match friend card size */
               <div className="flex gap-4">
                 {[1, 2].map(i => (
-                  <Skeleton key={i} className="h-52 rounded-2xl min-w-[180px]" />
+                  <Skeleton key={i} className="h-52 rounded-2xl min-w-[200px]" />
                 ))}
               </div>
             ) : friends.length === 0 ? (
@@ -122,7 +129,11 @@ export const Tracker: React.FC = () => {
             ) : (
               <div className="flex gap-4 overflow-x-auto pb-2 flex-wrap animate-fade-in">
                 {friends.map(friend => (
-                  <FriendCard key={friend.profile.id} friend={friend} />
+                  <FriendCard
+                    key={friend.profile.id}
+                    friend={friend}
+                    isOnline={onlineIds.has(friend.profile.id)}
+                  />
                 ))}
               </div>
             )}

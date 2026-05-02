@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Navbar } from '@/components/ui/Navbar';
 import { useAuthStore } from '@/store/authStore';
 import { useHabits } from '@/hooks/useHabits';
-import { useHabitLogs } from '@/hooks/useHabitLogs';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
-import { currentMonthYear } from '@/lib/utils';
+import { supabase } from '@/lib/supabase';
+import { formatDate, todayStr, currentMonthYear } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/LoadingSpinner';
+import { clx } from '@/lib/utils';
+import type { HabitLog } from '@/types';
 
 import { StatCard } from '@/components/dashboard/StatCard';
 import { CompletionChart } from '@/components/dashboard/CompletionChart';
@@ -13,31 +15,108 @@ import { CalorieChart } from '@/components/dashboard/CalorieChart';
 import { WeekdayChart } from '@/components/dashboard/WeekdayChart';
 import { HeatmapGrid } from '@/components/dashboard/HeatmapGrid';
 
+type Range = 'week' | 'month' | 'year' | 'all';
+
+const RANGES: { id: Range; label: string }[] = [
+  { id: 'week',  label: '7 days' },
+  { id: 'month', label: 'Month' },
+  { id: 'year',  label: 'Year' },
+  { id: 'all',   label: 'All time' },
+];
+
+function getDateRange(range: Range): { startDate: string; endDate: string; year: number; month: number } {
+  const today = new Date();
+  const endDate = formatDate(today);
+  let startDate: string;
+
+  if (range === 'week') {
+    const d = new Date(today);
+    d.setDate(d.getDate() - 6);
+    startDate = formatDate(d);
+  } else if (range === 'month') {
+    startDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-01`;
+  } else if (range === 'year') {
+    startDate = `${today.getFullYear()}-01-01`;
+  } else {
+    startDate = '2020-01-01'; // all time
+  }
+
+  return { startDate, endDate, year: today.getFullYear(), month: today.getMonth() };
+}
+
 export const Dashboard: React.FC = () => {
   const { session } = useAuthStore();
   const userId = session?.user.id;
-  const [monthYear] = useState(currentMonthYear);
+  const { year, month } = currentMonthYear();
 
   const { habits, loading: habitsLoading } = useHabits(userId);
-  const { logs, loading: logsLoading } = useHabitLogs(userId, monthYear.year, monthYear.month);
+  const [range, setRange] = useState<Range>('month');
+  const [logs, setLogs] = useState<HabitLog[]>([]);
+  const [logsLoading, setLogsLoading] = useState(true);
 
-  const stats = useDashboardStats(habits, logs, monthYear.year, monthYear.month);
+  const fetchLogs = useCallback(async () => {
+    if (!userId) return;
+    setLogsLoading(true);
+    const { startDate, endDate } = getDateRange(range);
+    const { data } = await supabase
+      .from('habit_logs')
+      .select('*')
+      .eq('user_id', userId)
+      .gte('date', startDate)
+      .lte('date', endDate);
+    setLogs((data as HabitLog[]) ?? []);
+    setLogsLoading(false);
+  }, [userId, range]);
+
+  useEffect(() => { fetchLogs(); }, [fetchLogs]);
+
+  // For month stats use current month
+  const displayYear = range === 'year' ? year : year;
+  const displayMonth = range === 'month' || range === 'week' || range === 'all' ? month : month;
+
+  const stats = useDashboardStats(habits, logs, displayYear, displayMonth);
   const loading = habitsLoading || logsLoading;
-
   const calorieHabit = habits.find(h => h.is_calorie_habit);
+
+  const rangeLabel = {
+    week: 'last 7 days',
+    month: `${new Date(year, month, 1).toLocaleString('default', { month: 'long' })} ${year}`,
+    year: String(year),
+    all: 'all time',
+  }[range];
 
   return (
     <div className="min-h-screen bg-bg">
       <Navbar />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-        <div>
-          <h1 className="font-heading text-2xl font-bold text-text-primary">Dashboard</h1>
-          <p className="text-text-muted text-sm mt-0.5">
-            Your analytics for {monthYear.month + 1}/{monthYear.year}
-          </p>
+
+        {/* Header */}
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="font-heading text-2xl font-bold text-text-primary">Dashboard</h1>
+            <p className="text-text-muted text-sm mt-0.5">Analytics for {rangeLabel}</p>
+          </div>
+
+          {/* Range switcher */}
+          <div className="flex items-center gap-1 bg-card border border-border rounded-xl p-1">
+            {RANGES.map(r => (
+              <button
+                key={r.id}
+                onClick={() => setRange(r.id)}
+                className={clx(
+                  'px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150',
+                  range === r.id
+                    ? 'bg-accent-green text-bg shadow-glow-green'
+                    : 'text-text-muted hover:text-text-primary',
+                )}
+              >
+                {r.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Stat Cards — skeleton only here */}
+        {/* Stat Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {loading ? (
             [1, 2, 3, 4].map(i => <Skeleton key={i} className="h-28 rounded-2xl" />)
@@ -51,15 +130,11 @@ export const Dashboard: React.FC = () => {
           )}
         </div>
 
-        {/* Charts — show skeleton then content with fade-in */}
+        {/* Charts */}
         <div className={loading ? 'space-y-6' : 'space-y-6 animate-fade-in'}>
-          {/* Charts Row 1 */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {loading ? (
-              <>
-                <Skeleton className="h-64 rounded-2xl" />
-                <Skeleton className="h-64 rounded-2xl" />
-              </>
+              <><Skeleton className="h-64 rounded-2xl" /><Skeleton className="h-64 rounded-2xl" /></>
             ) : (
               <>
                 <CompletionChart data={stats.dailyStats} />
@@ -72,13 +147,9 @@ export const Dashboard: React.FC = () => {
             )}
           </div>
 
-          {/* Charts Row 2 */}
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-6">
             {loading ? (
-              <>
-                <Skeleton className="h-48 rounded-2xl" />
-                <Skeleton className="h-48 rounded-2xl" />
-              </>
+              <><Skeleton className="h-48 rounded-2xl" /><Skeleton className="h-48 rounded-2xl" /></>
             ) : (
               <>
                 <WeekdayChart weekdayAvg={stats.weekdayAvg} />

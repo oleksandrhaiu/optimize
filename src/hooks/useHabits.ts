@@ -39,12 +39,12 @@ export function useHabits(userId: string | undefined) {
 
   useEffect(() => { fetchHabits(); }, [fetchHabits]);
 
-  const addHabit = useCallback(async (name: string, type: 'checkbox' | 'numeric') => {
+  const addHabit = useCallback(async (name: string, type: 'checkbox' | 'numeric', extra?: Partial<Habit>) => {
     if (!userId) return;
     const maxOrder = habits.reduce((m, h) => Math.max(m, h.order), -1);
     const { data, error } = await supabase
       .from('habits')
-      .insert({ user_id: userId, name, type, order: maxOrder + 1, is_calorie_habit: false })
+      .insert({ user_id: userId, name, type, order: maxOrder + 1, is_calorie_habit: false, ...extra })
       .select()
       .single();
     if (!error && data) setHabits(prev => [...prev, data as Habit]);
