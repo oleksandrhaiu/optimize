@@ -41,7 +41,15 @@ export const Tracker: React.FC = () => {
   const todayScore   = calcDayScore(habits, logs, today);
   const [celebrate, setCelebrate] = useState(false);
 
+  const isFirstRun = useRef(true);
+
   useEffect(() => {
+    if (isFirstRun.current) {
+      prevScoreRef.current = todayScore;
+      isFirstRun.current = false;
+      return;
+    }
+
     if (prevScoreRef.current < 100 && todayScore === 100 && habits.length > 0) {
       setCelebrate(true);
       setTimeout(() => setCelebrate(false), 4000);
