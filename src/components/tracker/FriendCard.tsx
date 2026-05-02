@@ -24,7 +24,7 @@ export const FriendCard: React.FC<FriendCardProps> = ({
     : 0;
 
   const presenceLabel = isOnline
-    ? '● online now'
+    ? 'online'
     : formatLastSeen(lastSeen, profile.last_seen_at);
 
   const presenceColor = isOnline ? 'text-accent-green' : 'text-text-subtle';
@@ -36,8 +36,8 @@ export const FriendCard: React.FC<FriendCardProps> = ({
         <div className="relative flex-shrink-0">
           <Avatar username={profile.username} color={profile.avatar_color} size="md" />
           <span className={clx(
-            'absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-card transition-colors duration-300',
-            isOnline ? 'bg-accent-green' : 'bg-text-subtle/40',
+            'absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-card shadow-sm transition-all duration-500',
+            isOnline ? 'bg-accent-green shadow-[0_0_8px_rgba(0,200,150,0.6)]' : 'bg-[#5A5F75]',
           )} />
         </div>
         <div className="min-w-0 flex-1">

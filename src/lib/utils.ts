@@ -68,6 +68,20 @@ export function lastNDates(n: number): string[] {
   return dates;
 }
 
+/** All dates between startDate and endDate (inclusive) */
+export function getDatesInRange(startStr: string, endStr: string): string[] {
+  const start = parseDate(startStr);
+  const end = parseDate(endStr);
+  const dates: string[] = [];
+  const cur = new Date(start);
+
+  while (cur <= end) {
+    dates.push(formatDate(cur));
+    cur.setDate(cur.getDate() + 1);
+  }
+  return dates;
+}
+
 // ─── Score calculation ────────────────────────────────────────────────────────
 
 /**
@@ -106,14 +120,11 @@ export function getCalorieZone(value: number, calMin: number | null, calMax: num
 export function buildDailyStats(
   habits: Habit[],
   logs: HabitLog[],
-  year: number,
-  month: number,
+  dateRange: string[], // YYYY-MM-DD strings
 ): DailyStats[] {
-  const days = getDaysArray(month, year);
   const calorieHabit = habits.find(h => h.is_calorie_habit);
 
-  return days.map(day => {
-    const dateStr = dateKey(year, month, day);
+  return dateRange.map(dateStr => {
     const pct = calcDayScore(habits, logs, dateStr);
     let calories: number | null = null;
     if (calorieHabit) {

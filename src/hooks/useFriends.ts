@@ -69,6 +69,35 @@ export function useFriends(userId: string | undefined) {
 
   useEffect(() => { fetchFriends(); }, [fetchFriends]);
 
+  // Realtime profile updates
+  useEffect(() => {
+    if (friends.length === 0) return;
+    const friendIds = friends.map(f => f.profile.id);
+
+    const channel = supabase
+      .channel('friend-profiles')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'users',
+          filter: `id=in.(${friendIds.join(',')})`,
+        },
+        (payload) => {
+          const updatedProfile = payload.new as UserProfile;
+          setFriends(prev => prev.map(f =>
+            f.profile.id === updatedProfile.id
+              ? { ...f, profile: { ...f.profile, ...updatedProfile } }
+              : f
+          ));
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [friends.length]); // simple trigger on length change
+
   const removeFriend = useCallback(async (friendId: string) => {
     if (!userId) return;
     await supabase

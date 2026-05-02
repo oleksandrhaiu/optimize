@@ -21,11 +21,18 @@ export const CalorieChart: React.FC<Props> = ({ data, calMin, calMax }) => {
   const chartData = useMemo(() => {
     return data
       .filter(d => d.calories !== null)
-      .map(d => ({
-        name: d.date.split('-')[2],
-        cal: d.calories,
-        zone: getCalorieZone(d.calories!, calMin, calMax),
-      }));
+      .map(d => {
+        const date = new Date(d.date);
+        let label = d.date.split('-')[2];
+        if (data.length > 31) {
+          label = date.toLocaleDateString('default', { month: 'short', day: 'numeric' });
+        }
+        return {
+          name: label,
+          cal: d.calories,
+          zone: getCalorieZone(d.calories!, calMin, calMax),
+        };
+      });
   }, [data, calMin, calMax]);
 
   if (chartData.length === 0) return null;

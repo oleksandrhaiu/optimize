@@ -99,9 +99,9 @@ export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete 
       {/* Main row */}
       <div className="flex items-center gap-3 py-2.5 px-1">
 
-        {/* Drag handle — fades in on hover */}
+        {/* Drag handle — fades in on hover (desktop), always on mobile */}
         <div {...attributes} {...listeners}
-          className="cursor-grab opacity-0 group-hover:opacity-100 transition-opacity text-text-subtle hover:text-text-muted touch-none flex-shrink-0">
+          className="cursor-grab lg:opacity-0 group-hover:opacity-100 transition-opacity text-text-subtle hover:text-text-muted touch-none flex-shrink-0">
           <svg width="12" height="16" viewBox="0 0 12 16" fill="none">
             <circle cx="4" cy="3" r="1.2" fill="currentColor" />
             <circle cx="8" cy="3" r="1.2" fill="currentColor" />
@@ -163,14 +163,14 @@ export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete 
             <button onClick={toggleCalorie}
               title={habit.is_calorie_habit ? 'Calorie tracking on' : 'Enable calorie tracking'}
               className={clx('text-sm leading-none transition-all w-6 h-6 rounded-lg flex items-center justify-center',
-                habit.is_calorie_habit ? 'bg-amber/15 text-amber' : 'opacity-0 group-hover:opacity-100 text-text-subtle hover:bg-amber/10 hover:text-amber')}>
+                habit.is_calorie_habit ? 'bg-amber/15 text-amber' : 'lg:opacity-0 group-hover:opacity-100 text-text-subtle hover:bg-amber/10 hover:text-amber')}>
               🔥
             </button>
           )}
 
           {/* Delete */}
           <button onClick={() => onDelete(habit.id)}
-            className="opacity-0 group-hover:opacity-100 text-text-subtle hover:text-red w-6 h-6 flex items-center justify-center rounded-lg hover:bg-red/10 transition-all"
+            className="lg:opacity-0 group-hover:opacity-100 text-text-subtle hover:text-red w-6 h-6 flex items-center justify-center rounded-lg hover:bg-red/10 transition-all"
             title="Delete">
             <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
               <path d="M2 3.5H12M4.5 3.5V2C4.5 1.448 4.948 1 5.5 1H8.5C9.052 1 9.5 1.448 9.5 2V3.5M5.5 6.5V10.5M8.5 6.5V10.5M3 3.5L3.5 11.5C3.5 12.052 3.948 12.5 4.5 12.5H9.5C10.052 12.5 10.5 12.052 10.5 11.5L11 3.5"

@@ -9,10 +9,17 @@ interface Props {
 
 export const CompletionChart: React.FC<Props> = ({ data }) => {
   const chartData = useMemo(() => {
-    return data.map(d => ({
-      name: d.date.split('-')[2], // Just the day number
-      pct: d.completionPct,
-    }));
+    return data.map(d => {
+      const date = new Date(d.date);
+      let label = d.date.split('-')[2]; // day
+      if (data.length > 31) {
+        label = date.toLocaleDateString('default', { month: 'short', day: 'numeric' });
+      }
+      return {
+        name: label,
+        pct: d.completionPct,
+      };
+    });
   }, [data]);
 
   return (

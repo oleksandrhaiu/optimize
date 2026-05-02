@@ -12,11 +12,10 @@ import {
 export function useDashboardStats(
   habits: Habit[],
   logs: HabitLog[],
-  year: number,
-  month: number,
+  dateRange: string[],
 ): DashboardStats {
   return useMemo(() => {
-    const dailyStats = buildDailyStats(habits, logs, year, month);
+    const dailyStats = buildDailyStats(habits, logs, dateRange);
     const currentStreak = calcCurrentStreak(dailyStats);
     const bestStreak = calcBestStreak(dailyStats);
 
@@ -45,7 +44,7 @@ export function useDashboardStats(
     );
 
     return { currentStreak, bestStreak, avgCalories, greenDays, dailyStats, weekdayAvg };
-  }, [habits, logs, year, month]);
+  }, [habits, logs, dateRange]);
 }
 
 export { WEEKDAY_LABELS };

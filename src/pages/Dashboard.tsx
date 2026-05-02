@@ -4,7 +4,7 @@ import { useAuthStore } from '@/store/authStore';
 import { useHabits } from '@/hooks/useHabits';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { supabase } from '@/lib/supabase';
-import { formatDate, todayStr, currentMonthYear } from '@/lib/utils';
+import { formatDate, todayStr, currentMonthYear, getDatesInRange } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/LoadingSpinner';
 import { clx } from '@/lib/utils';
 import { exportHabitsCsv } from '@/lib/exportCsv';
@@ -25,7 +25,7 @@ const RANGES: { id: Range; label: string }[] = [
   { id: 'all',   label: 'All time' },
 ];
 
-function getDateRange(range: Range): { startDate: string; endDate: string; year: number; month: number } {
+function getDateRangeInfo(range: Range): { startDate: string; endDate: string; dates: string[] } {
   const today = new Date();
   const endDate = formatDate(today);
   let startDate: string;
@@ -39,10 +39,13 @@ function getDateRange(range: Range): { startDate: string; endDate: string; year:
   } else if (range === 'year') {
     startDate = `${today.getFullYear()}-01-01`;
   } else {
-    startDate = '2020-01-01'; // all time
+    // All time - find earliest log or just 1 year back for now
+    const d = new Date(today);
+    d.setFullYear(d.getFullYear() - 1);
+    startDate = formatDate(d);
   }
 
-  return { startDate, endDate, year: today.getFullYear(), month: today.getMonth() };
+  return { startDate, endDate, dates: getDatesInRange(startDate, endDate) };
 }
 
 export const Dashboard: React.FC = () => {
@@ -58,7 +61,7 @@ export const Dashboard: React.FC = () => {
   const fetchLogs = useCallback(async () => {
     if (!userId) return;
     setLogsLoading(true);
-    const { startDate, endDate } = getDateRange(range);
+    const { startDate, endDate } = getDateRangeInfo(range);
     const { data } = await supabase
       .from('habit_logs')
       .select('*')
@@ -71,11 +74,8 @@ export const Dashboard: React.FC = () => {
 
   useEffect(() => { fetchLogs(); }, [fetchLogs]);
 
-  // For month stats use current month
-  const displayYear = range === 'year' ? year : year;
-  const displayMonth = range === 'month' || range === 'week' || range === 'all' ? month : month;
-
-  const stats = useDashboardStats(habits, logs, displayYear, displayMonth);
+  const rangeInfo = getDateRangeInfo(range);
+  const stats = useDashboardStats(habits, logs, rangeInfo.dates);
   const loading = habitsLoading || logsLoading;
   const calorieHabit = habits.find(h => h.is_calorie_habit);
 
@@ -83,7 +83,7 @@ export const Dashboard: React.FC = () => {
     week: 'last 7 days',
     month: `${new Date(year, month, 1).toLocaleString('default', { month: 'long' })} ${year}`,
     year: String(year),
-    all: 'all time',
+    all: 'last year',
   }[range];
 
   return (
