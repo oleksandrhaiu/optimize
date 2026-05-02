@@ -7,6 +7,17 @@
 
 create extension if not exists "pgcrypto";
 
+-- ─── Grants ───────────────────────────────────────────────────────────────────
+grant usage on schema public to anon, authenticated, service_role;
+
+alter default privileges in schema public
+  grant all on tables    to anon, authenticated, service_role;
+alter default privileges in schema public
+  grant all on sequences to anon, authenticated, service_role;
+alter default privileges in schema public
+  grant all on routines  to anon, authenticated, service_role;
+
+
 -- ─── users ────────────────────────────────────────────────────────────────────
 create table if not exists public.users (
   id            uuid primary key references auth.users(id) on delete cascade,
