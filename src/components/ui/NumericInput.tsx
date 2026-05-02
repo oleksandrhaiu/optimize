@@ -14,14 +14,14 @@ interface NumericInputProps {
 }
 
 const zoneRing: Record<CalorieZone, string> = {
-  green: 'ring-1 ring-accent-green/50',
+  green: 'ring-1 ring-accent/50',
   amber: 'ring-1 ring-amber/50',
   red:   'ring-1 ring-red/50',
   none:  '',
 };
 
 const zoneText: Record<CalorieZone, string> = {
-  green: 'text-accent-green',
+  green: 'text-accent',
   amber: 'text-amber',
   red:   'text-red',
   none:  'text-text-primary',

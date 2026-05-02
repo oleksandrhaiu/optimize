@@ -97,7 +97,7 @@ export const UserProfilePage: React.FC = () => {
     return s;
   })();
 
-  const scoreColor = todayScore >= 80 ? 'text-accent-green' : todayScore >= 50 ? 'text-amber' : 'text-text-muted';
+  const scoreColor = todayScore >= 80 ? 'text-accent' : todayScore >= 50 ? 'text-amber' : 'text-text-muted';
 
   if (notFound) {
     return (
@@ -107,7 +107,7 @@ export const UserProfilePage: React.FC = () => {
           <p className="text-4xl">🔍</p>
           <h1 className="font-heading text-xl font-bold text-text-primary">User not found</h1>
           <p className="text-text-muted text-sm">@{username} doesn't exist.</p>
-          <button onClick={() => navigate(-1)} className="text-accent-green text-sm hover:underline">← Go back</button>
+          <button onClick={() => navigate(-1)} className="text-accent text-sm hover:underline">← Go back</button>
         </div>
       </div>
     );
@@ -158,14 +158,14 @@ export const UserProfilePage: React.FC = () => {
               {/* Action button */}
               {!isSelf && (
                 isFriend || addedSuccess ? (
-                  <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-accent-green/10 border border-accent-green/20 text-accent-green text-xs font-semibold">
+                  <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-accent/10 border border-accent/20 text-accent text-xs font-semibold">
                     ✓ Friends
                   </span>
                 ) : (
                   <button
                     onClick={handleAddFriend}
                     disabled={addingFriend}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-accent-green text-bg text-sm font-semibold hover:bg-accent-green/90 transition-all disabled:opacity-60"
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-accent text-bg text-sm font-semibold hover:bg-accent/90 transition-all disabled:opacity-60"
                   >
                     {addingFriend ? (
                       <svg width="14" height="14" viewBox="0 0 24 24" className="animate-spin" fill="none">
@@ -205,17 +205,17 @@ export const UserProfilePage: React.FC = () => {
               {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((day, i) => {
                 const score = weekScores[i] ?? 0;
                 const h = Math.max(4, Math.round((score / 100) * 48));
-                const color = score >= 80 ? 'bg-accent-green' : score >= 50 ? 'bg-amber' : score > 0 ? 'bg-red/60' : 'bg-border';
+                const color = score >= 80 ? 'bg-accent' : score >= 50 ? 'bg-amber' : score > 0 ? 'bg-red/60' : 'bg-border';
                 const isToday = weekDates[i] === today;
                 return (
                   <div key={day} className="flex-1 flex flex-col items-center gap-1">
                     <span className="text-[9px] text-text-subtle font-mono">{score > 0 ? score + '%' : ''}</span>
                     <div
-                      className={`w-full rounded-md ${color} ${isToday ? 'ring-1 ring-offset-1 ring-offset-card ring-accent-green/50' : ''}`}
+                      className={`w-full rounded-md ${color} ${isToday ? 'ring-1 ring-offset-1 ring-offset-card ring-accent/50' : ''}`}
                       style={{ height: `${h}px` }}
                       title={`${day}: ${score}%`}
                     />
-                    <span className={`text-[9px] ${isToday ? 'text-accent-green font-medium' : 'text-text-subtle'}`}>{day}</span>
+                    <span className={`text-[9px] ${isToday ? 'text-accent font-medium' : 'text-text-subtle'}`}>{day}</span>
                   </div>
                 );
               })}
@@ -252,7 +252,7 @@ export const UserProfilePage: React.FC = () => {
                       {displayValue && (
                         <span className="text-xs text-text-subtle font-mono">{displayValue}</span>
                       )}
-                      <span className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${done ? 'bg-accent-green/15' : 'bg-border/40'}`}>
+                      <span className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${done ? 'bg-accent/15' : 'bg-border/40'}`}>
                         <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                           {done ? (
                             <path d="M2 5l2 2 4-4" stroke="#00C896" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>

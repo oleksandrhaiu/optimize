@@ -94,7 +94,7 @@ export const Tracker: React.FC = () => {
   }).length;
 
   const onlineFriends = friends.filter(f => onlineIds.has(f.profile.id)).length;
-  const scoreColor    = todayScore >= 80 ? 'text-accent-green' : todayScore >= 50 ? 'text-amber' : 'text-red';
+  const scoreColor    = todayScore >= 80 ? 'text-accent' : todayScore >= 50 ? 'text-amber' : 'text-red';
 
   return (
     <div className="min-h-screen bg-bg">
@@ -104,7 +104,7 @@ export const Tracker: React.FC = () => {
       {/* Celebration overlay text */}
       {celebrate && (
         <div className="fixed top-20 inset-x-0 z-40 flex justify-center pointer-events-none animate-fade-in">
-          <div className="bg-accent-green/90 backdrop-blur-sm text-bg font-heading font-bold px-6 py-3 rounded-2xl shadow-lg text-lg">
+          <div className="bg-accent/90 backdrop-blur-sm text-bg font-heading font-bold px-6 py-3 rounded-2xl shadow-lg text-lg">
             🎉 Perfect day!
           </div>
         </div>
@@ -177,7 +177,7 @@ export const Tracker: React.FC = () => {
                   </div>
                   <div className="bg-card border border-border rounded-2xl p-4 shadow-card">
                     <p className="text-xs text-text-muted mb-1">Green days</p>
-                    <p className="font-heading text-2xl font-bold text-accent-green">{greenDays}</p>
+                    <p className="font-heading text-2xl font-bold text-accent">{greenDays}</p>
                     <p className="text-[10px] text-text-subtle mt-1">this month</p>
                   </div>
                 </div>
@@ -192,13 +192,13 @@ export const Tracker: React.FC = () => {
                       {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((day, i) => {
                         const score  = weekScores[i] ?? 0;
                         const h      = Math.max(4, Math.round((score / 100) * 48));
-                        const color  = score >= 80 ? 'bg-accent-green' : score >= 50 ? 'bg-amber' : score > 0 ? 'bg-red/70' : 'bg-border';
+                        const color  = score >= 80 ? 'bg-accent' : score >= 50 ? 'bg-amber' : score > 0 ? 'bg-red/70' : 'bg-border';
                         const isToday = i === 6;
                         return (
                           <div key={day} className="flex-1 flex flex-col items-center gap-1">
-                            <div className={`w-full rounded-md transition-all ${color} ${isToday ? 'ring-1 ring-offset-1 ring-offset-card ring-accent-green/40' : ''}`}
+                            <div className={`w-full rounded-md transition-all ${color} ${isToday ? 'ring-1 ring-offset-1 ring-offset-card ring-accent/40' : ''}`}
                               style={{ height: `${h}px` }} title={`${day}: ${score}%`} />
-                            <span className={`text-[9px] ${isToday ? 'text-accent-green font-medium' : 'text-text-subtle'}`}>{day}</span>
+                            <span className={`text-[9px] ${isToday ? 'text-accent font-medium' : 'text-text-subtle'}`}>{day}</span>
                           </div>
                         );
                       })}
@@ -221,10 +221,10 @@ export const Tracker: React.FC = () => {
                 </h2>
                 <div className="flex items-center gap-3">
                   {onlineFriends > 0 && (
-                    <span className="text-xs text-accent-green font-medium">{onlineFriends} online</span>
+                    <span className="text-xs text-accent font-medium">{onlineFriends} online</span>
                   )}
                   <span className="flex items-center gap-1.5 text-xs text-text-muted">
-                    <span className="w-1.5 h-1.5 rounded-full bg-accent-green animate-pulse-soft" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse-soft" />
                     Live
                   </span>
                 </div>

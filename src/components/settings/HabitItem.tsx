@@ -53,13 +53,13 @@ const EmojiPicker: React.FC<{ current: string | null; onSelect: (e: string | nul
       <p className="text-[10px] text-text-subtle uppercase tracking-wider mb-2.5 font-medium">Pick an icon</p>
       <div className="grid grid-cols-8 gap-0.5">
         <button onClick={() => { onSelect(null); onClose(); }}
-          className={clx('w-7 h-7 rounded-lg text-xs flex items-center justify-center', !current ? 'bg-accent-green/15 ring-1 ring-accent-green/30' : 'hover:bg-white/[0.05]')}>
+          className={clx('w-7 h-7 rounded-lg text-xs flex items-center justify-center', !current ? 'bg-accent/15 ring-1 ring-accent/30' : 'hover:bg-white/[0.05]')}>
           <span className="text-text-subtle text-sm">–</span>
         </button>
         {HABIT_EMOJIS.map(e => (
           <button key={e} onClick={() => { onSelect(e); onClose(); }}
             className={clx('w-7 h-7 rounded-lg text-base flex items-center justify-center transition-all leading-none',
-              current === e ? 'bg-accent-green/15 ring-1 ring-accent-green/30 scale-110' : 'hover:bg-white/[0.05] hover:scale-105')}>
+              current === e ? 'bg-accent/15 ring-1 ring-accent/30 scale-110' : 'hover:bg-white/[0.05] hover:scale-105')}>
             {e}
           </button>
         ))}
@@ -187,7 +187,7 @@ export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete 
           <input type="number" placeholder="e.g. 8"
             value={habit.goal ?? ''}
             onChange={e => onUpdate(habit.id, { goal: e.target.value ? parseFloat(e.target.value) : null })}
-            className="w-16 bg-bg border border-border/60 rounded-lg px-2 py-1 text-xs text-center text-text-primary focus:outline-none focus:border-accent-green/40 font-mono transition-colors"
+            className="w-16 bg-bg border border-border/60 rounded-lg px-2 py-1 text-xs text-center text-text-primary focus:outline-none focus:border-accent/40 font-mono transition-colors"
           />
           {habit.unit && <span className="text-[10px] text-text-subtle">{habit.unit}</span>}
         </div>
@@ -200,17 +200,17 @@ export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete 
           <input type="number" placeholder="min"
             value={habit.cal_min ?? ''}
             onChange={e => onUpdate(habit.id, { cal_min: e.target.value ? parseFloat(e.target.value) : null })}
-            className="w-16 bg-bg border border-border/60 rounded-lg px-2 py-1 text-xs text-center text-text-primary focus:outline-none focus:border-accent-green/40 font-mono transition-colors"
+            className="w-16 bg-bg border border-border/60 rounded-lg px-2 py-1 text-xs text-center text-text-primary focus:outline-none focus:border-accent/40 font-mono transition-colors"
           />
           <span className="text-text-subtle text-xs">—</span>
           <input type="number" placeholder="max"
             value={habit.cal_max ?? ''}
             onChange={e => onUpdate(habit.id, { cal_max: e.target.value ? parseFloat(e.target.value) : null })}
-            className="w-16 bg-bg border border-border/60 rounded-lg px-2 py-1 text-xs text-center text-text-primary focus:outline-none focus:border-accent-green/40 font-mono transition-colors"
+            className="w-16 bg-bg border border-border/60 rounded-lg px-2 py-1 text-xs text-center text-text-primary focus:outline-none focus:border-accent/40 font-mono transition-colors"
           />
           <span className="text-[10px] text-text-subtle">{habit.unit || 'kcal'}</span>
           {habit.cal_min && habit.cal_max && (
-            <span className="text-[10px] text-accent-green ml-1">±{Math.round((habit.cal_max - habit.cal_min) / 2)}</span>
+            <span className="text-[10px] text-accent ml-1">±{Math.round((habit.cal_max - habit.cal_min) / 2)}</span>
           )}
         </div>
       )}

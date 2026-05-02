@@ -5,6 +5,8 @@ export interface UserProfile {
   username: string;
   email: string;
   avatar_color: string;
+  theme: string;
+  sound_enabled: boolean;
   last_seen_at: string | null;
   created_at: string;
 }

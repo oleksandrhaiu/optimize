@@ -152,7 +152,7 @@ export const RegisterForm: React.FC = () => {
             Already have an account?{' '}
             <Link
               to={`/login${params.get('invite') ? `?invite=${params.get('invite')}` : ''}`}
-              className="text-accent-green hover:underline"
+              className="text-accent hover:underline"
             >
               Sign in
             </Link>

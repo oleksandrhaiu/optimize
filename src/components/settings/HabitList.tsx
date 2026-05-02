@@ -128,7 +128,7 @@ export const HabitList: React.FC<HabitListProps> = ({
                 key={tpl.name}
                 type="button"
                 onClick={() => handleTemplate(tpl)}
-                className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border/60 bg-bg hover:border-accent-green/40 hover:bg-accent-green/5 text-left transition-all duration-150"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border/60 bg-bg hover:border-accent/40 hover:bg-accent/5 text-left transition-all duration-150"
               >
                 <span className="text-xl leading-none">{tpl.icon}</span>
                 <div className="min-w-0">

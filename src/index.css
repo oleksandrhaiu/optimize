@@ -9,12 +9,30 @@
     --color-bg: #0E0F14;
     --color-card: #161820;
     --color-border: #2A2C3A;
-    --color-green: #00C896;
     --color-blue: #4B9EFF;
     --color-amber: #F5A623;
     --color-red: #FF5F5F;
     --color-text: #E2E4F0;
     --color-muted: #8B8FA8;
+    
+    /* Default Green Theme */
+    --color-accent: #00C896;
+    --color-accent-glow: rgba(0, 200, 150, 0.12);
+  }
+
+  html[data-theme="blue"] {
+    --color-accent: #4B9EFF;
+    --color-accent-glow: rgba(75, 158, 255, 0.12);
+  }
+
+  html[data-theme="purple"] {
+    --color-accent: #B055FF;
+    --color-accent-glow: rgba(176, 85, 255, 0.12);
+  }
+
+  html[data-theme="orange"] {
+    --color-accent: #FF7B00;
+    --color-accent-glow: rgba(255, 123, 0, 0.12);
   }
 
   * {
@@ -77,14 +95,14 @@
     @apply relative w-6 h-6 rounded-md border-2 border-border flex items-center justify-center cursor-pointer transition-all duration-150;
   }
   .custom-checkbox.checked {
-    @apply border-accent-green bg-accent-green/10 animate-check-pop;
+    @apply border-accent bg-accent/10 animate-check-pop;
   }
   .custom-checkbox .check-icon {
-    @apply text-accent-green transition-all duration-150;
+    @apply text-accent transition-all duration-150;
   }
 
   /* ── Calorie color zones ──────────────────────────────────── */
-  .calorie-input.zone-green { @apply border-accent-green text-accent-green; }
+  .calorie-input.zone-green { @apply border-accent text-accent; }
   .calorie-input.zone-amber { @apply border-amber text-amber; }
   .calorie-input.zone-red   { @apply border-red text-red; }
 
@@ -105,7 +123,7 @@
   .score-pill {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-mono font-medium;
   }
-  .score-pill.high { @apply bg-accent-green/15 text-accent-green; }
+  .score-pill.high { @apply bg-accent/15 text-accent; }
   .score-pill.mid  { @apply bg-amber/15 text-amber; }
   .score-pill.low  { @apply bg-red/15 text-red; }
 
@@ -120,7 +138,7 @@
   /* ── Input base ──────────────────────────────────────────── */
   .input-base {
     @apply w-full bg-bg border border-border/70 rounded-xl px-4 py-3 text-text-primary placeholder-text-subtle
-           focus:outline-none focus:border-accent-green/40
+           focus:outline-none focus:border-accent/40
            transition-colors duration-150 text-base sm:text-sm;
     /* No box-shadow ring - prevents white flash on webkit */
     -webkit-tap-highlight-color: transparent;
@@ -129,8 +147,8 @@
   /* ── Buttons ─────────────────────────────────────────────── */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl
-           bg-accent-green text-bg font-semibold text-sm
-           hover:bg-accent-green/90 hover:shadow-glow-green
+           bg-accent text-bg font-semibold text-sm
+           hover:bg-accent/90 hover:shadow-glow-accent
            active:scale-[0.98] transition-all duration-150
            disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none;
   }
@@ -163,8 +181,8 @@
   .font-heading {
     font-family: 'Syne', sans-serif;
   }
-  .text-gradient-green {
-    background: linear-gradient(135deg, #00C896, #4B9EFF);
+  .text-gradient-accent {
+    background: linear-gradient(135deg, var(--color-accent), #4B9EFF);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;

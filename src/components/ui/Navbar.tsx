@@ -181,7 +181,7 @@ export const Navbar: React.FC = () => {
 
         {/* Logo */}
         <NavLink to="/tracker" className="flex items-center gap-2.5 mr-3 flex-shrink-0 group">
-          <div className="w-7 h-7 rounded-lg bg-accent-green/15 border border-accent-green/30 flex items-center justify-center group-hover:bg-accent-green/20 transition-colors duration-150">
+          <div className="w-7 h-7 rounded-lg bg-accent/15 border border-accent/30 flex items-center justify-center group-hover:bg-accent/20 transition-colors duration-150">
             <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
               <path d="M2 7L5.5 10.5L12 3" stroke="#00C896" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -219,7 +219,7 @@ export const Navbar: React.FC = () => {
               className={({ isActive }) =>
                 clx(
                   'p-2.5 rounded-lg transition-colors duration-150',
-                  isActive ? 'text-accent-green bg-accent-green/10' : 'text-text-muted hover:text-text-primary hover:bg-white/[0.04]',
+                  isActive ? 'text-accent bg-accent/10' : 'text-text-muted hover:text-text-primary hover:bg-white/[0.04]',
                 )
               }
             >

@@ -60,7 +60,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({ value, onChange, opt
               className={clx(
                 'w-full flex items-center gap-2 px-3 py-2.5 text-sm transition-colors duration-100 text-left',
                 opt.value === value
-                  ? 'bg-accent-green/10 text-accent-green'
+                  ? 'bg-accent/10 text-accent'
                   : 'text-text-primary hover:bg-white/[0.04]',
               )}
             >

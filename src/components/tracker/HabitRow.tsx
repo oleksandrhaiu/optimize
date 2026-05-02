@@ -1,6 +1,8 @@
 import React, { useState, useCallback } from 'react';
 import { CustomCheckbox } from '@/components/ui/CustomCheckbox';
 import { NumericInput } from '@/components/ui/NumericInput';
+import { useAuthStore } from '@/store/authStore';
+import { playSound } from '@/lib/sounds';
 import type { Habit, HabitLog } from '@/types';
 import { clx } from '@/lib/utils';
 
@@ -30,8 +32,19 @@ export const HabitRow: React.FC<HabitRowProps> = ({
   const hasGoal = habit.goal != null && habit.goal > 0 && habit.type === 'numeric';
   const progress = hasGoal ? Math.min(100, Math.round(((numericValue ?? 0) / habit.goal!) * 100)) : null;
 
-  const handleCheckbox = (v: boolean) => onToggle(habit.id, date, v ? 'true' : 'false');
-  const handleNumeric  = (v: number | null) => { if (v !== null) onToggle(habit.id, date, String(v)); };
+  const { profile } = useAuthStore();
+
+  const handleCheckbox = (v: boolean) => {
+    playSound(v ? 'pop' : 'unpop', profile?.sound_enabled);
+    onToggle(habit.id, date, v ? 'true' : 'false');
+  };
+  const handleNumeric  = (v: number | null) => { 
+    if (v !== null) {
+      if (v > (numericValue ?? 0)) playSound('pop', profile?.sound_enabled);
+      else if (v < (numericValue ?? 0)) playSound('unpop', profile?.sound_enabled);
+      onToggle(habit.id, date, String(v)); 
+    }
+  };
   const handleNoteSave = () => { onNote?.(habit.id, date, noteText); setShowNote(false); };
 
   return (
@@ -51,7 +64,7 @@ export const HabitRow: React.FC<HabitRowProps> = ({
             className={clx(
               'text-sm truncate text-left',
               readOnly ? 'text-text-muted' : 'text-text-primary',
-              onNameClick && !readOnly && 'hover:text-accent-green transition-colors cursor-pointer',
+              onNameClick && !readOnly && 'hover:text-accent transition-colors cursor-pointer',
             )}
           >
             {habit.name}
@@ -68,7 +81,7 @@ export const HabitRow: React.FC<HabitRowProps> = ({
               title={log?.note ? 'Edit note' : 'Add note'}
               className={clx(
                 'sm:opacity-0 group-hover:opacity-100 opacity-100 w-8 h-8 sm:w-5 sm:h-5 flex items-center justify-center rounded transition-all',
-                showNote || log?.note ? 'sm:opacity-100 text-accent-green' : 'text-text-subtle hover:text-text-muted',
+                showNote || log?.note ? 'sm:opacity-100 text-accent' : 'text-text-subtle hover:text-text-muted',
               )}
             >
               <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
@@ -81,7 +94,7 @@ export const HabitRow: React.FC<HabitRowProps> = ({
           {hasGoal && numericValue !== null && (
             <span className={clx(
               'text-[10px] font-mono flex-shrink-0',
-              progress! >= 100 ? 'text-accent-green' : 'text-text-subtle',
+              progress! >= 100 ? 'text-accent' : 'text-text-subtle',
             )}>
               {Math.round(numericValue)}/{habit.goal}
             </span>
@@ -110,7 +123,7 @@ export const HabitRow: React.FC<HabitRowProps> = ({
           <div
             className={clx(
               'h-full rounded-full transition-all duration-500',
-              progress! >= 100 ? 'bg-accent-green' : 'bg-accent-green/40',
+              progress! >= 100 ? 'bg-accent' : 'bg-accent/40',
             )}
             style={{ width: `${progress}%` }}
           />
@@ -127,7 +140,7 @@ export const HabitRow: React.FC<HabitRowProps> = ({
             placeholder="Add a note for today…"
             autoFocus
             rows={2}
-            className="w-full bg-bg border border-border/60 focus:border-accent-green/40 rounded-xl px-3 py-2 text-base sm:text-xs text-text-primary placeholder-text-muted resize-none focus:outline-none transition-colors"
+            className="w-full bg-bg border border-border/60 focus:border-accent/40 rounded-xl px-3 py-2 text-base sm:text-xs text-text-primary placeholder-text-muted resize-none focus:outline-none transition-colors"
           />
         </div>
       )}

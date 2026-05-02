@@ -120,7 +120,7 @@ export const Dashboard: React.FC = () => {
                 className={clx(
                   'px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150',
                   range === r.id
-                    ? 'bg-accent-green text-bg shadow-glow-green'
+                    ? 'bg-accent text-bg shadow-glow-accent'
                     : 'text-text-muted hover:text-text-primary',
                 )}
               >

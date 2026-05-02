@@ -57,7 +57,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ self, friends }) => {
         return (
           <div key={e.profile.username} className={clx(
             'flex items-center gap-3 px-3 py-2 rounded-xl transition-all',
-            e.isSelf ? 'bg-accent-green/5 border border-accent-green/20' : 'hover:bg-white/[0.02]',
+            e.isSelf ? 'bg-accent/5 border border-accent/20' : 'hover:bg-white/[0.02]',
           )}>
             {/* Rank */}
             <span className="w-5 text-center text-sm flex-shrink-0">
@@ -70,14 +70,14 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ self, friends }) => {
             {/* Name + bar */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-0.5">
-                <span className={clx('text-xs font-medium truncate', e.isSelf ? 'text-accent-green' : 'text-text-primary')}>
+                <span className={clx('text-xs font-medium truncate', e.isSelf ? 'text-accent' : 'text-text-primary')}>
                   {e.isSelf ? 'You' : `@${e.profile.username}`}
                 </span>
                 <span className="text-xs font-mono text-text-muted ml-2 flex-shrink-0">{e.weekAvg}%</span>
               </div>
               <div className="h-1 bg-border/30 rounded-full overflow-hidden">
                 <div
-                  className={clx('h-full rounded-full transition-all duration-700', e.isSelf ? 'bg-accent-green' : 'bg-text-subtle/40')}
+                  className={clx('h-full rounded-full transition-all duration-700', e.isSelf ? 'bg-accent' : 'bg-text-subtle/40')}
                   style={{ width: `${barWidth}%` }}
                 />
               </div>

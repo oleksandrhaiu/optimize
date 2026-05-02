@@ -68,7 +68,7 @@ export const MyHabitsColumn: React.FC<MyHabitsColumnProps> = ({
           <span className="text-xs font-medium text-text-muted">
             {MONTH_NAMES[month]} {year}
           </span>
-          <span className={`text-xs font-mono ${greenDays > 0 ? 'text-accent-green' : 'text-text-subtle'}`}>
+          <span className={`text-xs font-mono ${greenDays > 0 ? 'text-accent' : 'text-text-subtle'}`}>
             {greenDays > 0 ? `${greenDays} perfect days` : 'Start tracking!'}
           </span>
         </div>
@@ -106,7 +106,7 @@ export const MyHabitsColumn: React.FC<MyHabitsColumnProps> = ({
                 className={[
                   'relative flex flex-col items-center justify-center gap-0.5 h-9 rounded-lg text-xs font-mono font-medium transition-all duration-150 select-none',
                   isSelected
-                    ? 'bg-accent-green text-bg shadow-glow-green'
+                    ? 'bg-accent text-bg shadow-glow-accent'
                     : isToday
                     ? 'bg-blue/10 text-blue ring-1 ring-blue/30'
                     : 'text-text-muted hover:bg-white/[0.05] hover:text-text-primary',

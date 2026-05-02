@@ -38,7 +38,7 @@ export const CustomCheckbox: React.FC<CustomCheckboxProps> = ({
         'relative rounded-md border-2 flex items-center justify-center transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-blue/50',
         sizeClass,
         checked
-          ? 'border-accent-green bg-accent-green/10 scale-110'
+          ? 'border-accent bg-accent/10 scale-110'
           : 'border-border bg-transparent hover:border-text-muted',
         disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
         !disabled && !checked && 'hover:scale-105',
@@ -49,7 +49,7 @@ export const CustomCheckbox: React.FC<CustomCheckboxProps> = ({
     >
       {checked && (
         <svg
-          className={clx('text-accent-green', size === 'sm' ? 'w-3.5 h-3.5 sm:w-2.5 sm:h-2.5' : 'w-4 h-4 sm:w-3 sm:h-3')}
+          className={clx('text-accent', size === 'sm' ? 'w-3.5 h-3.5 sm:w-2.5 sm:h-2.5' : 'w-4 h-4 sm:w-3 sm:h-3')}
           viewBox="0 0 12 12"
           fill="none"
         >

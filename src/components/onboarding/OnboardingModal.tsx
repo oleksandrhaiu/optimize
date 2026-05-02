@@ -57,7 +57,7 @@ export const OnboardingModal: React.FC<{ onDone: () => void }> = ({ onDone }) =>
           {STEPS.map((_, i) => (
             <div key={i} className={clx(
               'h-1.5 rounded-full transition-all duration-300',
-              i === step ? 'w-6 bg-accent-green' : i < step ? 'w-3 bg-accent-green/40' : 'w-3 bg-border',
+              i === step ? 'w-6 bg-accent' : i < step ? 'w-3 bg-accent/40' : 'w-3 bg-border',
             )} />
           ))}
         </div>
@@ -78,7 +78,7 @@ export const OnboardingModal: React.FC<{ onDone: () => void }> = ({ onDone }) =>
             </button>
           )}
           <button onClick={handleNext}
-            className="flex-1 py-2.5 rounded-xl bg-accent-green text-bg text-sm font-semibold hover:bg-accent-green/90 transition-all">
+            className="flex-1 py-2.5 rounded-xl bg-accent text-bg text-sm font-semibold hover:bg-accent/90 transition-all">
             {isLast ? "Let's go! 🚀" : 'Next →'}
           </button>
         </div>

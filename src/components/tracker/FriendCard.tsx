@@ -29,7 +29,7 @@ export const FriendCard: React.FC<FriendCardProps> = ({
     ? 'online'
     : formatLastSeen(lastSeen, profile.last_seen_at);
 
-  const presenceColor = isOnline ? 'text-accent-green' : 'text-text-subtle';
+  const presenceColor = isOnline ? 'text-accent' : 'text-text-subtle';
 
   return (
     <div
@@ -42,11 +42,11 @@ export const FriendCard: React.FC<FriendCardProps> = ({
           <Avatar username={profile.username} color={profile.avatar_color} size="md" />
           <span className={clx(
             'absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-card shadow-sm transition-all duration-500',
-            isOnline ? 'bg-accent-green shadow-[0_0_8px_rgba(0,200,150,0.6)]' : 'bg-[#5A5F75]',
+            isOnline ? 'bg-accent shadow-[0_0_8px_rgba(0,200,150,0.6)]' : 'bg-[#5A5F75]',
           )} />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="font-heading font-semibold text-text-primary text-sm truncate group-hover:text-accent-green transition-colors">
+          <p className="font-heading font-semibold text-text-primary text-sm truncate group-hover:text-accent transition-colors">
             @{profile.username}
           </p>
           <div className="flex items-center gap-1.5 mt-0.5">
@@ -89,7 +89,7 @@ export const FriendCard: React.FC<FriendCardProps> = ({
                 </span>
                 <span className={clx(
                   'flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center',
-                  done ? 'bg-accent-green/15' : 'bg-border/50',
+                  done ? 'bg-accent/15' : 'bg-border/50',
                 )}>
                   <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
                     {done ? (

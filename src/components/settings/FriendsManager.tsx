@@ -110,11 +110,11 @@ export const FriendsManager: React.FC<Props> = ({ friends, onRemove, onRefetch }
     <div className="space-y-6">
 
       {/* ── Invite card ────────────────────────────────────── */}
-      <div className="relative overflow-hidden rounded-2xl border border-accent-green/20 bg-gradient-to-br from-accent-green/10 to-transparent p-5 space-y-4">
-        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-accent-green/10 blur-3xl pointer-events-none" />
+      <div className="relative overflow-hidden rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/10 to-transparent p-5 space-y-4">
+        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-accent/10 blur-3xl pointer-events-none" />
 
         <div className="flex items-start gap-3">
-          <div className="w-9 h-9 rounded-xl bg-accent-green/15 border border-accent-green/25 flex items-center justify-center flex-shrink-0 mt-0.5 text-base leading-none">
+          <div className="w-9 h-9 rounded-xl bg-accent/15 border border-accent/25 flex items-center justify-center flex-shrink-0 mt-0.5 text-base leading-none">
             🔗
           </div>
           <div>
@@ -145,8 +145,8 @@ export const FriendsManager: React.FC<Props> = ({ friends, onRemove, onRefetch }
                 className={clx(
                   'flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200',
                   copied
-                    ? 'bg-accent-green text-bg'
-                    : 'bg-accent-green/15 text-accent-green hover:bg-accent-green/25 border border-accent-green/25'
+                    ? 'bg-accent text-bg'
+                    : 'bg-accent/15 text-accent hover:bg-accent/25 border border-accent/25'
                 )}
               >
                 {copied ? '✓ Copied!' : '📋 Copy Link'}
@@ -174,7 +174,7 @@ export const FriendsManager: React.FC<Props> = ({ friends, onRemove, onRefetch }
           <button
             onClick={handleGenerate}
             disabled={generating}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-accent-green text-bg text-sm font-semibold hover:bg-accent-green/90 active:scale-[0.98] transition-all disabled:opacity-60"
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-accent text-bg text-sm font-semibold hover:bg-accent/90 active:scale-[0.98] transition-all disabled:opacity-60"
           >
             {generating ? (
               <svg width="16" height="16" viewBox="0 0 24 24" className="animate-spin" fill="none">
@@ -229,7 +229,7 @@ export const FriendsManager: React.FC<Props> = ({ friends, onRemove, onRefetch }
           <p className="text-xs text-text-muted px-1">That's you! 😄</p>
         )}
         {addSuccess && (
-          <p className="text-xs text-accent-green px-1">✓ Friend added successfully!</p>
+          <p className="text-xs text-accent px-1">✓ Friend added successfully!</p>
         )}
         {searchResult && searchResult !== 'not-found' && searchResult !== 'self' && (
           <div className="flex items-center justify-between p-3 bg-bg border border-border/70 rounded-xl">
@@ -238,7 +238,7 @@ export const FriendsManager: React.FC<Props> = ({ friends, onRemove, onRefetch }
               <div>
                 <button
                   onClick={() => navigate(`/u/${searchResult.username}`)}
-                  className="text-sm font-medium text-text-primary hover:text-accent-green transition-colors text-left"
+                  className="text-sm font-medium text-text-primary hover:text-accent transition-colors text-left"
                 >
                   @{searchResult.username}
                 </button>
@@ -246,14 +246,14 @@ export const FriendsManager: React.FC<Props> = ({ friends, onRemove, onRefetch }
               </div>
             </div>
             {isFriend(searchResult.id) ? (
-              <span className="text-xs text-accent-green font-medium px-2 py-1 rounded-lg bg-accent-green/10">
+              <span className="text-xs text-accent font-medium px-2 py-1 rounded-lg bg-accent/10">
                 Friends ✓
               </span>
             ) : (
               <button
                 onClick={() => handleAddFriend(searchResult as UserProfile)}
                 disabled={adding}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-accent-green text-bg text-xs font-semibold hover:bg-accent-green/90 transition-all disabled:opacity-60"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-accent text-bg text-xs font-semibold hover:bg-accent/90 transition-all disabled:opacity-60"
               >
                 {adding ? (
                   <svg width="12" height="12" viewBox="0 0 24 24" className="animate-spin" fill="none">
@@ -294,7 +294,7 @@ export const FriendsManager: React.FC<Props> = ({ friends, onRemove, onRefetch }
                 >
                   <Avatar username={f.profile.username} color={f.profile.avatar_color} size="sm" />
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-text-primary hover:text-accent-green transition-colors truncate">
+                    <p className="text-sm font-medium text-text-primary hover:text-accent transition-colors truncate">
                       @{f.profile.username}
                     </p>
                     <p className="text-xs text-text-muted">{f.todayScore}% today</p>

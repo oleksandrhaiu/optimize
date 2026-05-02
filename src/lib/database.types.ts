@@ -186,6 +186,8 @@ export interface Database {
           id: string
           last_seen_at: string | null
           username: string
+          theme: string
+          sound_enabled: boolean
         }
         Insert: {
           avatar_color?: string
@@ -194,6 +196,8 @@ export interface Database {
           id: string
           last_seen_at?: string | null
           username: string
+          theme?: string
+          sound_enabled?: boolean
         }
         Update: {
           avatar_color?: string
@@ -202,6 +206,8 @@ export interface Database {
           id?: string
           last_seen_at?: string | null
           username?: string
+          theme?: string
+          sound_enabled?: boolean
         }
         Relationships: [
           {

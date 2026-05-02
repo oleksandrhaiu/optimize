@@ -9,7 +9,7 @@ export default {
         'card-hover': '#1C1E28',
         border: '#2A2C3A',
         'border-subtle': '#1F2130',
-        'accent-green': '#00C896',
+        'accent': 'var(--color-accent)',
         blue: '#4B9EFF',
         amber: '#F5A623',
         red: '#FF5F5F',
@@ -41,7 +41,7 @@ export default {
         shimmer:  { '0%': { backgroundPosition: '-200% 0' }, '100%': { backgroundPosition: '200% 0' } },
       },
       boxShadow: {
-        'glow-green': '0 0 24px rgba(0, 200, 150, 0.12)',
+        'glow-accent': '0 0 24px var(--color-accent-glow)',
         'glow-blue': '0 0 24px rgba(75, 158, 255, 0.12)',
         'card': '0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.25)',
       },

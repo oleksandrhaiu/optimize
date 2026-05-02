@@ -37,7 +37,7 @@ export const InviteAccept: React.FC = () => {
       <div className="bg-card border border-border rounded-2xl p-8 max-w-sm w-full text-center space-y-4 animate-slide-up">
         {status === 'success' ? (
           <>
-            <div className="w-16 h-16 rounded-full bg-accent-green/15 border border-accent-green/30 flex items-center justify-center mx-auto">
+            <div className="w-16 h-16 rounded-full bg-accent/15 border border-accent/30 flex items-center justify-center mx-auto">
               <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
                 <path d="M5 16L12 23L27 7" stroke="#00C896" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>

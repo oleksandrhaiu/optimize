@@ -96,7 +96,7 @@ export const HabitHistoryModal: React.FC<HabitHistoryModalProps> = ({ habit, log
                   title={`${date}${value != null ? `: ${value}${habit.unit ? ' ' + habit.unit : ''}` : ''}`}
                   className={clx(
                     'aspect-square rounded-md transition-all',
-                    done ? 'bg-accent-green/70' : 'bg-border/40',
+                    done ? 'bg-accent/70' : 'bg-border/40',
                   )}
                 />
               ))}

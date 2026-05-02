@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Login } from '@/pages/Login';
@@ -38,7 +38,15 @@ const SetupRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 const App: React.FC = () => {
-  const { initialized } = useAuth();
+  const { profile, initialized } = useAuth();
+
+  useEffect(() => {
+    if (profile?.theme) {
+      document.documentElement.setAttribute('data-theme', profile.theme);
+    } else {
+      document.documentElement.setAttribute('data-theme', 'green');
+    }
+  }, [profile?.theme]);
 
   if (!initialized) {
     return <PageLoader />;

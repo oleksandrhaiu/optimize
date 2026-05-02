@@ -10,10 +10,19 @@ const AVATAR_EMOJIS = [
   '🌊', '🔥', '⚡', '🌙', '🌿', '💎', '🎯', '🚀',
 ];
 
+const THEMES = [
+  { id: 'green', name: 'Green', color: '#00C896' },
+  { id: 'blue', name: 'Blue', color: '#4B9EFF' },
+  { id: 'purple', name: 'Purple', color: '#B055FF' },
+  { id: 'orange', name: 'Orange', color: '#FF7B00' },
+];
+
 export const ProfileSettings: React.FC = () => {
   const { profile, setProfile } = useAuthStore();
   const [username, setUsername] = useState(profile?.username ?? '');
   const [selectedColor, setSelectedColor] = useState(profile?.avatar_color ?? AVATAR_COLORS[0]);
+  const [selectedTheme, setSelectedTheme] = useState(profile?.theme ?? 'green');
+  const [soundEnabled, setSoundEnabled] = useState(profile?.sound_enabled ?? true);
   const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +32,9 @@ export const ProfileSettings: React.FC = () => {
 
   const hasChanges =
     username !== profile.username ||
-    selectedColor !== profile.avatar_color;
+    selectedColor !== profile.avatar_color ||
+    selectedTheme !== profile.theme ||
+    soundEnabled !== profile.sound_enabled;
 
   const handleSave = async () => {
     if (!username.trim()) return;
@@ -38,7 +49,12 @@ export const ProfileSettings: React.FC = () => {
 
     const { data, error: err } = await supabase
       .from('users')
-      .update({ username: username.trim(), avatar_color: selectedColor })
+      .update({ 
+        username: username.trim(), 
+        avatar_color: selectedColor,
+        theme: selectedTheme,
+        sound_enabled: soundEnabled
+      })
       .eq('id', profile.id)
       .select()
       .single();
@@ -136,7 +152,7 @@ export const ProfileSettings: React.FC = () => {
             onClick={() => setSelectedEmoji(null)}
             className={`w-9 h-9 rounded-xl text-xs font-mono font-bold transition-all duration-150 flex items-center justify-center ${
               selectedEmoji === null
-                ? 'bg-white/[0.08] border border-border ring-1 ring-accent-green/40'
+                ? 'bg-white/[0.08] border border-border ring-1 ring-accent/40'
                 : 'bg-bg border border-border/60 text-text-muted hover:border-border'
             }`}
             style={{ color: selectedColor }}
@@ -150,7 +166,7 @@ export const ProfileSettings: React.FC = () => {
               onClick={() => setSelectedEmoji(emoji === selectedEmoji ? null : emoji)}
               className={`w-9 h-9 rounded-xl text-lg transition-all duration-150 ${
                 selectedEmoji === emoji
-                  ? 'bg-white/[0.08] border border-border ring-1 ring-accent-green/40 scale-110'
+                  ? 'bg-white/[0.08] border border-border ring-1 ring-accent/40 scale-110'
                   : 'bg-bg border border-border/60 hover:border-border hover:scale-105'
               }`}
             >
@@ -163,6 +179,60 @@ export const ProfileSettings: React.FC = () => {
         </p>
       </div>
 
+      <div className="h-px w-full bg-border/50" />
+
+      {/* App Theme */}
+      <div className="space-y-3">
+        <label className="text-sm font-medium text-text-primary">App theme</label>
+        <div className="flex flex-wrap gap-3">
+          {THEMES.map(t => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => {
+                setSelectedTheme(t.id);
+                document.documentElement.setAttribute('data-theme', t.id); // Preview instantly
+              }}
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-150 border flex items-center gap-2 ${
+                selectedTheme === t.id
+                  ? 'bg-white/[0.08] border-border ring-1 ring-accent/40 text-text-primary'
+                  : 'bg-bg border-border/60 text-text-muted hover:border-border'
+              }`}
+            >
+              <span className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: t.color }} />
+              {t.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Sound Settings */}
+      <div className="space-y-3">
+        <label className="text-sm font-medium text-text-primary flex items-center gap-2">
+          Sound Effects
+        </label>
+        <button
+          type="button"
+          onClick={() => setSoundEnabled(v => !v)}
+          className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all w-full sm:w-auto ${
+            soundEnabled
+              ? 'bg-accent/10 border-accent/30 text-text-primary'
+              : 'bg-bg border-border text-text-muted'
+          }`}
+        >
+          <div className={`w-5 h-5 rounded flex items-center justify-center border-2 transition-colors ${
+            soundEnabled ? 'border-accent bg-accent/20' : 'border-border'
+          }`}>
+            {soundEnabled && (
+              <svg className="text-accent" width="10" height="10" viewBox="0 0 12 12" fill="none">
+                <path d="M2 6l3 3 5-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+          </div>
+          <span className="text-sm font-medium">{soundEnabled ? 'Sounds On' : 'Sounds Off'}</span>
+        </button>
+      </div>
+
       {/* Error / success */}
       {error && (
         <div className="text-sm text-red bg-red/10 border border-red/20 rounded-xl px-4 py-2.5 animate-fade-in">
@@ -170,7 +240,7 @@ export const ProfileSettings: React.FC = () => {
         </div>
       )}
       {success && (
-        <div className="text-sm text-accent-green bg-accent-green/10 border border-accent-green/20 rounded-xl px-4 py-2.5 animate-fade-in">
+        <div className="text-sm text-accent bg-accent/10 border border-accent/20 rounded-xl px-4 py-2.5 animate-fade-in">
           ✓ Profile updated!
         </div>
       )}

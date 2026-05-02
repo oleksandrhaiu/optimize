@@ -99,7 +99,7 @@ export const LoginForm: React.FC = () => {
         Don't have an account?{' '}
         <Link
           to={`/register${params.get('invite') ? `?invite=${params.get('invite')}` : ''}`}
-          className="text-accent-green hover:underline"
+          className="text-accent hover:underline"
         >
           Create one
         </Link>

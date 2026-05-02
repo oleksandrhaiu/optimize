@@ -27,7 +27,7 @@ export const MonthNav: React.FC<MonthNavProps> = ({ monthYear, onPrev, onNext })
         <span className="font-heading font-semibold text-text-primary">
           {monthName(monthYear.month)}
         </span>
-        <span className={clx('ml-2 font-mono text-sm', isCurrentMonth ? 'text-accent-green' : 'text-text-muted')}>
+        <span className={clx('ml-2 font-mono text-sm', isCurrentMonth ? 'text-accent' : 'text-text-muted')}>
           {monthYear.year}
         </span>
       </div>

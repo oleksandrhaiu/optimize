@@ -12,7 +12,7 @@ interface StatCardProps {
 }
 
 const colorMap = {
-  green: { bg: 'bg-accent-green/10', border: 'border-accent-green/20', text: 'text-accent-green', icon: 'bg-accent-green/15' },
+  green: { bg: 'bg-accent/10', border: 'border-accent/20', text: 'text-accent', icon: 'bg-accent/15' },
   blue:  { bg: 'bg-blue/10', border: 'border-blue/20', text: 'text-blue', icon: 'bg-blue/15' },
   amber: { bg: 'bg-amber/10', border: 'border-amber/20', text: 'text-amber', icon: 'bg-amber/15' },
   red:   { bg: 'bg-red/10', border: 'border-red/20', text: 'text-red', icon: 'bg-red/15' },

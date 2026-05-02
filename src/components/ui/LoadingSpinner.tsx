@@ -6,7 +6,7 @@ export const LoadingSpinner: React.FC<{ size?: number; className?: string }> = (
   className = '',
 }) => (
   <svg
-    className={`animate-spin text-accent-green ${className}`}
+    className={`animate-spin text-accent ${className}`}
     style={{ animationDuration: '0.75s' }}
     width={size}
     height={size}
@@ -141,7 +141,7 @@ export const PageLoader: React.FC = () => (
   <div className="min-h-screen bg-bg flex items-center justify-center">
     <div className="flex flex-col items-center gap-4">
       {/* Logo mark */}
-      <div className="w-12 h-12 rounded-2xl bg-accent-green/10 border border-accent-green/20 flex items-center justify-center mb-1">
+      <div className="w-12 h-12 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center mb-1">
         <svg width="22" height="22" viewBox="0 0 14 14" fill="none">
           <path d="M2 7L5.5 10.5L12 3" stroke="#00C896" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
