@@ -47,11 +47,11 @@
 
   html {
     scroll-behavior: smooth;
-    background-color: var(--color-bg) !important;
+    background-color: rgb(var(--color-bg)) !important;
   }
 
   body {
-    background-color: var(--color-bg) !important;
+    background-color: rgb(var(--color-bg)) !important;
     color: var(--color-text-primary);
     font-family: 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
