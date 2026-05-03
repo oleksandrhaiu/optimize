@@ -30,11 +30,11 @@
 
   html {
     scroll-behavior: smooth;
-    background-color: var(--color-bg) !important;
+    background-color: #0E0F14 !important;
   }
 
   body {
-    background-color: var(--color-bg) !important;
+    background-color: #0E0F14 !important;
     color: var(--color-text-primary);
     font-family: 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -179,6 +179,7 @@
     background: rgb(var(--color-bg) / 0.85);
     backdrop-filter: blur(16px) saturate(180%);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
+    padding-top: env(safe-area-inset-top);
   }
   .scrollbar-hide {
     -ms-overflow-style: none;
