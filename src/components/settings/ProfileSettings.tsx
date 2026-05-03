@@ -10,16 +10,12 @@ const AVATAR_EMOJIS = [
   '🌊', '🔥', '⚡', '🌙', '🌿', '💎', '🎯', '🚀',
 ];
 
-const THEMES = [
-  { id: 'dark', name: 'Dark Mode', color: '#161820' },
-  { id: 'light', name: 'Light Mode', color: '#FFFFFF' },
-];
+
 
 export const ProfileSettings: React.FC = () => {
   const { profile, setProfile } = useAuthStore();
   const [username, setUsername] = useState(profile?.username ?? '');
   const [selectedColor, setSelectedColor] = useState(profile?.avatar_color ?? AVATAR_COLORS[0]);
-  const [selectedTheme, setSelectedTheme] = useState(profile?.theme === 'light' ? 'light' : 'dark');
   const [soundEnabled, setSoundEnabled] = useState(profile?.sound_enabled ?? true);
   const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -31,7 +27,6 @@ export const ProfileSettings: React.FC = () => {
   const hasChanges =
     username !== profile.username ||
     selectedColor !== profile.avatar_color ||
-    selectedTheme !== profile.theme ||
     soundEnabled !== profile.sound_enabled;
 
   const handleSave = async () => {
@@ -50,7 +45,6 @@ export const ProfileSettings: React.FC = () => {
       .update({ 
         username: username.trim(), 
         avatar_color: selectedColor,
-        theme: selectedTheme,
         sound_enabled: soundEnabled
       })
       .eq('id', profile.id)
@@ -179,33 +173,7 @@ export const ProfileSettings: React.FC = () => {
 
       <div className="h-px w-full bg-border/50" />
 
-      {/* App Theme */}
-      <div className="space-y-3">
-        <label className="text-sm font-medium text-text-primary">App theme</label>
-        <div className="flex flex-wrap gap-3">
-          {THEMES.map(t => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => {
-                setSelectedTheme(t.id);
-                document.documentElement.setAttribute('data-theme', t.id); // Preview instantly
-                document.documentElement.style.colorScheme = t.id;
-                const meta = document.querySelector('meta[name="theme-color"]');
-                meta?.setAttribute('content', t.id === 'light' ? '#F9FAFB' : '#0E0F14');
-              }}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-150 border flex items-center gap-2 ${
-                selectedTheme === t.id
-                  ? 'bg-white/[0.08] border-border ring-1 ring-accent/40 text-text-primary'
-                  : 'bg-bg border-border/60 text-text-muted hover:border-border'
-              }`}
-            >
-              <span className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: t.color }} />
-              {t.name}
-            </button>
-          ))}
-        </div>
-      </div>
+
 
       {/* Sound Settings */}
       <div className="space-y-3">

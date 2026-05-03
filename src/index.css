@@ -22,23 +22,6 @@
     color-scheme: dark;
   }
 
-  html[data-theme="light"] {
-    --color-bg: 249 250 251;
-    --color-card: 255 255 255;
-    --color-card-hover: 243 244 246;
-    --color-border: 229 231 235;
-    --color-border-subtle: 243 244 246;
-    --color-accent: 0 175 130;
-    --color-accent-glow: rgba(0, 175, 130, 0.12);
-    --color-blue: 37 99 235;
-    --color-amber: 217 119 6;
-    --color-red: 220 38 38;
-    --color-text-primary: 17 24 39;
-    --color-text-muted: 107 114 128;
-    --color-text-subtle: 156 163 175;
-    color-scheme: light;
-  }
-
   * {
     box-sizing: border-box;
     margin: 0;

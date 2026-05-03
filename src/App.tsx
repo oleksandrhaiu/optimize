@@ -42,16 +42,9 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const themeColorMeta = document.querySelector('meta[name="theme-color"]');
-    if (profile?.theme === 'light') {
-      document.documentElement.setAttribute('data-theme', 'light');
-      document.documentElement.style.colorScheme = 'light';
-      themeColorMeta?.setAttribute('content', '#F9FAFB');
-    } else {
-      document.documentElement.setAttribute('data-theme', 'dark');
-      document.documentElement.style.colorScheme = 'dark';
-      themeColorMeta?.setAttribute('content', '#0E0F14');
-    }
-  }, [profile?.theme]);
+    document.documentElement.style.colorScheme = 'dark';
+    themeColorMeta?.setAttribute('content', '#0E0F14');
+  }, []);
 
   if (!initialized) {
     return <PageLoader />;
