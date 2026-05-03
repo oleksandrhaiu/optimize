@@ -41,8 +41,8 @@ const App: React.FC = () => {
   const { profile, initialized } = useAuth();
 
   useEffect(() => {
-    if (profile?.theme) {
-      document.documentElement.setAttribute('data-theme', profile.theme);
+    if (profile?.theme === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
     } else {
       document.documentElement.setAttribute('data-theme', 'dark');
     }

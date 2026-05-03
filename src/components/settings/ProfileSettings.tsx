@@ -19,7 +19,7 @@ export const ProfileSettings: React.FC = () => {
   const { profile, setProfile } = useAuthStore();
   const [username, setUsername] = useState(profile?.username ?? '');
   const [selectedColor, setSelectedColor] = useState(profile?.avatar_color ?? AVATAR_COLORS[0]);
-  const [selectedTheme, setSelectedTheme] = useState(profile?.theme ?? 'dark');
+  const [selectedTheme, setSelectedTheme] = useState(profile?.theme === 'light' ? 'light' : 'dark');
   const [soundEnabled, setSoundEnabled] = useState(profile?.sound_enabled ?? true);
   const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
