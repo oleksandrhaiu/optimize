@@ -44,7 +44,7 @@ const App: React.FC = () => {
     if (profile?.theme) {
       document.documentElement.setAttribute('data-theme', profile.theme);
     } else {
-      document.documentElement.setAttribute('data-theme', 'green');
+      document.documentElement.setAttribute('data-theme', 'dark');
     }
   }, [profile?.theme]);
 

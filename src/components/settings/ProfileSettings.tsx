@@ -11,17 +11,15 @@ const AVATAR_EMOJIS = [
 ];
 
 const THEMES = [
-  { id: 'green', name: 'Green', color: '#00C896' },
-  { id: 'blue', name: 'Blue', color: '#4B9EFF' },
-  { id: 'purple', name: 'Purple', color: '#B055FF' },
-  { id: 'orange', name: 'Orange', color: '#FF7B00' },
+  { id: 'dark', name: 'Dark Mode', color: '#161820' },
+  { id: 'light', name: 'Light Mode', color: '#FFFFFF' },
 ];
 
 export const ProfileSettings: React.FC = () => {
   const { profile, setProfile } = useAuthStore();
   const [username, setUsername] = useState(profile?.username ?? '');
   const [selectedColor, setSelectedColor] = useState(profile?.avatar_color ?? AVATAR_COLORS[0]);
-  const [selectedTheme, setSelectedTheme] = useState(profile?.theme ?? 'green');
+  const [selectedTheme, setSelectedTheme] = useState(profile?.theme ?? 'dark');
   const [soundEnabled, setSoundEnabled] = useState(profile?.sound_enabled ?? true);
   const [selectedEmoji, setSelectedEmoji] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
