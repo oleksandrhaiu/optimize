@@ -19,6 +19,7 @@
     --color-text-primary: 226 228 240;
     --color-text-muted: 139 143 168;
     --color-text-subtle: 90 95 117;
+    color-scheme: dark;
   }
 
   html[data-theme="light"] {
@@ -35,6 +36,7 @@
     --color-text-primary: 17 24 39;
     --color-text-muted: 107 114 128;
     --color-text-subtle: 156 163 175;
+    color-scheme: light;
   }
 
   * {
@@ -45,12 +47,12 @@
 
   html {
     scroll-behavior: smooth;
-    background-color: var(--color-bg);
+    background-color: var(--color-bg) !important;
   }
 
   body {
-    background-color: var(--color-bg);
-    color: var(--color-text);
+    background-color: var(--color-bg) !important;
+    color: var(--color-text-primary);
     font-family: 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;

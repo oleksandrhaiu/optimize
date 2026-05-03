@@ -190,6 +190,7 @@ export const ProfileSettings: React.FC = () => {
               onClick={() => {
                 setSelectedTheme(t.id);
                 document.documentElement.setAttribute('data-theme', t.id); // Preview instantly
+                document.documentElement.style.colorScheme = t.id;
                 const meta = document.querySelector('meta[name="theme-color"]');
                 meta?.setAttribute('content', t.id === 'light' ? '#F9FAFB' : '#0E0F14');
               }}
