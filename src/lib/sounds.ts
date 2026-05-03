@@ -28,26 +28,40 @@ export function playSound(type: 'pop' | 'unpop', enabled: boolean = true) {
     gain.connect(audioCtx.destination);
 
     if (type === 'pop') {
-      // High, satisfying "pop" for checking
+      // Satisfying "Bubble/Pop" sound
+      // Core bubble: low to high sweep
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(800, t);
-      osc.frequency.exponentialRampToValueAtTime(300, t + 0.1);
+      osc.frequency.setValueAtTime(400, t);
+      osc.frequency.exponentialRampToValueAtTime(1200, t + 0.04);
 
+      // Volume envelope: very quick attack, fast decay
       gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(0.5, t + 0.01);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+      gain.gain.linearRampToValueAtTime(0.4, t + 0.005);
+      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
       
       osc.start(t);
       osc.stop(t + 0.1);
+
+      // Add a tiny "click" at the very beginning for texture
+      const clickOsc = audioCtx.createOscillator();
+      const clickGain = audioCtx.createGain();
+      clickOsc.type = 'square';
+      clickOsc.frequency.setValueAtTime(2000, t);
+      clickGain.gain.setValueAtTime(0.05, t);
+      clickGain.gain.exponentialRampToValueAtTime(0.01, t + 0.01);
+      clickOsc.connect(clickGain);
+      clickGain.connect(audioCtx.destination);
+      clickOsc.start(t);
+      clickOsc.stop(t + 0.01);
     } else {
-      // Lower, slightly softer pop for un-checking
+      // Lower, "un-bubble" sound
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(400, t);
-      osc.frequency.exponentialRampToValueAtTime(200, t + 0.12);
+      osc.frequency.setValueAtTime(300, t);
+      osc.frequency.exponentialRampToValueAtTime(100, t + 0.08);
 
       gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(0.3, t + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+      gain.gain.linearRampToValueAtTime(0.25, t + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.12);
       
       osc.start(t);
       osc.stop(t + 0.12);

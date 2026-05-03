@@ -115,11 +115,11 @@
 
   /* ── Heatmap cells ───────────────────────────────────────── */
   .heatmap-cell { @apply w-3 h-3 rounded-sm transition-colors duration-200; }
-  .heatmap-0 { background-color: #1A1C28; }
-  .heatmap-1 { background-color: #004D3D; }
-  .heatmap-2 { background-color: #007A62; }
-  .heatmap-3 { background-color: #00A880; }
-  .heatmap-4 { background-color: #00C896; }
+  .heatmap-0 { background-color: rgb(var(--color-card-hover)); }
+  .heatmap-1 { background-color: rgb(var(--color-accent) / 0.3); }
+  .heatmap-2 { background-color: rgb(var(--color-accent) / 0.5); }
+  .heatmap-3 { background-color: rgb(var(--color-accent) / 0.7); }
+  .heatmap-4 { background-color: rgb(var(--color-accent)); }
 
   /* ── Score pill ──────────────────────────────────────────── */
   .score-pill {
@@ -131,10 +131,10 @@
 
   /* ── Nav link ────────────────────────────────────────────── */
   .nav-link {
-    @apply flex items-center gap-2 px-3 py-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-white/[0.04] transition-all duration-150 text-sm font-medium;
+    @apply flex items-center gap-2 px-3 py-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-card-hover transition-all duration-150 text-sm font-medium;
   }
   .nav-link.active {
-    @apply text-text-primary bg-white/[0.06] ring-1 ring-border;
+    @apply text-text-primary bg-card-hover ring-1 ring-border;
   }
 
   /* ── Input base ──────────────────────────────────────────── */
@@ -190,7 +190,7 @@
     background-clip: text;
   }
   .glass {
-    background: rgba(14, 15, 20, 0.85);
+    background: rgb(var(--color-bg) / 0.85);
     backdrop-filter: blur(16px) saturate(180%);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
   }

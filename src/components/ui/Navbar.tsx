@@ -100,7 +100,7 @@ const NavSearch: React.FC = () => {
         onClick={() => setOpen(v => !v)}
         className={clx(
           'p-2 rounded-lg transition-all duration-150',
-          open ? 'text-text-primary bg-white/[0.06]' : 'text-text-muted hover:text-text-primary hover:bg-white/[0.04]',
+          open ? 'text-text-primary bg-card-hover' : 'text-text-muted hover:text-text-primary hover:bg-card-hover',
         )}
         title="Find users"
       >
@@ -141,7 +141,7 @@ const NavSearch: React.FC = () => {
                 <button
                   key={u.id}
                   onClick={() => goToProfile(u.username)}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-white/[0.04] transition-colors text-left"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-card-hover transition-colors text-left"
                 >
                   <Avatar username={u.username} color={u.avatar_color} size="sm" />
                   <span className="text-sm font-medium text-text-primary">@{u.username}</span>
@@ -183,7 +183,7 @@ export const Navbar: React.FC = () => {
         <NavLink to="/tracker" className="flex items-center gap-2.5 mr-3 flex-shrink-0 group">
           <div className="w-7 h-7 rounded-lg bg-accent/15 border border-accent/30 flex items-center justify-center group-hover:bg-accent/20 transition-colors duration-150">
             <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
-              <path d="M2 7L5.5 10.5L12 3" stroke="#00C896" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M2 7L5.5 10.5L12 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
           <span className="font-heading font-bold text-sm text-text-primary hidden sm:block tracking-tight">
@@ -219,7 +219,7 @@ export const Navbar: React.FC = () => {
               className={({ isActive }) =>
                 clx(
                   'p-2.5 rounded-lg transition-colors duration-150',
-                  isActive ? 'text-accent bg-accent/10' : 'text-text-muted hover:text-text-primary hover:bg-white/[0.04]',
+                  isActive ? 'text-accent bg-accent/10' : 'text-text-muted hover:text-text-primary hover:bg-card-hover',
                 )
               }
             >
@@ -238,7 +238,7 @@ export const Navbar: React.FC = () => {
               onClick={() => setMenuOpen(v => !v)}
               className={clx(
                 'flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-xl transition-all duration-150',
-                menuOpen ? 'bg-white/[0.06]' : 'hover:bg-white/[0.04]',
+                menuOpen ? 'bg-card-hover' : 'hover:bg-card-hover',
               )}
               aria-label="User menu"
             >
