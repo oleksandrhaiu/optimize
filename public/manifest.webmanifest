@@ -1,0 +1,17 @@
+{
+  "name": "HabitSync",
+  "short_name": "HabitSync",
+  "description": "Build better habits together",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0E0F14",
+  "theme_color": "#0E0F14",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
