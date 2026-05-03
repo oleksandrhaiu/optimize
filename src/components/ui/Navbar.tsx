@@ -176,7 +176,7 @@ export const Navbar: React.FC = () => {
   }, []);
 
   return (
-    <nav className="sticky top-0 z-30 glass border-b border-border/60">
+    <nav className="sticky top-0 z-30 glass border-b border-border/60 pt-[env(safe-area-inset-top)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-3">
 
         {/* Logo */}
