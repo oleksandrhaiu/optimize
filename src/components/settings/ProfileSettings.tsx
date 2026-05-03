@@ -190,6 +190,8 @@ export const ProfileSettings: React.FC = () => {
               onClick={() => {
                 setSelectedTheme(t.id);
                 document.documentElement.setAttribute('data-theme', t.id); // Preview instantly
+                const meta = document.querySelector('meta[name="theme-color"]');
+                meta?.setAttribute('content', t.id === 'light' ? '#F9FAFB' : '#0E0F14');
               }}
               className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-150 border flex items-center gap-2 ${
                 selectedTheme === t.id

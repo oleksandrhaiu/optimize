@@ -41,10 +41,13 @@ const App: React.FC = () => {
   const { profile, initialized } = useAuth();
 
   useEffect(() => {
+    const themeColorMeta = document.querySelector('meta[name="theme-color"]');
     if (profile?.theme === 'light') {
       document.documentElement.setAttribute('data-theme', 'light');
+      themeColorMeta?.setAttribute('content', '#F9FAFB');
     } else {
       document.documentElement.setAttribute('data-theme', 'dark');
+      themeColorMeta?.setAttribute('content', '#0E0F14');
     }
   }, [profile?.theme]);
 
