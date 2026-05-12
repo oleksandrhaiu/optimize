@@ -28,35 +28,20 @@ export function playSound(type: 'pop' | 'unpop', enabled: boolean = true) {
     gain.connect(audioCtx.destination);
 
     if (type === 'pop') {
-      // Soft, premium, subtle "thock/tick" sound
+      // Light, pleasant "bubble / water drop" sound
       osc.type = 'sine';
       
-      // Very fast frequency drop for a percussive tick
-      osc.frequency.setValueAtTime(800, t);
-      osc.frequency.exponentialRampToValueAtTime(100, t + 0.04);
+      // Pitch sweeps up quickly to create the "bloop" effect
+      osc.frequency.setValueAtTime(400, t);
+      osc.frequency.exponentialRampToValueAtTime(1000, t + 0.05);
 
-      // Volume envelope: very quick attack, fast decay, much quieter
+      // Volume envelope: smooth, fast, light
       gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(0.15, t + 0.005);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+      gain.gain.linearRampToValueAtTime(0.3, t + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.06);
       
       osc.start(t);
-      osc.stop(t + 0.06);
-
-      // Tiny high-frequency click for crispness
-      const clickOsc = audioCtx.createOscillator();
-      const clickGain = audioCtx.createGain();
-      clickOsc.type = 'triangle';
-      clickOsc.frequency.setValueAtTime(1500, t);
-      clickOsc.frequency.exponentialRampToValueAtTime(800, t + 0.02);
-      
-      clickGain.gain.setValueAtTime(0.04, t);
-      clickGain.gain.exponentialRampToValueAtTime(0.001, t + 0.02);
-      
-      clickOsc.connect(clickGain);
-      clickGain.connect(audioCtx.destination);
-      clickOsc.start(t);
-      clickOsc.stop(t + 0.02);
+      osc.stop(t + 0.07);
     } else {
       // Lower, "un-bubble" sound
       osc.type = 'sine';
