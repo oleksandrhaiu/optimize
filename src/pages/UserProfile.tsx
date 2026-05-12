@@ -112,8 +112,7 @@ export const UserProfilePage: React.FC = () => {
 
   if (notFound) {
     return (
-      <div className="min-h-screen bg-bg">
-        <Navbar />
+      <div>
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <p className="text-4xl">🔍</p>
           <h1 className="font-heading text-xl font-bold text-text-primary">User not found</h1>
@@ -125,8 +124,7 @@ export const UserProfilePage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-bg">
-      <Navbar />
+    <div>
       <main className="max-w-2xl mx-auto px-4 sm:px-6 py-8 space-y-6">
 
         {/* Back */}

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation, Outlet } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Login } from '@/pages/Login';
 import { Register } from '@/pages/Register';
@@ -10,13 +10,24 @@ import { Settings } from '@/pages/Settings';
 import { SetupProfile } from '@/pages/SetupProfile';
 import { UserProfilePage } from '@/pages/UserProfile';
 import { PageLoader } from '@/components/ui/LoadingSpinner';
+import { Navbar } from '@/components/ui/Navbar';
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const ProtectedLayout: React.FC = () => {
   const { session, profile, initialized } = useAuth();
+  const location = useLocation();
+
   if (!initialized) return <PageLoader />;
   if (!session) return <Navigate to="/login" replace />;
   if (session && !profile) return <Navigate to="/setup-profile" replace />;
-  return <>{children}</>;
+  
+  return (
+    <div className="min-h-screen bg-bg flex flex-col relative">
+      <Navbar />
+      <div key={location.pathname} className="page-transition flex-1">
+        <Outlet />
+      </div>
+    </div>
+  );
 };
 
 const AuthRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -51,25 +62,23 @@ const App: React.FC = () => {
     return <PageLoader />;
   }
 
-  const location = useLocation();
-
   return (
-    <div key={location.pathname} className="page-transition">
-      <Routes location={location}>
-        <Route path="/" element={<Navigate to="/tracker" replace />} />
-        <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
-        <Route path="/register" element={<AuthRoute><Register /></AuthRoute>} />
-        <Route path="/invite/:token" element={<InviteAccept />} />
-        <Route path="/setup-profile" element={<SetupRoute><SetupProfile /></SetupRoute>} />
+    <Routes>
+      <Route path="/" element={<Navigate to="/tracker" replace />} />
+      <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
+      <Route path="/register" element={<AuthRoute><Register /></AuthRoute>} />
+      <Route path="/invite/:token" element={<InviteAccept />} />
+      <Route path="/setup-profile" element={<SetupRoute><SetupProfile /></SetupRoute>} />
 
-        <Route path="/tracker" element={<ProtectedRoute><Tracker /></ProtectedRoute>} />
-        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-        <Route path="/u/:username" element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />
+      <Route element={<ProtectedLayout />}>
+        <Route path="/tracker" element={<Tracker />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/u/:username" element={<UserProfilePage />} />
+      </Route>
 
-        <Route path="*" element={<Navigate to="/tracker" replace />} />
-      </Routes>
-    </div>
+      <Route path="*" element={<Navigate to="/tracker" replace />} />
+    </Routes>
   );
 };
 

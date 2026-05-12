@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { clx } from '@/lib/utils';
 
-interface SelectOption {
+export interface SelectOption {
   value: string;
   label: string;
-  icon?: string;
+  icon?: React.ReactNode;
 }
 
 interface CustomSelectProps {

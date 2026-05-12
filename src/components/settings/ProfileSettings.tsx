@@ -4,11 +4,13 @@ import { useAuthStore } from '@/store/authStore';
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import { AVATAR_COLORS } from '@/lib/utils';
+import { DynamicIcon } from '@/components/ui/IconPicker';
 
-const AVATAR_EMOJIS = [
-  '🦊', '🐺', '🦁', '🐯', '🦄', '🐸', '🐼', '🦅',
-  '🌊', '🔥', '⚡', '🌙', '🌿', '💎', '🎯', '🚀',
-];const THEMES = [
+const AVATAR_ICONS = [
+  'Flame', 'Zap', 'Target', 'Rocket', 'Gem', 'Moon', 'Waves', 'Smile',
+  'Brain', 'Dumbbell', 'Heart', 'Coffee', 'Sun', 'Trophy', 'Activity', 'Footprints'
+];
+const THEMES = [
   { id: 'dark', name: 'Dark Mode', color: '#161820' },
   { id: 'light', name: 'Light Mode', color: '#FFFFFF' },
 ];
@@ -86,7 +88,7 @@ export const ProfileSettings: React.FC = () => {
             color: selectedColor,
           }}
         >
-          {selectedEmoji ?? profile.username.slice(0, 2).toUpperCase()}
+          {selectedEmoji ? <DynamicIcon name={selectedEmoji} size={32} /> : profile.username.slice(0, 2).toUpperCase()}
         </div>
         <div>
           <p className="font-heading font-semibold text-text-primary">@{username || profile.username}</p>
@@ -156,23 +158,23 @@ export const ProfileSettings: React.FC = () => {
           >
             {profile.username.slice(0, 2).toUpperCase()}
           </button>
-          {AVATAR_EMOJIS.map(emoji => (
+          {AVATAR_ICONS.map(emoji => (
             <button
               key={emoji}
               type="button"
               onClick={() => setSelectedEmoji(emoji === selectedEmoji ? null : emoji)}
-              className={`w-9 h-9 rounded-xl text-lg transition-all duration-150 ${
+              className={`w-9 h-9 rounded-xl text-lg transition-all duration-150 flex items-center justify-center ${
                 selectedEmoji === emoji
-                  ? 'bg-white/[0.08] border border-border ring-1 ring-accent/40 scale-110'
-                  : 'bg-bg border border-border/60 hover:border-border hover:scale-105'
+                  ? 'bg-white/[0.08] border border-border ring-1 ring-accent/40 scale-110 text-accent'
+                  : 'bg-bg border border-border/60 hover:border-border hover:scale-105 text-text-muted'
               }`}
             >
-              {emoji}
+              <DynamicIcon name={emoji} size={16} />
             </button>
           ))}
         </div>
         <p className="text-xs text-text-subtle">
-          Emoji icons are display-only and won't be saved to the server yet.
+          Avatar icons are display-only and won't be saved to the server yet.
         </p>
       </div>
 

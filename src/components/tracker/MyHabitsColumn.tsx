@@ -3,6 +3,7 @@ import { HabitRow } from './HabitRow';
 import type { Habit, HabitLog } from '@/types';
 import { getDaysArray, dateKey, calcDayScore, todayStr } from '@/lib/utils';
 import { clx } from '@/lib/utils';
+import { ListChecks } from 'lucide-react';
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -192,7 +193,9 @@ export const MyHabitsColumn: React.FC<MyHabitsColumnProps> = ({
         <div className="p-2">
           {habits.length === 0 ? (
             <div className="text-center py-10 space-y-2">
-              <p className="text-3xl">📝</p>
+              <div className="flex justify-center mb-1 text-text-subtle">
+                <ListChecks size={36} strokeWidth={1.5} />
+              </div>
               <p className="text-text-muted text-sm font-medium">No habits yet</p>
               <p className="text-text-subtle text-xs">Add some in Settings.</p>
             </div>

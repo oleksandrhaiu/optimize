@@ -4,6 +4,8 @@ import { CSS } from '@dnd-kit/utilities';
 import { clx } from '@/lib/utils';
 import type { Habit } from '@/types';
 import { CustomSelect } from '@/components/ui/CustomSelect';
+import { IconPicker, DynamicIcon } from '@/components/ui/IconPicker';
+import { Flame, Trash2, Plus } from 'lucide-react';
 
 /* ── Unit options ────────────────────────────────────────────── */
 const ALL_UNITS = [
@@ -30,43 +32,7 @@ const ALL_UNITS = [
   { value: 'times',    label: 'Times' },
 ];
 
-/* ── Emoji Picker ────────────────────────────────────────────── */
-const HABIT_EMOJIS = [
-  '💪','🏋️','🧘','🏃','🚴','🤸','⛹️','🥊',
-  '💧','🥗','🍎','☕','🍵','🥦','🥑','🍳',
-  '😴','🧠','📖','📝','💊','🩺','🌿','✨',
-  '🔥','⚡','🎯','🚀','🏆','💎','🌙','🌊',
-  '🎵','🎨','📷','🖥️','💻','📱','✉️','📅',
-  '🐕','🐈','🌱','🌻','⭐','🎲','🎮','🏅',
-];
-
-const EmojiPicker: React.FC<{ current: string | null; onSelect: (e: string | null) => void; onClose: () => void }> = ({ current, onSelect, onClose }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const fn = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) onClose(); };
-    document.addEventListener('mousedown', fn);
-    return () => document.removeEventListener('mousedown', fn);
-  }, [onClose]);
-
-  return (
-    <div ref={ref} className="absolute left-0 top-[calc(100%+6px)] z-50 bg-card border border-border rounded-2xl p-3 shadow-card w-56 animate-slide-up">
-      <p className="text-[10px] text-text-subtle uppercase tracking-wider mb-2.5 font-medium">Pick an icon</p>
-      <div className="grid grid-cols-8 gap-0.5">
-        <button onClick={() => { onSelect(null); onClose(); }}
-          className={clx('w-7 h-7 rounded-lg text-xs flex items-center justify-center', !current ? 'bg-accent/15 ring-1 ring-accent/30' : 'hover:bg-white/[0.05]')}>
-          <span className="text-text-subtle text-sm">–</span>
-        </button>
-        {HABIT_EMOJIS.map(e => (
-          <button key={e} onClick={() => { onSelect(e); onClose(); }}
-            className={clx('w-7 h-7 rounded-lg text-base flex items-center justify-center transition-all leading-none',
-              current === e ? 'bg-accent/15 ring-1 ring-accent/30 scale-110' : 'hover:bg-white/[0.05] hover:scale-105')}>
-            {e}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-};
+/* Emoji picker removed, using IconPicker instead */
 
 /* ── HabitItem ───────────────────────────────────────────────── */
 interface HabitItemProps {
@@ -115,12 +81,12 @@ export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete 
         {/* Icon button */}
         <div className="relative flex-shrink-0">
           <button type="button" onClick={() => setShowEmoji(v => !v)}
-            className="w-8 h-8 rounded-xl flex items-center justify-center text-xl leading-none hover:bg-white/[0.05] transition-colors border border-transparent hover:border-border/40"
+            className="w-8 h-8 rounded-xl flex items-center justify-center text-text-muted hover:text-text-primary hover:bg-white/[0.05] transition-colors border border-transparent hover:border-border/40"
             title="Change icon">
-            {habit.icon ?? <span className="text-text-subtle text-sm">+</span>}
+            <DynamicIcon name={habit.icon} fallback={<Plus size={16} strokeWidth={2} />} size={18} strokeWidth={2} />
           </button>
           {showEmoji && (
-            <EmojiPicker current={habit.icon} onSelect={e => onUpdate(habit.id, { icon: e })} onClose={() => setShowEmoji(false)} />
+            <IconPicker current={habit.icon} onSelect={e => onUpdate(habit.id, { icon: e })} onClose={() => setShowEmoji(false)} />
           )}
         </div>
 
@@ -164,18 +130,15 @@ export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onDelete 
               title={habit.is_calorie_habit ? 'Calorie tracking on' : 'Enable calorie tracking'}
               className={clx('text-sm leading-none transition-all w-6 h-6 rounded-lg flex items-center justify-center',
                 habit.is_calorie_habit ? 'bg-amber/15 text-amber' : 'lg:opacity-0 group-hover:opacity-100 text-text-subtle hover:bg-amber/10 hover:text-amber')}>
-              🔥
+              <Flame size={14} strokeWidth={2.5} />
             </button>
           )}
 
           {/* Delete */}
           <button onClick={() => onDelete(habit.id)}
-            className="lg:opacity-0 group-hover:opacity-100 text-text-subtle hover:text-red w-6 h-6 flex items-center justify-center rounded-lg hover:bg-red/10 transition-all"
+            className="lg:opacity-0 group-hover:opacity-100 text-text-subtle hover:text-red w-7 h-7 flex items-center justify-center rounded-lg hover:bg-red/10 transition-all"
             title="Delete">
-            <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
-              <path d="M2 3.5H12M4.5 3.5V2C4.5 1.448 4.948 1 5.5 1H8.5C9.052 1 9.5 1.448 9.5 2V3.5M5.5 6.5V10.5M8.5 6.5V10.5M3 3.5L3.5 11.5C3.5 12.052 3.948 12.5 4.5 12.5H9.5C10.052 12.5 10.5 12.052 10.5 11.5L11 3.5"
-                stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
+            <Trash2 size={15} strokeWidth={2} />
           </button>
         </div>
       </div>

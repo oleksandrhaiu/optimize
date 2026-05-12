@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Lottie from 'lottie-react';
+import { PartyPopper } from 'lucide-react';
 import { Navbar } from '@/components/ui/Navbar';
 import { MyHabitsColumn } from '@/components/tracker/MyHabitsColumn';
 import { FriendCard } from '@/components/tracker/FriendCard';
@@ -80,8 +81,7 @@ export const Tracker: React.FC = () => {
   const isLoading = habitsLoading || logsLoading;
 
   return (
-    <div className="min-h-screen bg-bg">
-      <Navbar />
+    <div>
 
       {/* Modals */}
       {showOnboarding && !habitsLoading && <OnboardingModal onDone={dismissOnboarding} />}
@@ -101,7 +101,7 @@ export const Tracker: React.FC = () => {
               boxShadow: '0 0 40px rgba(16,185,129,0.2), 0 24px 64px rgba(0,0,0,0.5)',
             }}
           >
-            <span className="text-2xl">🎉</span>
+            <PartyPopper size={28} className="text-emerald" />
             <div>
               <p className="font-heading font-bold text-base" style={{ color: '#34D399' }}>
                 Perfect Day!

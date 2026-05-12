@@ -31,8 +31,7 @@ export const Settings: React.FC = () => {
   const isLoading = habitsLoading || friendsLoading;
 
   return (
-    <div className="min-h-screen bg-bg">
-      <Navbar />
+    <div>
       <main className="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-6">
         <div>
           <h1 className="font-heading text-2xl font-bold text-text-primary">Settings</h1>

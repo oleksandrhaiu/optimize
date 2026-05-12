@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutGrid,
   BarChart2,
@@ -130,6 +130,26 @@ export const Navbar: React.FC = () => {
   const { profile, signOut } = useAuthStore();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLDivElement>(null);
+  const location = useLocation();
+  const [pillStyle, setPillStyle] = useState({ left: 0, width: 0, opacity: 0 });
+
+  useEffect(() => {
+    if (!navRef.current) return;
+    const t = setTimeout(() => {
+      const activeEl = navRef.current?.querySelector('.active') as HTMLElement;
+      if (activeEl) {
+        setPillStyle({
+          left: activeEl.offsetLeft,
+          width: activeEl.offsetWidth,
+          opacity: 1
+        });
+      } else {
+        setPillStyle(prev => ({ ...prev, opacity: 0 }));
+      }
+    }, 10);
+    return () => clearTimeout(t);
+  }, [location.pathname]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -164,12 +184,25 @@ export const Navbar: React.FC = () => {
         </NavLink>
 
         {/* Desktop nav */}
-        <div className="hidden sm:flex items-center gap-0.5 flex-1">
+        <div className="hidden sm:flex items-center gap-1 flex-1 relative" ref={navRef}>
+          {/* Sliding pill */}
+          <div
+            className="absolute top-1 bottom-1 rounded-xl transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] z-0"
+            style={{
+              left: pillStyle.left,
+              width: pillStyle.width,
+              opacity: pillStyle.opacity,
+              background: 'linear-gradient(to bottom, rgba(139,92,246,0.15), rgba(139,92,246,0.05))',
+              border: '1px solid rgba(139,92,246,0.2)',
+              boxShadow: '0 0 10px rgba(139,92,246,0.1)',
+            }}
+          />
           {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}
-              className={({ isActive }) => clx('nav-link', isActive && 'active')}
+              className={({ isActive }) => clx('nav-link relative z-10', isActive && 'active')}
+              style={{ background: 'transparent', border: 'transparent' }} // Let the pill provide the bg
             >
               <Icon size={15} strokeWidth={1.8} />
               {label}
