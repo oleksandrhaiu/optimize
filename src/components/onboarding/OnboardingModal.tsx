@@ -57,10 +57,18 @@ export const OnboardingModal: React.FC<{ onDone: () => void }> = ({ onDone }) =>
     setStep(s => s - 1);
   };
  
-  // Lock body scroll
+  // Lock body scroll (enhanced for iOS)
   React.useEffect(() => {
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+    
     document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = 'auto'; };
+    document.documentElement.style.overflow = 'hidden';
+    
+    return () => {
+      document.body.style.overflow = originalBodyOverflow;
+      document.documentElement.style.overflow = originalHtmlOverflow;
+    };
   }, []);
 
   const variants = {
@@ -81,10 +89,17 @@ export const OnboardingModal: React.FC<{ onDone: () => void }> = ({ onDone }) =>
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md" style={{ height: '100dvh', width: '100vw' }}>
+    <div 
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md touch-none" 
+      style={{ height: '100dvh', width: '100vw' }}
+      onWheel={(e) => e.preventDefault()}
+      onTouchMove={(e) => e.preventDefault()}
+    >
       <motion.div 
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
+        onWheel={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
         className="bg-card border border-border rounded-[2.5rem] w-[90%] max-w-[340px] shadow-2xl overflow-hidden text-center flex flex-col h-auto max-h-[85%]"
       >
         {/* Progress dots */}
