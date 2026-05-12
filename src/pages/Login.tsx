@@ -1,5 +1,6 @@
 import React from 'react';
 import { LoginForm } from '@/components/auth/LoginForm';
+import { Logo } from '@/components/ui/Logo';
 
 export const Login: React.FC = () => (
   <div
@@ -23,19 +24,8 @@ export const Login: React.FC = () => (
     <div className="w-full max-w-sm relative z-10">
       {/* Logo */}
       <div className="text-center space-y-4 mb-8">
-        <div className="relative inline-block">
-          <div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto animate-float"
-            style={{
-              background: 'linear-gradient(135deg, rgba(139,92,246,0.2), rgba(124,58,237,0.1))',
-              border: '1px solid rgba(139,92,246,0.3)',
-              boxShadow: '0 0 40px rgba(139,92,246,0.2)',
-            }}
-          >
-            <svg width="30" height="30" viewBox="0 0 14 14" fill="none">
-              <path d="M2 7L5.5 10.5L12 3" stroke="#A78BFA" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
+        <div className="relative inline-block animate-float" style={{ animationDuration: '4s' }}>
+          <Logo size={64} className="drop-shadow-[0_0_24px_rgba(139,92,246,0.3)] mx-auto" />
         </div>
         <div>
           <h1 className="font-heading text-2xl font-bold text-text-primary">Lumina</h1>
