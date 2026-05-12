@@ -92,7 +92,7 @@ export const OnboardingModal: React.FC<{ onDone: () => void }> = ({ onDone }) =>
         </div>
  
         {/* Content Area with Animation */}
-        <div className="relative min-h-[240px] px-6 py-6 overflow-hidden flex-1 flex flex-col justify-center">
+        <div className="relative min-h-[180px] sm:min-h-[240px] px-5 py-4 overflow-hidden flex-1 flex flex-col justify-center">
           <AnimatePresence initial={false} custom={direction} mode="wait">
             <motion.div
               key={step}
@@ -107,9 +107,9 @@ export const OnboardingModal: React.FC<{ onDone: () => void }> = ({ onDone }) =>
               }}
               className="flex flex-col items-center justify-center"
             >
-              <div className="text-5xl sm:text-6xl mb-4 sm:mb-6">{current.emoji}</div>
-              <h2 className="font-heading font-bold text-lg sm:text-xl text-text-primary mb-2 sm:mb-3">{current.title}</h2>
-              <p className="text-xs sm:text-sm text-text-muted leading-relaxed text-center px-2">{current.description}</p>
+              <div className="text-4xl sm:text-6xl mb-3 sm:mb-6">{current.emoji}</div>
+              <h2 className="font-heading font-bold text-base sm:text-xl text-text-primary mb-1 sm:mb-3">{current.title}</h2>
+              <p className="text-[11px] sm:text-sm text-text-muted leading-relaxed text-center px-4">{current.description}</p>
             </motion.div>
           </AnimatePresence>
         </div>
