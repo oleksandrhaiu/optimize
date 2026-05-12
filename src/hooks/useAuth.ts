@@ -9,20 +9,31 @@ export function useAuth() {
   useEffect(() => {
     let mounted = true;
 
+    // Minimum 1.5s loader to prevent flash
+    const minDelay = new Promise(resolve => setTimeout(resolve, 1500));
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!mounted) return;
       setSession(session);
+      
       if (session?.user) {
-        fetchProfile(session.user.id).finally(() => {
+        Promise.all([
+          fetchProfile(session.user.id),
+          minDelay
+        ]).finally(() => {
           if (mounted) {
             setLoading(false);
             useAuthStore.setState({ initialized: true });
           }
         });
       } else {
-        setLoading(false);
-        useAuthStore.setState({ initialized: true });
+        minDelay.then(() => {
+          if (mounted) {
+            setLoading(false);
+            useAuthStore.setState({ initialized: true });
+          }
+        });
       }
     });
 

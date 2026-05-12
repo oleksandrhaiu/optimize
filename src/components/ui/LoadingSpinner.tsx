@@ -24,12 +24,8 @@ export const Skeleton: React.FC<{ className?: string }> = ({ className = '' }) =
   <div className={`skeleton ${className}`} />
 );
 
-/* ── Full page loader ────────────────────────────────────────── */
 export const PageLoader: React.FC = () => (
-  <div className="fixed inset-0 z-50 bg-bg flex items-center justify-center overflow-hidden">
-    {/* Ambient background glow */}
-    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-violet/10 blur-[80px] rounded-full animate-pulse-soft" />
-    
+  <div className="fixed inset-0 z-50 bg-transparent flex items-center justify-center overflow-hidden backdrop-blur-[2px]">
     <div className="relative z-10 flex flex-col items-center gap-6">
       {/* The Logo with a subtle breathing/floating animation */}
       <div className="animate-float" style={{ animationDuration: '4s' }}>

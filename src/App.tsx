@@ -13,6 +13,7 @@ import { SetupProfile } from '@/pages/SetupProfile';
 import { UserProfilePage } from '@/pages/UserProfile';
 import { PageLoader } from '@/components/ui/LoadingSpinner';
 import { Navbar } from '@/components/ui/Navbar';
+import { AmbientBackground } from '@/components/ui/AmbientBackground';
 
 const ProtectedLayout: React.FC = () => {
   const { session, profile, initialized } = useAuth();
@@ -23,7 +24,7 @@ const ProtectedLayout: React.FC = () => {
   if (session && !profile) return <Navigate to="/setup-profile" replace />;
   
   return (
-    <div className="min-h-screen bg-bg flex flex-col relative">
+    <div className="min-h-screen bg-transparent flex flex-col relative">
       <Navbar />
       <div key={location.pathname} className="page-transition flex-1">
         <Outlet />
@@ -65,8 +66,10 @@ const App: React.FC = () => {
   }
 
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/tracker" replace />} />
+    <>
+      <AmbientBackground />
+      <Routes>
+        <Route path="/" element={<Navigate to="/tracker" replace />} />
       <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
       <Route path="/register" element={<AuthRoute><Register /></AuthRoute>} />
       <Route path="/invite/:token" element={<InviteAccept />} />
@@ -82,7 +85,8 @@ const App: React.FC = () => {
       </Route>
 
       <Route path="*" element={<Navigate to="/tracker" replace />} />
-    </Routes>
+      </Routes>
+    </>
   );
 };
 
