@@ -4,7 +4,7 @@ import { NumericInput } from '@/components/ui/NumericInput';
 import { useAuthStore } from '@/store/authStore';
 import { playSound } from '@/lib/sounds';
 import type { Habit, HabitLog } from '@/types';
-import { clx } from '@/lib/utils';
+import { clx, isHabitDone } from '@/lib/utils';
 
 interface HabitRowProps {
   habit: Habit;
@@ -56,7 +56,7 @@ export const HabitRow: React.FC<HabitRowProps> = ({
     setShowNote(false);
   }, [habit.id, date, noteText, onNote]);
 
-  const isDone = checked || (habit.type === 'numeric' && (numericValue ?? 0) > 0);
+  const isDone = isHabitDone(habit, log?.value);
 
   return (
     <div className="group">

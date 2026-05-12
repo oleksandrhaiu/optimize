@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { HabitRow } from './HabitRow';
 import type { Habit, HabitLog } from '@/types';
-import { getDaysArray, dateKey, calcDayScore, todayStr } from '@/lib/utils';
+import { getDaysArray, dateKey, calcDayScore, todayStr, isHabitDone } from '@/lib/utils';
 import { clx } from '@/lib/utils';
 
 const MONTH_NAMES = [
@@ -35,8 +35,7 @@ export const MyHabitsColumn: React.FC<MyHabitsColumnProps> = ({
 
   const completedToday = habits.filter(h => {
     const log = logs.find(l => l.habit_id === h.id && l.date === selectedDate);
-    if (!log) return false;
-    return h.type === 'checkbox' ? log.value === 'true' : parseFloat(log.value) > 0;
+    return isHabitDone(h, log?.value);
   }).length;
 
   const progressPct = habits.length > 0 ? Math.round((completedToday / habits.length) * 100) : 0;

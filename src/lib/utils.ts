@@ -84,9 +84,24 @@ export function getDatesInRange(startStr: string, endStr: string): string[] {
 
 // ─── Score calculation ────────────────────────────────────────────────────────
 
+export function isHabitDone(habit: Habit, value: string | null | undefined): boolean {
+  if (!value) return false;
+  if (habit.type === 'checkbox') return value === 'true';
+  const num = parseFloat(value);
+  if (isNaN(num)) return false;
+  
+  if (habit.is_calorie_habit && habit.cal_min != null) {
+    return num >= habit.cal_min;
+  }
+  if (habit.goal != null && habit.goal > 0) {
+    return num >= habit.goal;
+  }
+  return num > 0;
+}
+
 /**
  * Calculates the daily completion percentage for a set of habits and logs.
- * Checkbox: true = done. Numeric: value > 0 = done.
+ * Checkbox: true = done. Numeric: respects cal_min or goal if present, otherwise > 0.
  */
 export function calcDayScore(habits: Habit[], logs: HabitLog[], dateStr: string): number {
   if (habits.length === 0) return 0;
@@ -94,9 +109,7 @@ export function calcDayScore(habits: Habit[], logs: HabitLog[], dateStr: string)
   let done = 0;
   for (const h of habits) {
     const val = logMap.get(h.id);
-    if (!val) continue;
-    if (h.type === 'checkbox' && val === 'true') done++;
-    if (h.type === 'numeric' && parseFloat(val) > 0) done++;
+    if (isHabitDone(h, val)) done++;
   }
   return Math.round((done / habits.length) * 100);
 }
