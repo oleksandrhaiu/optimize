@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { clx } from '@/lib/utils';
 
 const STEPS = [
@@ -41,19 +42,47 @@ export function useOnboarding(habitsLength: number) {
 
 export const OnboardingModal: React.FC<{ onDone: () => void }> = ({ onDone }) => {
   const [step, setStep] = useState(0);
+  const [direction, setDirection] = useState(1); // 1 for next, -1 for back
   const current = STEPS[step];
   const isLast = step === STEPS.length - 1;
 
   const handleNext = () => {
     if (isLast) { onDone(); return; }
+    setDirection(1);
     setStep(s => s + 1);
   };
 
+  const handleBack = () => {
+    setDirection(-1);
+    setStep(s => s - 1);
+  };
+
+  const variants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? 50 : -50,
+      opacity: 0
+    }),
+    center: {
+      zIndex: 1,
+      x: 0,
+      opacity: 1
+    },
+    exit: (direction: number) => ({
+      zIndex: 0,
+      x: direction < 0 ? 50 : -50,
+      opacity: 0
+    })
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-card border border-border rounded-2xl w-full max-w-sm shadow-card animate-slide-up text-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <motion.div 
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="bg-card border border-border rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden text-center flex flex-col"
+      >
         {/* Progress dots */}
-        <div className="flex justify-center gap-1.5 pt-5">
+        <div className="flex justify-center gap-1.5 pt-6">
           {STEPS.map((_, i) => (
             <div key={i} className={clx(
               'h-1.5 rounded-full transition-all duration-300',
@@ -62,34 +91,50 @@ export const OnboardingModal: React.FC<{ onDone: () => void }> = ({ onDone }) =>
           ))}
         </div>
 
-        {/* Content */}
-        <div className="px-8 py-7">
-          <div className="text-5xl mb-4 animate-fade-in" key={step}>{current.emoji}</div>
-          <h2 className="font-heading font-bold text-lg text-text-primary mb-2">{current.title}</h2>
-          <p className="text-sm text-text-muted leading-relaxed">{current.description}</p>
+        {/* Content Area with Animation */}
+        <div className="relative h-[280px] px-8 py-8 overflow-hidden">
+          <AnimatePresence initial={false} custom={direction} mode="wait">
+            <motion.div
+              key={step}
+              custom={direction}
+              variants={variants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{
+                x: { type: "spring", stiffness: 300, damping: 30 },
+                opacity: { duration: 0.2 }
+              }}
+              className="absolute inset-0 flex flex-col items-center justify-center px-8"
+            >
+              <div className="text-6xl mb-6">{current.emoji}</div>
+              <h2 className="font-heading font-bold text-xl text-text-primary mb-3">{current.title}</h2>
+              <p className="text-sm text-text-muted leading-relaxed text-center px-2">{current.description}</p>
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* Actions */}
         <div className="flex items-center gap-2 px-6 pb-6">
           {step > 0 && (
-            <button onClick={() => setStep(s => s - 1)}
-              className="flex-1 py-2.5 rounded-xl border border-border text-sm text-text-muted hover:text-text-primary hover:border-border transition-all">
+            <button onClick={handleBack}
+              className="flex-1 py-3 rounded-2xl border border-border text-sm text-text-muted hover:text-text-primary hover:border-border transition-all font-medium">
               Back
             </button>
           )}
           <button onClick={handleNext}
-            className="flex-1 py-2.5 rounded-xl bg-accent text-bg text-sm font-semibold hover:bg-accent/90 transition-all">
+            className="flex-1 py-3 rounded-2xl bg-accent text-bg text-sm font-bold hover:bg-accent/90 transition-all shadow-lg shadow-accent/20">
             {isLast ? "Let's go! 🚀" : 'Next →'}
           </button>
         </div>
 
         {/* Skip */}
         {!isLast && (
-          <button onClick={onDone} className="text-[10px] text-text-subtle hover:text-text-muted pb-4 transition-colors">
+          <button onClick={onDone} className="text-[10px] text-text-subtle hover:text-text-muted pb-5 transition-colors uppercase tracking-widest font-bold">
             Skip intro
           </button>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 };

@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/store/authStore';
 
 export function useAuth() {
-  const { session, profile, loading, initialized, setSession, setLoading, fetchProfile } =
+  const { session, profile, loading, loadingProfile, initialized, setSession, setLoading, fetchProfile } =
     useAuthStore();
 
   useEffect(() => {
@@ -38,13 +38,21 @@ export function useAuth() {
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
       if (!mounted) return;
-      setSession(session);
-      if (session?.user) {
-        fetchProfile(session.user.id);
+      
+      const prevUserId = session?.user?.id;
+      const newUserId = newSession?.user?.id;
+
+      setSession(newSession);
+
+      if (newUserId) {
+        // Only fetch if it's a different user or we don't have a profile yet
+        if (newUserId !== prevUserId || !profile) {
+          fetchProfile(newUserId);
+        }
       } else {
-        useAuthStore.setState({ profile: null });
+        useAuthStore.setState({ profile: null, loadingProfile: false });
       }
     });
 
@@ -54,5 +62,5 @@ export function useAuth() {
     };
   }, []);
 
-  return { session, profile, loading, initialized };
+  return { session, profile, loading, loadingProfile, initialized };
 }
