@@ -75,11 +75,11 @@ export const OnboardingModal: React.FC<{ onDone: () => void }> = ({ onDone }) =>
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-md overflow-y-auto">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-md" style={{ height: '100dvh', width: '100vw' }}>
       <motion.div 
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="bg-card border border-border rounded-[2.5rem] w-full max-w-[340px] shadow-2xl overflow-hidden text-center flex flex-col h-auto max-h-[90dvh]"
+        className="bg-card border border-border rounded-[2.5rem] w-[90%] max-w-[340px] shadow-2xl overflow-hidden text-center flex flex-col h-auto max-h-[85%]"
       >
         {/* Progress dots */}
         <div className="flex justify-center gap-1.5 pt-8 shrink-0">
