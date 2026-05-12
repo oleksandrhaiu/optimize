@@ -11,6 +11,7 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({ value, duration 
   const prevValue = useRef(0);
 
   useEffect(() => {
+    let animationFrameId: number;
     const start = prevValue.current;
     const end = value;
     if (start === end) {
@@ -35,15 +36,18 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({ value, duration 
       }
       
       setDisplayValue(current);
+      prevValue.current = current; // Always track the current displayed value
       
       if (progress < 1) {
-        requestAnimationFrame(tick);
+        animationFrameId = requestAnimationFrame(tick);
       } else {
         prevValue.current = value;
       }
     };
     
-    requestAnimationFrame(tick);
+    animationFrameId = requestAnimationFrame(tick);
+    
+    return () => cancelAnimationFrame(animationFrameId);
   }, [value, duration]);
 
   return <>{displayValue}{suffix}</>;
