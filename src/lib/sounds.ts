@@ -28,31 +28,35 @@ export function playSound(type: 'pop' | 'unpop', enabled: boolean = true) {
     gain.connect(audioCtx.destination);
 
     if (type === 'pop') {
-      // Satisfying "Bubble/Pop" sound
-      // Core bubble: low to high sweep
+      // Soft, premium, subtle "thock/tick" sound
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(400, t);
-      osc.frequency.exponentialRampToValueAtTime(1200, t + 0.04);
+      
+      // Very fast frequency drop for a percussive tick
+      osc.frequency.setValueAtTime(800, t);
+      osc.frequency.exponentialRampToValueAtTime(100, t + 0.04);
 
-      // Volume envelope: very quick attack, fast decay
+      // Volume envelope: very quick attack, fast decay, much quieter
       gain.gain.setValueAtTime(0, t);
-      gain.gain.linearRampToValueAtTime(0.4, t + 0.005);
-      gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
+      gain.gain.linearRampToValueAtTime(0.15, t + 0.005);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
       
       osc.start(t);
-      osc.stop(t + 0.1);
+      osc.stop(t + 0.06);
 
-      // Add a tiny "click" at the very beginning for texture
+      // Tiny high-frequency click for crispness
       const clickOsc = audioCtx.createOscillator();
       const clickGain = audioCtx.createGain();
-      clickOsc.type = 'square';
-      clickOsc.frequency.setValueAtTime(2000, t);
-      clickGain.gain.setValueAtTime(0.05, t);
-      clickGain.gain.exponentialRampToValueAtTime(0.01, t + 0.01);
+      clickOsc.type = 'triangle';
+      clickOsc.frequency.setValueAtTime(1500, t);
+      clickOsc.frequency.exponentialRampToValueAtTime(800, t + 0.02);
+      
+      clickGain.gain.setValueAtTime(0.04, t);
+      clickGain.gain.exponentialRampToValueAtTime(0.001, t + 0.02);
+      
       clickOsc.connect(clickGain);
       clickGain.connect(audioCtx.destination);
       clickOsc.start(t);
-      clickOsc.stop(t + 0.01);
+      clickOsc.stop(t + 0.02);
     } else {
       // Lower, "un-bubble" sound
       osc.type = 'sine';

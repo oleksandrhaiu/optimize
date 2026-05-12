@@ -58,6 +58,25 @@ export const Dashboard: React.FC = () => {
   const [logs, setLogs] = useState<HabitLog[]>([]);
   const [logsLoading, setLogsLoading] = useState(true);
 
+  // For sliding pill animation
+  const tabsRef = React.useRef<HTMLDivElement>(null);
+  const [pillStyle, setPillStyle] = useState({ left: 0, width: 0, opacity: 0 });
+
+  useEffect(() => {
+    if (!tabsRef.current) return;
+    const t = setTimeout(() => {
+      const activeEl = tabsRef.current?.querySelector('.range-active') as HTMLElement;
+      if (activeEl) {
+        setPillStyle({
+          left: activeEl.offsetLeft,
+          width: activeEl.offsetWidth,
+          opacity: 1
+        });
+      }
+    }, 10);
+    return () => clearTimeout(t);
+  }, [range]);
+
   const fetchLogs = useCallback(async () => {
     if (!userId) return;
     setLogsLoading(true);
@@ -111,15 +130,27 @@ export const Dashboard: React.FC = () => {
               Export CSV
             </button>
           {/* Range switcher */}
-          <div className="flex items-center gap-1 bg-card border border-border rounded-xl p-1">
+          <div className="relative flex items-center gap-1 bg-card border border-border rounded-xl p-1" ref={tabsRef}>
+            {/* Sliding Pill */}
+            <div
+              className="absolute top-1 bottom-1 rounded-lg transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] z-0"
+              style={{
+                left: pillStyle.left,
+                width: pillStyle.width,
+                opacity: pillStyle.opacity,
+                background: 'rgba(139, 92, 246, 0.15)', // softer accent color
+                border: '1px solid rgba(139, 92, 246, 0.3)',
+                boxShadow: '0 0 10px rgba(139, 92, 246, 0.1)',
+              }}
+            />
             {RANGES.map(r => (
               <button
                 key={r.id}
                 onClick={() => setRange(r.id)}
                 className={clx(
-                  'px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150',
+                  'relative z-10 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200',
                   range === r.id
-                    ? 'bg-accent text-bg shadow-glow-accent'
+                    ? 'text-accent range-active'
                     : 'text-text-muted hover:text-text-primary',
                 )}
               >
