@@ -25,7 +25,14 @@ export const AnimatedNumber: React.FC<AnimatedNumberProps> = ({ value, duration 
       const progress = Math.min(elapsed / duration, 1);
       // Extremely smooth exponential out easing
       const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-      const current = Math.round(start + (end - start) * ease);
+      let current = start + (end - start) * ease;
+      
+      // Step by 10s if we're far from the end, then smoothly step by 1s
+      if (Math.abs(end - current) > 10 && progress < 0.8) {
+        current = Math.round(current / 10) * 10;
+      } else {
+        current = Math.round(current);
+      }
       
       setDisplayValue(current);
       

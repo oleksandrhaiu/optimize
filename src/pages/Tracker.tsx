@@ -209,18 +209,23 @@ export const Tracker: React.FC = () => {
                 </div>
               </div>
 
-              {/* Week bar chart */}
-              {weekScores.some(s => s > 0) && (
-                <div
-                  className="rounded-2xl p-4 animate-slide-up"
-                  style={{
-                    background: 'rgb(12,13,22)',
-                    border: '1px solid rgb(28,30,52)',
-                    boxShadow: '0 1px 3px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3)',
-                    animationFillMode: 'both',
-                    animationDelay: '100ms',
-                  }}
-                >
+              {/* Week bar chart (Animated height) */}
+              <div
+                className="grid transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+                style={{
+                  gridTemplateRows: weekScores.some(s => s > 0) ? '1fr' : '0fr',
+                  opacity: weekScores.some(s => s > 0) ? 1 : 0,
+                }}
+              >
+                <div className="overflow-hidden">
+                  <div
+                    className="rounded-2xl p-4"
+                    style={{
+                      background: 'rgb(12,13,22)',
+                      border: '1px solid rgb(28,30,52)',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3)',
+                    }}
+                  >
                   <div className="flex items-center justify-between mb-4">
                     <p className="text-sm font-semibold text-text-primary font-heading">Last 7 days</p>
                     <span className="text-xs text-text-muted font-mono">
@@ -262,9 +267,10 @@ export const Tracker: React.FC = () => {
                     })}
                   </div>
                 </div>
-              )}
+              </div>
+            </div>
 
-              {/* Friends */}
+            {/* Friends */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <h2 className="font-heading font-semibold text-text-primary">
