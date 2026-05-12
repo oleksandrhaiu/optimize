@@ -5,7 +5,6 @@ import { useAuthStore } from '@/store/authStore';
 import { playSound } from '@/lib/sounds';
 import type { Habit, HabitLog } from '@/types';
 import { clx } from '@/lib/utils';
-import { DynamicIcon } from '@/components/ui/IconPicker';
 
 interface HabitRowProps {
   habit: Habit;
@@ -78,12 +77,11 @@ export const HabitRow: React.FC<HabitRowProps> = ({
           {habit.icon && (
             <span
               className={clx(
-                'flex items-center justify-center text-text-muted flex-shrink-0 transition-all duration-300',
-                justCompleted && 'scale-125 text-violet',
-                isDone && 'text-emerald'
+                'text-base leading-normal flex-shrink-0 transition-all duration-300',
+                justCompleted && 'scale-125',
               )}
             >
-              <DynamicIcon name={habit.icon} size={16} strokeWidth={2} />
+              {habit.icon}
             </span>
           )}
           <button

@@ -10,9 +10,7 @@ import {
 import { HabitItem } from './HabitItem';
 import { Button } from '@/components/ui/Button';
 import { CustomSelect } from '@/components/ui/CustomSelect';
-import { DynamicIcon } from '@/components/ui/IconPicker';
 import type { Habit } from '@/types';
-import { CheckSquare, Hash, ListChecks } from 'lucide-react';
 
 /* ── Quick-start templates ───────────────────────────────────── */
 const TEMPLATES: Array<{
@@ -20,23 +18,23 @@ const TEMPLATES: Array<{
   unit?: string;
   is_calorie_habit?: boolean; cal_min?: number; cal_max?: number;
 }> = [
-  { icon: 'Dumbbell',   name: 'Workout',     type: 'checkbox' },
-  { icon: 'Brain',      name: 'Meditation',  type: 'checkbox' },
-  { icon: 'Salad',      name: 'Ate healthy', type: 'checkbox' },
-  { icon: 'BookOpen',   name: 'Reading',     type: 'numeric', unit: 'pages' },
-  { icon: 'Droplets',   name: 'Water',       type: 'numeric', unit: 'glasses' },
-  { icon: 'Flame',      name: 'Calories',    type: 'numeric', unit: 'kcal', is_calorie_habit: true, cal_min: 1700, cal_max: 2300 },
-  { icon: 'Footprints', name: 'Running',     type: 'numeric', unit: 'km' },
-  { icon: 'Bed',        name: 'Sleep',       type: 'numeric', unit: 'hrs' },
-  { icon: 'Activity',   name: 'Steps',       type: 'numeric', unit: 'k steps' },
-  { icon: 'Pill',       name: 'Vitamins',    type: 'checkbox' },
-  { icon: 'Smile',      name: 'Mood',        type: 'numeric', unit: '/ 10' },
-  { icon: 'Scale',      name: 'Weight',      type: 'numeric', unit: 'kg' },
+  { icon: '🏋️', name: 'Workout',  type: 'checkbox' },
+  { icon: '🧘', name: 'Meditation', type: 'checkbox' },
+  { icon: '🥗', name: 'Ate healthy', type: 'checkbox' },
+  { icon: '📖', name: 'Reading',   type: 'numeric', unit: 'pages' },
+  { icon: '💧', name: 'Water',     type: 'numeric', unit: 'glasses' },
+  { icon: '🔥', name: 'Calories',  type: 'numeric', unit: 'kcal', is_calorie_habit: true, cal_min: 1700, cal_max: 2300 },
+  { icon: '🏃', name: 'Running',   type: 'numeric', unit: 'km' },
+  { icon: '😴', name: 'Sleep',     type: 'numeric', unit: 'hrs' },
+  { icon: '🚶', name: 'Steps',     type: 'numeric', unit: 'k steps' },
+  { icon: '💊', name: 'Vitamins',  type: 'checkbox' },
+  { icon: '😊', name: 'Mood',      type: 'numeric', unit: '/ 10' },
+  { icon: '⚖️', name: 'Weight',   type: 'numeric', unit: 'kg' },
 ];
 
 const TYPE_OPTIONS = [
-  { value: 'checkbox', label: 'Checkbox', icon: <CheckSquare size={14} /> },
-  { value: 'numeric',  label: 'Numeric',  icon: <Hash size={14} /> },
+  { value: 'checkbox', label: 'Checkbox', icon: '☑' },
+  { value: 'numeric',  label: 'Numeric',  icon: '#' },
 ];
 
 interface HabitListProps {
@@ -130,11 +128,9 @@ export const HabitList: React.FC<HabitListProps> = ({
                 key={tpl.name}
                 type="button"
                 onClick={() => handleTemplate(tpl)}
-                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-border/60 bg-bg hover:border-accent/40 hover:bg-accent/5 text-left transition-all duration-150"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border/60 bg-bg hover:border-accent/40 hover:bg-accent/5 text-left transition-all duration-150"
               >
-                <div className="w-8 h-8 flex items-center justify-center bg-white/[0.03] rounded-lg text-text-muted">
-                  <DynamicIcon name={tpl.icon} size={18} />
-                </div>
+                <span className="text-xl leading-none">{tpl.icon}</span>
                 <div className="min-w-0">
                   <p className="text-xs font-medium text-text-primary truncate">{tpl.name}</p>
                   <p className="text-[10px] text-text-subtle">{tpl.unit ? `${tpl.type} · ${tpl.unit}` : tpl.type}</p>
@@ -152,9 +148,7 @@ export const HabitList: React.FC<HabitListProps> = ({
         <SortableContext items={habits.map(h => h.id)} strategy={verticalListSortingStrategy}>
           {habits.length === 0 ? (
               <div className="text-center py-12 text-text-muted">
-              <div className="flex justify-center mb-4 text-text-subtle">
-                <ListChecks size={40} strokeWidth={1.5} />
-              </div>
+              <p className="text-3xl mb-3">📋</p>
               <p className="text-sm">No habits yet.</p>
               <p className="text-xs text-text-subtle mt-1">Use templates above or type a name and hit Add.</p>
             </div>

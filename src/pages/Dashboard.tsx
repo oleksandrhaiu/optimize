@@ -3,7 +3,6 @@ import { Navbar } from '@/components/ui/Navbar';
 import { useAuthStore } from '@/store/authStore';
 import { useHabits } from '@/hooks/useHabits';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
-import { Flame, Trophy, Zap, CheckCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { formatDate, todayStr, currentMonthYear, getDatesInRange } from '@/lib/utils';
 import { Skeleton } from '@/components/ui/LoadingSpinner';
@@ -140,12 +139,12 @@ export const Dashboard: React.FC = () => {
             [1, 2, 3, 4].map(i => <Skeleton key={i} className="h-28 rounded-2xl" />)
           ) : (
             <>
-              <StatCard label="Current Streak" value={stats.currentStreak} unit="days" icon={<Flame size={18} />} color="amber" subtitle="Keep it up!" streakHighlight />
-              <StatCard label="Best Streak" value={stats.bestStreak} unit="days" icon={<Trophy size={18} />} color="amber" streakHighlight />
+              <StatCard label="Current Streak" value={stats.currentStreak} unit="days" icon="🔥" color="amber" subtitle="Keep it up!" streakHighlight />
+              <StatCard label="Best Streak" value={stats.bestStreak} unit="days" icon="🏆" color="amber" streakHighlight />
               {calorieHabit && (
-                <StatCard label="Avg Calories" value={stats.avgCalories} unit="kcal" icon={<Zap size={18} />} color="blue" />
+                <StatCard label="Avg Calories" value={stats.avgCalories} unit="kcal" icon="⚡" color="blue" />
               )}
-              <StatCard label="Perfect Days" value={stats.greenDays} unit="days" icon={<CheckCircle size={18} />} color="green" subtitle="80%+ completion" />
+              <StatCard label="Perfect Days" value={stats.greenDays} unit="days" icon="✅" color="green" subtitle="80%+ completion" />
             </>
           )}
         </div>
