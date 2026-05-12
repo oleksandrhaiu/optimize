@@ -149,18 +149,31 @@ export const Tracker: React.FC = () => {
               <div className="grid grid-cols-3 gap-3 animate-slide-up" style={{ animationFillMode: 'both' }}>
                 {/* Today */}
                 <div
-                  className="rounded-2xl p-4 flex flex-col gap-1"
+                  className="rounded-2xl p-4 flex flex-col gap-1 relative overflow-hidden"
                   style={{
-                    background: `linear-gradient(145deg, ${scoreColor}08, rgba(12,13,22,0.6))`,
-                    border: `1px solid ${scoreColor}20`,
+                    backgroundColor: 'rgba(12,13,22,0.6)',
+                    borderWidth: '1px',
+                    borderStyle: 'solid',
+                    borderColor: `${scoreColor}25`,
                     boxShadow: '0 1px 3px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3)',
+                    transition: 'border-color 1.5s ease-out',
                   }}
                 >
-                  <p className="text-xs text-text-muted">Today</p>
-                  <p className="font-heading text-2xl font-bold" style={{ color: scoreColor }}>
-                    <AnimatedNumber value={todayScore} suffix="%" />
-                  </p>
-                  <p className="text-[10px] text-text-subtle">{completedToday}/{habits.length} done</p>
+                  <div 
+                    className="absolute inset-0 pointer-events-none"
+                    style={{ 
+                      backgroundColor: scoreColor, 
+                      opacity: 0.06,
+                      transition: 'background-color 1.5s ease-out'
+                    }} 
+                  />
+                  <div className="relative z-10">
+                    <p className="text-xs text-text-muted">Today</p>
+                    <p className="font-heading text-2xl font-bold" style={{ color: scoreColor, transition: 'color 1.5s ease-out' }}>
+                      <AnimatedNumber value={todayScore} suffix="%" />
+                    </p>
+                    <p className="text-[10px] text-text-subtle">{completedToday}/{habits.length} done</p>
+                  </div>
                 </div>
 
                 {/* Week */}
