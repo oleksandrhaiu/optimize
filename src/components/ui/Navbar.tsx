@@ -11,6 +11,7 @@ import {
   Users,
   Download,
 } from 'lucide-react';
+import { Logo } from '@/components/ui/Logo';
 import { useAuthStore } from '@/store/authStore';
 import { Avatar } from './Avatar';
 import { clx } from '@/lib/utils';
@@ -185,31 +186,9 @@ export const Navbar: React.FC = () => {
 
         {/* Logo */}
         <NavLink to="/tracker" className="flex items-center gap-2.5 mr-3 flex-shrink-0 group">
-          <div
-            className="w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:rotate-6 group-hover:shadow-glow-accent"
-            style={{
-              background: 'linear-gradient(135deg, rgba(139,92,246,0.15), rgba(124,58,237,0.05))',
-              border: '1px solid rgba(139,92,246,0.35)',
-              boxShadow: '0 0 14px rgba(139,92,246,0.18)',
-            }}
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="url(#logo-circle)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M22 4L12 14.01l-3-3" stroke="url(#logo-check)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-              <defs>
-                <linearGradient id="logo-circle" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#8B5CF6" />
-                  <stop offset="1" stopColor="#34D399" />
-                </linearGradient>
-                <linearGradient id="logo-check" x1="9" y1="4" x2="22" y2="14" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#A78BFA" />
-                  <stop offset="1" stopColor="#F472B6" />
-                </linearGradient>
-              </defs>
-            </svg>
-          </div>
-          <span className="font-heading font-bold text-sm text-text-primary hidden sm:block tracking-tight">
-            HabitSync
+          <Logo size={28} className="transition-transform duration-300 group-hover:scale-110 group-hover:rotate-12" />
+          <span className="font-heading font-bold text-lg tracking-wide text-text-primary hidden sm:block">
+            Lumina
           </span>
         </NavLink>
 

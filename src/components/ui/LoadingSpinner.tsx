@@ -1,4 +1,6 @@
 import React from 'react';
+import { clx } from '@/lib/utils';
+import { Logo } from '@/components/ui/Logo';
 
 /* ── Single arc spinner ─────────────────────────────────────── */
 export const LoadingSpinner: React.FC<{ size?: number; className?: string }> = ({
@@ -27,27 +29,12 @@ export const PageLoader: React.FC = () => (
   <div className="min-h-screen bg-bg flex items-center justify-center">
     <div className="flex flex-col items-center gap-5">
       {/* Animated logo */}
-      <div className="relative">
-        <div
-          className="w-16 h-16 rounded-2xl flex items-center justify-center animate-glow-pulse"
-          style={{
-            background: 'linear-gradient(135deg, rgba(139,92,246,0.2), rgba(124,58,237,0.08))',
-            border: '1px solid rgba(139,92,246,0.3)',
-          }}
-        >
-          <svg width="28" height="28" viewBox="0 0 14 14" fill="none">
-            <path d="M2 7L5.5 10.5L12 3" stroke="#A78BFA" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </div>
-        {/* Pulsing ring */}
-        <div
-          className="absolute inset-0 rounded-2xl animate-pulse-ring"
-          style={{ background: 'transparent', border: '1px solid rgba(139,92,246,0.3)' }}
-        />
+      <div className="relative mb-4">
+        <Logo size={72} className="animate-glow-pulse drop-shadow-[0_0_24px_rgba(139,92,246,0.4)]" />
       </div>
-      <LoadingSpinner size={24} />
-      <p className="text-text-subtle text-xs tracking-widest uppercase font-medium">
-        HabitSync
+      <LoadingSpinner size={28} />
+      <p className="text-text-subtle text-sm tracking-[0.2em] uppercase font-semibold mt-4">
+        Lumina
       </p>
     </div>
   </div>

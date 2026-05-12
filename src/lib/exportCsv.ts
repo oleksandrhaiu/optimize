@@ -28,7 +28,7 @@ export function exportHabitsCsv(habits: Habit[], logs: HabitLog[]): void {
   const url  = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href     = url;
-  link.download = `habitsync-export-${new Date().toISOString().slice(0, 10)}.csv`;
+  link.download = `lumina-export-${new Date().toISOString().slice(0, 10)}.csv`;
   link.click();
   URL.revokeObjectURL(url);
 }

@@ -1,0 +1,40 @@
+import React from 'react';
+import { clx } from '@/lib/utils';
+
+interface LogoProps {
+  className?: string;
+  size?: number;
+}
+
+export const Logo: React.FC<LogoProps> = ({ className, size = 32 }) => (
+  <svg 
+    width={size} 
+    height={size} 
+    viewBox="0 0 32 32" 
+    fill="none" 
+    xmlns="http://www.w3.org/2000/svg"
+    className={clx("flex-shrink-0 drop-shadow-lg", className)}
+  >
+    {/* Primary radiance */}
+    <path 
+      d="M16 2C16 9.732 22.268 16 30 16C22.268 16 16 22.268 16 30C16 22.268 9.732 16 2 16C9.732 16 16 9.732 16 2Z" 
+      fill="url(#lumina_paint0)"
+    />
+    {/* Inner focal light */}
+    <path 
+      opacity="0.85" 
+      d="M16 8C16 12.418 19.582 16 24 16C19.582 16 16 19.582 16 24C16 19.582 12.418 16 8 16C12.418 16 16 12.418 16 8Z" 
+      fill="url(#lumina_paint1)"
+    />
+    <defs>
+      <linearGradient id="lumina_paint0" x1="2" y1="2" x2="30" y2="30" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#A78BFA"/>
+        <stop offset="1" stopColor="#8B5CF6"/>
+      </linearGradient>
+      <linearGradient id="lumina_paint1" x1="8" y1="8" x2="24" y2="24" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#F472B6"/>
+        <stop offset="1" stopColor="#60A5FA"/>
+      </linearGradient>
+    </defs>
+  </svg>
+);

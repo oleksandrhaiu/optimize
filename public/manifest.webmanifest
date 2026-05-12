@@ -1,6 +1,6 @@
 {
-  "name": "HabitSync",
-  "short_name": "HabitSync",
+  "name": "Lumina",
+  "short_name": "Lumina",
   "description": "Build better habits together",
   "start_url": "/",
   "display": "standalone",

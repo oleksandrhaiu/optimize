@@ -38,7 +38,7 @@ export const Login: React.FC = () => (
           </div>
         </div>
         <div>
-          <h1 className="font-heading text-2xl font-bold text-text-primary">HabitSync</h1>
+          <h1 className="font-heading text-2xl font-bold text-text-primary">Lumina</h1>
           <p className="text-text-muted text-sm mt-1">Track habits. Stay accountable.</p>
         </div>
       </div>

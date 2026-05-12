@@ -1,4 +1,4 @@
-# HabitSync
+# Lumina
 
 A full-stack social habit tracker. Track your daily habits, share your accountability board with friends, and monitor your progress via interactive dashboards.
 

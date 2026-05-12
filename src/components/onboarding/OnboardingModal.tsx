@@ -4,7 +4,7 @@ import { clx } from '@/lib/utils';
 const STEPS = [
   {
     emoji: '👋',
-    title: 'Welcome to HabitSync',
+    title: 'Welcome to Lumina',
     description: 'Build better habits together. Track daily, stay consistent, and see your progress over time.',
   },
   {
@@ -24,7 +24,7 @@ const STEPS = [
   },
 ];
 
-const STORAGE_KEY = 'habitSync.onboarded';
+const STORAGE_KEY = 'lumina.onboarded';
 
 export function useOnboarding(habitsLength: number) {
   const [show, setShow] = useState(() => {
