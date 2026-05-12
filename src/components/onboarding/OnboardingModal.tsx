@@ -56,6 +56,12 @@ export const OnboardingModal: React.FC<{ onDone: () => void }> = ({ onDone }) =>
     setDirection(-1);
     setStep(s => s - 1);
   };
+ 
+  // Lock body scroll
+  React.useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = 'auto'; };
+  }, []);
 
   const variants = {
     enter: (direction: number) => ({
