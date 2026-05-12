@@ -1,29 +1,18 @@
 import React from 'react';
 
-/* ── Single dot spinner ────────────────────────────────────── */
+/* ── Single arc spinner ─────────────────────────────────────── */
 export const LoadingSpinner: React.FC<{ size?: number; className?: string }> = ({
-  size = 24,
-  className = '',
+  size = 24, className = '',
 }) => (
   <svg
-    className={`animate-spin text-accent ${className}`}
-    style={{ animationDuration: '0.75s' }}
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
+    className={`animate-spin ${className}`}
+    style={{ animationDuration: '0.7s' }}
+    width={size} height={size} viewBox="0 0 24 24" fill="none"
   >
-    <circle
-      cx="12" cy="12" r="10"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeOpacity="0.15"
-    />
+    <circle cx="12" cy="12" r="10" stroke="rgba(139,92,246,0.15)" strokeWidth="2.5" />
     <path
       d="M12 2a10 10 0 0 1 10 10"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      strokeLinecap="round"
+      stroke="#8B5CF6" strokeWidth="2.5" strokeLinecap="round"
     />
   </svg>
 );
@@ -33,73 +22,78 @@ export const Skeleton: React.FC<{ className?: string }> = ({ className = '' }) =
   <div className={`skeleton ${className}`} />
 );
 
-/* ── Skeleton card for tracker ──────────────────────────────── */
-export const TrackerSkeleton: React.FC = () => (
-  <div className="grid grid-cols-1 lg:grid-cols-[340px_1fr] gap-6 animate-fade-in">
-    {/* Left: my habits skeleton */}
-    <div className="flex flex-col gap-4">
-      <div className="bg-card border border-border rounded-2xl p-3">
-        <div className="flex gap-1">
-          {Array.from({ length: 7 }).map((_, i) => (
-            <Skeleton key={i} className="h-10 w-9 rounded-lg flex-shrink-0" />
-          ))}
+/* ── Full page loader ────────────────────────────────────────── */
+export const PageLoader: React.FC = () => (
+  <div className="min-h-screen bg-bg flex items-center justify-center">
+    <div className="flex flex-col items-center gap-5">
+      {/* Animated logo */}
+      <div className="relative">
+        <div
+          className="w-16 h-16 rounded-2xl flex items-center justify-center animate-glow-pulse"
+          style={{
+            background: 'linear-gradient(135deg, rgba(139,92,246,0.2), rgba(124,58,237,0.08))',
+            border: '1px solid rgba(139,92,246,0.3)',
+          }}
+        >
+          <svg width="28" height="28" viewBox="0 0 14 14" fill="none">
+            <path d="M2 7L5.5 10.5L12 3" stroke="#A78BFA" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </div>
+        {/* Pulsing ring */}
+        <div
+          className="absolute inset-0 rounded-2xl animate-pulse-ring"
+          style={{ background: 'transparent', border: '1px solid rgba(139,92,246,0.3)' }}
+        />
       </div>
-      <div className="bg-card border border-border rounded-2xl p-4">
-        <div className="flex items-center justify-between mb-4">
-          <Skeleton className="h-4 w-20" />
-          <Skeleton className="h-5 w-12 rounded-full" />
-        </div>
-        <div className="space-y-2">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-9 rounded-xl" />
-          ))}
-        </div>
-      </div>
-    </div>
-
-    {/* Right: friends skeleton */}
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <Skeleton className="h-5 w-24" />
-        <Skeleton className="h-4 w-10 rounded-full" />
-      </div>
-      <div className="flex gap-4">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="bg-card border border-border rounded-2xl p-4 min-w-[180px] space-y-3">
-            <div className="flex items-center gap-2">
-              <Skeleton className="w-9 h-9 rounded-xl flex-shrink-0" />
-              <div className="space-y-1.5 flex-1">
-                <Skeleton className="h-3.5 w-24" />
-                <Skeleton className="h-3 w-12 rounded-full" />
-              </div>
-            </div>
-            <Skeleton className="h-7 rounded-lg" />
-            <div className="space-y-1.5 pt-1">
-              {Array.from({ length: 4 }).map((_, j) => (
-                <Skeleton key={j} className="h-3 rounded" />
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
+      <LoadingSpinner size={24} />
+      <p className="text-text-subtle text-xs tracking-widest uppercase font-medium">
+        HabitSync
+      </p>
     </div>
   </div>
 );
 
-/* ── Skeleton for dashboard ─────────────────────────────────── */
+/* ── Tracker skeleton ───────────────────────────────────────── */
+export const TrackerSkeleton: React.FC = () => (
+  <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6 animate-fade-in">
+    <div className="flex flex-col gap-4">
+      <div className="rounded-2xl p-4 border border-border" style={{ background: 'rgb(12,13,22)' }}>
+        <div className="grid grid-cols-7 gap-1">
+          {Array.from({ length: 28 }).map((_, i) => (
+            <Skeleton key={i} className="h-9 rounded-lg" />
+          ))}
+        </div>
+      </div>
+      <div className="rounded-2xl p-4 border border-border space-y-3" style={{ background: 'rgb(12,13,22)' }}>
+        <div className="flex items-center justify-between">
+          <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-5 w-12 rounded-full" />
+        </div>
+        <Skeleton className="h-1 w-full rounded-full" />
+        <div className="space-y-2 pt-1">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-10 rounded-xl" />
+          ))}
+        </div>
+      </div>
+    </div>
+    <div className="space-y-4">
+      <div className="grid grid-cols-3 gap-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Skeleton key={i} className="h-24 rounded-2xl" />
+        ))}
+      </div>
+      <Skeleton className="h-40 rounded-2xl" />
+    </div>
+  </div>
+);
+
+/* ── Dashboard skeleton ──────────────────────────────────────── */
 export const DashboardSkeleton: React.FC = () => (
   <div className="space-y-6 animate-fade-in">
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
       {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="bg-card border border-border rounded-2xl p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <Skeleton className="h-3.5 w-20" />
-            <Skeleton className="w-6 h-6 rounded-lg" />
-          </div>
-          <Skeleton className="h-8 w-16" />
-          <Skeleton className="h-3 w-12" />
-        </div>
+        <Skeleton key={i} className="h-28 rounded-2xl" />
       ))}
     </div>
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -113,41 +107,11 @@ export const DashboardSkeleton: React.FC = () => (
   </div>
 );
 
-/* ── Friends list skeleton ───────────────────────────────────── */
+/* ── Friends skeleton ────────────────────────────────────────── */
 export const FriendsSkeleton: React.FC = () => (
-  <div className="flex gap-4 animate-fade-in">
-    {Array.from({ length: 2 }).map((_, i) => (
-      <div key={i} className="bg-card border border-border rounded-2xl p-4 min-w-[180px] space-y-3">
-        <div className="flex items-center gap-2">
-          <Skeleton className="w-9 h-9 rounded-xl flex-shrink-0" />
-          <div className="space-y-1.5 flex-1">
-            <Skeleton className="h-3.5 w-24" />
-            <Skeleton className="h-3 w-12 rounded-full" />
-          </div>
-        </div>
-        <Skeleton className="h-7 rounded-lg" />
-        <div className="space-y-1.5 pt-1">
-          {Array.from({ length: 4 }).map((_, j) => (
-            <Skeleton key={j} className="h-3 rounded" />
-          ))}
-        </div>
-      </div>
+  <div className="flex gap-3 animate-fade-in">
+    {Array.from({ length: 3 }).map((_, i) => (
+      <Skeleton key={i} className="h-52 rounded-2xl min-w-[200px]" />
     ))}
-  </div>
-);
-
-/* ── Full page loader ────────────────────────────────────────── */
-export const PageLoader: React.FC = () => (
-  <div className="min-h-screen bg-bg flex items-center justify-center">
-    <div className="flex flex-col items-center gap-4">
-      {/* Logo mark */}
-      <div className="w-12 h-12 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center mb-1">
-        <svg width="22" height="22" viewBox="0 0 14 14" fill="none">
-          <path d="M2 7L5.5 10.5L12 3" stroke="#00C896" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </div>
-      <LoadingSpinner size={28} />
-      <p className="text-text-muted text-xs tracking-wide">Loading HabitSync…</p>
-    </div>
   </div>
 );

@@ -140,12 +140,12 @@ export const Dashboard: React.FC = () => {
             [1, 2, 3, 4].map(i => <Skeleton key={i} className="h-28 rounded-2xl" />)
           ) : (
             <>
-              <StatCard label="Current Streak" value={stats.currentStreak} unit="days" icon="🔥" color="amber" subtitle="Keep it up!" />
-              <StatCard label="Best Streak" value={stats.bestStreak} unit="days" icon="🏆" color="amber" />
+              <StatCard label="Current Streak" value={stats.currentStreak} unit="days" icon="🔥" color="amber" subtitle="Keep it up!" streakHighlight />
+              <StatCard label="Best Streak" value={stats.bestStreak} unit="days" icon="🏆" color="amber" streakHighlight />
               {calorieHabit && (
                 <StatCard label="Avg Calories" value={stats.avgCalories} unit="kcal" icon="⚡" color="blue" />
               )}
-              <StatCard label="Green Days" value={stats.greenDays} unit="days" icon="✅" color="green" subtitle="80%+ completion" />
+              <StatCard label="Perfect Days" value={stats.greenDays} unit="days" icon="✅" color="green" subtitle="80%+ completion" />
             </>
           )}
         </div>

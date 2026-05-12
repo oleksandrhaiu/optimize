@@ -41,17 +41,11 @@ const App: React.FC = () => {
   const { profile, initialized } = useAuth();
 
   useEffect(() => {
-    const themeColorMeta = document.querySelector('meta[name="theme-color"]');
-    if (profile?.theme === 'light') {
-      document.documentElement.setAttribute('data-theme', 'light');
-      document.documentElement.style.colorScheme = 'light';
-      themeColorMeta?.setAttribute('content', '#F9FAFB');
-    } else {
-      document.documentElement.setAttribute('data-theme', 'dark');
-      document.documentElement.style.colorScheme = 'dark';
-      themeColorMeta?.setAttribute('content', '#0E0F14');
-    }
-  }, [profile?.theme]);
+    // Always dark mode
+    document.documentElement.removeAttribute('data-theme');
+    document.documentElement.style.colorScheme = 'dark';
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#07080F');
+  }, []);
 
   if (!initialized) {
     return <PageLoader />;

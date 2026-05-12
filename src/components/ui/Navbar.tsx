@@ -40,7 +40,7 @@ const NAV_ITEMS = [
   },
 ];
 
-/** Quick user search dropdown in the Navbar */
+/** Quick user search dropdown */
 const NavSearch: React.FC = () => {
   const navigate = useNavigate();
   const { session } = useAuthStore();
@@ -51,47 +51,38 @@ const NavSearch: React.FC = () => {
   const ref = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Close on outside click
   useEffect(() => {
     const fn = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
-        setQuery('');
-        setResults([]);
+        setOpen(false); setQuery(''); setResults([]);
       }
     };
     document.addEventListener('mousedown', fn);
     return () => document.removeEventListener('mousedown', fn);
   }, []);
 
-  // Focus input when opened
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 50);
   }, [open]);
 
-  // Debounced search
   useEffect(() => {
     if (!query.trim()) { setResults([]); return; }
     const q = query.trim().replace(/^@/, '');
     const timer = setTimeout(async () => {
       setSearching(true);
       const { data } = await supabase
-        .from('users')
-        .select('*')
+        .from('users').select('*')
         .ilike('username', `%${q}%`)
         .neq('id', session?.user.id ?? '')
-        .limit(5);
+        .limit(6);
       setResults((data as UserProfile[]) ?? []);
       setSearching(false);
-    }, 300);
+    }, 280);
     return () => clearTimeout(timer);
-  }, [query]);
+  }, [query, session?.user.id]);
 
-  const goToProfile = (username: string) => {
-    navigate(`/u/${username}`);
-    setOpen(false);
-    setQuery('');
-    setResults([]);
+  const goTo = (username: string) => {
+    navigate(`/u/${username}`); setOpen(false); setQuery(''); setResults([]);
   };
 
   return (
@@ -99,24 +90,25 @@ const NavSearch: React.FC = () => {
       <button
         onClick={() => setOpen(v => !v)}
         className={clx(
-          'p-2 rounded-lg transition-all duration-150',
-          open ? 'text-text-primary bg-card-hover' : 'text-text-muted hover:text-text-primary hover:bg-card-hover',
+          'p-2 rounded-xl transition-all duration-200',
+          open
+            ? 'text-violet bg-violet/10'
+            : 'text-text-muted hover:text-text-primary hover:bg-white/[0.05]',
         )}
         title="Find users"
       >
-        <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
-          <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.7"/>
-          <path d="M15 15l3.5 3.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+          <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.7" />
+          <path d="M15 15l3.5 3.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
         </svg>
       </button>
 
       {open && (
-        <div className="absolute right-0 top-[calc(100%+8px)] w-72 bg-card border border-border rounded-2xl shadow-card z-50 overflow-hidden animate-slide-up">
-          {/* Input */}
-          <div className="flex items-center gap-2 px-3 py-2.5 border-b border-border/50">
+        <div className="absolute right-0 top-[calc(100%+10px)] w-76 glass-card rounded-2xl shadow-elevated z-50 overflow-hidden animate-slide-up">
+          <div className="flex items-center gap-2 px-3 py-3 border-b border-border/50">
             <svg width="13" height="13" viewBox="0 0 20 20" fill="none" className="text-text-subtle flex-shrink-0">
-              <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.7"/>
-              <path d="M15 15l3.5 3.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>
+              <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.7" />
+              <path d="M15 15l3.5 3.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
             </svg>
             <input
               ref={inputRef}
@@ -124,34 +116,34 @@ const NavSearch: React.FC = () => {
               value={query}
               onChange={e => setQuery(e.target.value)}
               placeholder="Search by username…"
-              className="flex-1 bg-transparent border-none focus:outline-none text-base sm:text-sm text-text-primary placeholder-text-subtle"
+              className="flex-1 bg-transparent border-none focus:outline-none text-sm text-text-primary placeholder-text-subtle"
             />
             {searching && (
               <svg width="13" height="13" viewBox="0 0 24 24" className="animate-spin flex-shrink-0 text-text-subtle" fill="none">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.5" opacity="0.25"/>
-                <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.5" opacity="0.2" />
+                <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
               </svg>
             )}
           </div>
-
-          {/* Results */}
           {results.length > 0 ? (
-            <div className="py-1">
+            <div className="py-1.5 space-y-0.5 px-1.5">
               {results.map(u => (
                 <button
                   key={u.id}
-                  onClick={() => goToProfile(u.username)}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-card-hover transition-colors text-left"
+                  onClick={() => goTo(u.username)}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/[0.05] transition-colors text-left group"
                 >
                   <Avatar username={u.username} color={u.avatar_color} size="sm" />
-                  <span className="text-sm font-medium text-text-primary">@{u.username}</span>
+                  <span className="text-sm font-medium text-text-primary group-hover:text-violet transition-colors">
+                    @{u.username}
+                  </span>
                 </button>
               ))}
             </div>
           ) : query.trim() && !searching ? (
-            <p className="px-4 py-4 text-xs text-text-muted text-center">No users found</p>
+            <p className="px-4 py-5 text-xs text-text-muted text-center">No users found for "{query}"</p>
           ) : !query.trim() ? (
-            <p className="px-4 py-4 text-xs text-text-subtle text-center">Type a username to search</p>
+            <p className="px-4 py-5 text-xs text-text-subtle text-center">Type a username to search</p>
           ) : null}
         </div>
       )}
@@ -164,7 +156,6 @@ export const Navbar: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -176,14 +167,23 @@ export const Navbar: React.FC = () => {
   }, []);
 
   return (
-    <nav className="sticky top-0 z-30 glass border-b border-border/60 pt-[env(safe-area-inset-top)]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-3">
+    <nav className="sticky top-0 z-30 glass border-b border-white/[0.05] pt-[env(safe-area-inset-top)]"
+      style={{ boxShadow: '0 1px 0 rgba(139,92,246,0.08)' }}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-2">
 
         {/* Logo */}
         <NavLink to="/tracker" className="flex items-center gap-2.5 mr-3 flex-shrink-0 group">
-          <div className="w-7 h-7 rounded-lg bg-accent/15 border border-accent/30 flex items-center justify-center group-hover:bg-accent/20 transition-colors duration-150">
-            <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
-              <path d="M2 7L5.5 10.5L12 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <div
+            className="w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-105"
+            style={{
+              background: 'linear-gradient(135deg, rgba(139,92,246,0.2), rgba(124,58,237,0.1))',
+              border: '1px solid rgba(139,92,246,0.3)',
+              boxShadow: '0 0 12px rgba(139,92,246,0.15)',
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 7L5.5 10.5L12 3" stroke="#A78BFA" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
           <span className="font-heading font-bold text-sm text-text-primary hidden sm:block tracking-tight">
@@ -191,15 +191,13 @@ export const Navbar: React.FC = () => {
           </span>
         </NavLink>
 
-        {/* Desktop Nav */}
+        {/* Desktop nav */}
         <div className="hidden sm:flex items-center gap-0.5 flex-1">
           {NAV_ITEMS.map(item => (
             <NavLink
               key={item.to}
               to={item.to}
-              className={({ isActive }) =>
-                clx('nav-link', isActive && 'active')
-              }
+              className={({ isActive }) => clx('nav-link', isActive && 'active')}
             >
               {item.icon}
               {item.label}
@@ -207,19 +205,21 @@ export const Navbar: React.FC = () => {
           ))}
         </div>
 
-        {/* Spacer on mobile */}
+        {/* Spacer mobile */}
         <div className="flex-1 sm:hidden" />
 
-        {/* Mobile nav */}
-        <div className="flex sm:hidden items-center gap-1">
+        {/* Mobile nav icons */}
+        <div className="flex sm:hidden items-center gap-0.5">
           {NAV_ITEMS.map(item => (
             <NavLink
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
                 clx(
-                  'p-2.5 rounded-lg transition-colors duration-150',
-                  isActive ? 'text-accent bg-accent/10' : 'text-text-muted hover:text-text-primary hover:bg-card-hover',
+                  'p-2.5 rounded-xl transition-all duration-200',
+                  isActive
+                    ? 'text-violet bg-violet/10'
+                    : 'text-text-muted hover:text-text-primary hover:bg-white/[0.05]',
                 )
               }
             >
@@ -228,7 +228,6 @@ export const Navbar: React.FC = () => {
           ))}
         </div>
 
-        {/* Search */}
         <NavSearch />
 
         {/* User menu */}
@@ -237,15 +236,15 @@ export const Navbar: React.FC = () => {
             <button
               onClick={() => setMenuOpen(v => !v)}
               className={clx(
-                'flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-xl transition-all duration-150',
-                menuOpen ? 'bg-card-hover' : 'hover:bg-card-hover',
+                'flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-xl transition-all duration-200',
+                menuOpen ? 'bg-white/[0.07]' : 'hover:bg-white/[0.05]',
               )}
               aria-label="User menu"
             >
               <Avatar username={profile.username} color={profile.avatar_color} size="sm" />
               <span className="text-sm text-text-muted hidden sm:block">@{profile.username}</span>
               <svg
-                className={clx('text-text-subtle transition-transform duration-150 hidden sm:block', menuOpen && 'rotate-180')}
+                className={clx('text-text-subtle transition-transform duration-200 hidden sm:block', menuOpen && 'rotate-180')}
                 width="12" height="12" viewBox="0 0 12 12" fill="none"
               >
                 <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -253,15 +252,23 @@ export const Navbar: React.FC = () => {
             </button>
 
             {menuOpen && (
-              <div className="absolute right-0 top-[calc(100%+6px)] w-52 bg-card border border-border rounded-xl shadow-card z-50 overflow-hidden animate-slide-up">
-                <div className="px-4 py-3 border-b border-border/60">
-                  <p className="text-sm font-medium text-text-primary">@{profile.username}</p>
-                  <p className="text-xs text-text-muted truncate mt-0.5">{profile.email}</p>
+              <div className="absolute right-0 top-[calc(100%+8px)] w-56 glass-card rounded-2xl shadow-elevated z-50 overflow-hidden animate-slide-up">
+                <div className="px-4 py-3.5 border-b border-border/50">
+                  <div className="flex items-center gap-2.5 mb-0.5">
+                    <Avatar username={profile.username} color={profile.avatar_color} size="sm" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-text-primary">@{profile.username}</p>
+                      <p className="text-xs text-text-muted truncate">{profile.email}</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="p-1">
+                <div className="p-1.5">
                   <button
                     onClick={() => { setMenuOpen(false); signOut(); }}
-                    className="w-full text-left flex items-center gap-2 px-3 py-2 text-sm text-red hover:bg-red/8 rounded-lg transition-colors duration-100"
+                    className="w-full text-left flex items-center gap-2.5 px-3 py-2.5 text-sm rounded-xl transition-colors duration-150"
+                    style={{ color: '#EF4444' }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(239,68,68,0.08)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                   >
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                       <path d="M5 12H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h2M9.5 9.5L12 7m0 0L9.5 4.5M12 7H5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
