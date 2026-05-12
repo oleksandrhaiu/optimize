@@ -16,7 +16,7 @@ export const UserProfilePage: React.FC = () => {
   const { session } = useAuthStore();
   const myUserId = session?.user.id;
 
-  const { friends, refetch } = useFriends(myUserId);
+  const { friends, refetch, removeFriend } = useFriends(myUserId);
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [habits, setHabits] = useState<Habit[]>([]);
@@ -25,6 +25,8 @@ export const UserProfilePage: React.FC = () => {
   const [notFound, setNotFound] = useState(false);
   const [addingFriend, setAddingFriend] = useState(false);
   const [addedSuccess, setAddedSuccess] = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState(false);
+  const [removing, setRemoving] = useState(false);
 
   const today = todayStr();
   const weekDates = lastNDates(7);
@@ -82,6 +84,15 @@ export const UserProfilePage: React.FC = () => {
     }
     setAddingFriend(false);
     setAddedSuccess(true);
+  };
+
+  const handleRemoveFriend = async () => {
+    if (!profile) return;
+    setRemoving(true);
+    await removeFriend(profile.id);
+    setConfirmRemove(false);
+    setAddedSuccess(false);
+    setRemoving(false);
   };
 
   const weekScores = calcWeekScores(habits, logs);
@@ -158,9 +169,32 @@ export const UserProfilePage: React.FC = () => {
               {/* Action button */}
               {!isSelf && (
                 isFriend || addedSuccess ? (
-                  <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-accent/10 border border-accent/20 text-accent text-xs font-semibold">
-                    ✓ Friends
-                  </span>
+                  confirmRemove ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-text-muted">Remove friend?</span>
+                      <button
+                        onClick={handleRemoveFriend}
+                        disabled={removing}
+                        className="px-3 py-1.5 rounded-xl bg-red/80 text-white text-xs font-semibold hover:bg-red transition-all disabled:opacity-60"
+                      >
+                        {removing ? 'Removing…' : 'Remove'}
+                      </button>
+                      <button
+                        onClick={() => setConfirmRemove(false)}
+                        className="px-3 py-1.5 rounded-xl bg-border/50 text-text-muted text-xs font-semibold hover:bg-border transition-all"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmRemove(true)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-accent/10 border border-accent/20 text-accent text-xs font-semibold hover:bg-red/10 hover:border-red/30 hover:text-red transition-all group"
+                    >
+                      <span className="group-hover:hidden">✓ Friends</span>
+                      <span className="hidden group-hover:inline">Remove</span>
+                    </button>
+                  )
                 ) : (
                   <button
                     onClick={handleAddFriend}
