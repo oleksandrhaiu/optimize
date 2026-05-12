@@ -17,8 +17,6 @@ import { Avatar } from './Avatar';
 import { clx } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import type { UserProfile, Habit, HabitLog } from '@/types';
-import { Modal } from '@/components/ui/Modal';
-import { ProfileSettings } from '@/components/settings/ProfileSettings';
 import { exportHabitsCsv } from '@/lib/exportCsv';
 
 const NAV_ITEMS = [
@@ -136,7 +134,6 @@ const NavSearch: React.FC = () => {
 export const Navbar: React.FC = () => {
   const { profile, session, signOut } = useAuthStore();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
@@ -290,13 +287,14 @@ export const Navbar: React.FC = () => {
                   </div>
                 </div>
                 <div className="p-1.5 space-y-0.5">
-                  <button
-                    onClick={() => { setMenuOpen(false); setShowSettings(true); }}
+                  <NavLink
+                    to="/profile"
+                    onClick={() => setMenuOpen(false)}
                     className="w-full text-left flex items-center gap-2.5 px-3 py-2 text-sm rounded-xl transition-all duration-150 text-text-muted hover:text-text-primary hover:bg-white/[0.05]"
                   >
                     <Settings size={14} strokeWidth={1.8} />
                     Profile Settings
-                  </button>
+                  </NavLink>
                   <button
                     onClick={handleExport}
                     disabled={exporting}
@@ -326,12 +324,6 @@ export const Navbar: React.FC = () => {
           </div>
         )}
       </div>
-
-      {showSettings && (
-        <Modal title="Profile Settings" onClose={() => setShowSettings(false)} open={showSettings}>
-          <ProfileSettings />
-        </Modal>
-      )}
     </nav>
   );
 };
