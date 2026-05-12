@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Login } from '@/pages/Login';
 import { Register } from '@/pages/Register';
@@ -51,21 +51,25 @@ const App: React.FC = () => {
     return <PageLoader />;
   }
 
+  const location = useLocation();
+
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/tracker" replace />} />
-      <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
-      <Route path="/register" element={<AuthRoute><Register /></AuthRoute>} />
-      <Route path="/invite/:token" element={<InviteAccept />} />
-      <Route path="/setup-profile" element={<SetupRoute><SetupProfile /></SetupRoute>} />
-      
-      <Route path="/tracker" element={<ProtectedRoute><Tracker /></ProtectedRoute>} />
-      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-      <Route path="/u/:username" element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />
-      
-      <Route path="*" element={<Navigate to="/tracker" replace />} />
-    </Routes>
+    <div key={location.pathname} className="page-transition">
+      <Routes location={location}>
+        <Route path="/" element={<Navigate to="/tracker" replace />} />
+        <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
+        <Route path="/register" element={<AuthRoute><Register /></AuthRoute>} />
+        <Route path="/invite/:token" element={<InviteAccept />} />
+        <Route path="/setup-profile" element={<SetupRoute><SetupProfile /></SetupRoute>} />
+
+        <Route path="/tracker" element={<ProtectedRoute><Tracker /></ProtectedRoute>} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+        <Route path="/u/:username" element={<ProtectedRoute><UserProfilePage /></ProtectedRoute>} />
+
+        <Route path="*" element={<Navigate to="/tracker" replace />} />
+      </Routes>
+    </div>
   );
 };
 

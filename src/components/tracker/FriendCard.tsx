@@ -27,7 +27,7 @@ export const FriendCard: React.FC<FriendCardProps> = ({
   return (
     <div
       onClick={() => navigate(`/u/${profile.username}`)}
-      className="flex flex-col gap-3 min-w-[210px] max-w-[240px] flex-shrink-0 cursor-pointer group transition-all duration-300 hover-lift"
+      className="relative z-10 hover:z-20 flex flex-col gap-3 min-w-[210px] max-w-[240px] flex-shrink-0 cursor-pointer transition-all duration-300 group"
       style={{
         background: 'linear-gradient(145deg, rgba(17,19,32,0.9), rgba(12,13,22,0.95))',
         border: '1px solid rgba(28,30,52,0.8)',
@@ -35,14 +35,19 @@ export const FriendCard: React.FC<FriendCardProps> = ({
         padding: '16px',
         boxShadow: '0 1px 3px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3)',
         borderTopColor: 'rgba(255,255,255,0.04)',
+        transition: 'transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease, border-color 0.25s ease',
       }}
       onMouseEnter={e => {
-        (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(139,92,246,0.25)';
-        (e.currentTarget as HTMLDivElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.5), 0 0 0 1px rgba(139,92,246,0.15), 0 16px 48px rgba(0,0,0,0.35)';
+        const el = e.currentTarget;
+        el.style.transform = 'translateY(-4px)';
+        el.style.borderColor = 'rgba(139,92,246,0.3)';
+        el.style.boxShadow = '0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(139,92,246,0.15), 0 20px 48px rgba(139,92,246,0.08)';
       }}
       onMouseLeave={e => {
-        (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(28,30,52,0.8)';
-        (e.currentTarget as HTMLDivElement).style.boxShadow = '0 1px 3px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3)';
+        const el = e.currentTarget;
+        el.style.transform = 'translateY(0)';
+        el.style.borderColor = 'rgba(28,30,52,0.8)';
+        el.style.boxShadow = '0 1px 3px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3)';
       }}
     >
       {/* Header: avatar + name + score */}

@@ -1,5 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import {
+  LayoutGrid,
+  BarChart2,
+  Settings,
+  Search,
+  ChevronDown,
+  LogOut,
+  CheckSquare,
+} from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { Avatar } from './Avatar';
 import { clx } from '@/lib/utils';
@@ -7,37 +16,9 @@ import { supabase } from '@/lib/supabase';
 import type { UserProfile } from '@/types';
 
 const NAV_ITEMS = [
-  {
-    to: '/tracker',
-    label: 'Tracker',
-    icon: (
-      <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-        <rect x="1" y="1" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
-        <rect x="9" y="1" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
-        <rect x="1" y="9" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
-        <rect x="9" y="9" width="6" height="6" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
-      </svg>
-    ),
-  },
-  {
-    to: '/dashboard',
-    label: 'Dashboard',
-    icon: (
-      <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
-        <path d="M2 12L5.5 7.5L8.5 10L12 5L14 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        <rect x="1" y="13" width="14" height="1.5" rx="0.75" fill="currentColor" />
-      </svg>
-    ),
-  },
-  {
-    to: '/settings',
-    label: 'Settings',
-    icon: (
-      <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
-        <path fillRule="evenodd" clipRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" fill="currentColor" />
-      </svg>
-    ),
-  },
+  { to: '/tracker',   label: 'Tracker',   icon: LayoutGrid },
+  { to: '/dashboard', label: 'Dashboard', icon: BarChart2 },
+  { to: '/settings',  label: 'Settings',  icon: Settings },
 ];
 
 /** Quick user search dropdown */
@@ -93,23 +74,17 @@ const NavSearch: React.FC = () => {
           'p-2 rounded-xl transition-all duration-200',
           open
             ? 'text-violet bg-violet/10'
-            : 'text-text-muted hover:text-text-primary hover:bg-white/[0.05]',
+            : 'text-text-muted hover:text-text-primary hover:bg-violet/[0.07]',
         )}
         title="Find users"
       >
-        <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
-          <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.7" />
-          <path d="M15 15l3.5 3.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-        </svg>
+        <Search size={16} strokeWidth={1.8} />
       </button>
 
       {open && (
-        <div className="absolute right-0 top-[calc(100%+10px)] w-76 glass-card rounded-2xl shadow-elevated z-50 overflow-hidden animate-slide-up">
-          <div className="flex items-center gap-2 px-3 py-3 border-b border-border/50">
-            <svg width="13" height="13" viewBox="0 0 20 20" fill="none" className="text-text-subtle flex-shrink-0">
-              <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.7" />
-              <path d="M15 15l3.5 3.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-            </svg>
+        <div className="absolute right-0 top-[calc(100%+10px)] w-72 dropdown-card rounded-2xl z-50 overflow-hidden animate-slide-up">
+          <div className="flex items-center gap-2 px-3 py-3 border-b border-white/[0.05]">
+            <Search size={13} className="text-text-subtle flex-shrink-0" strokeWidth={1.8} />
             <input
               ref={inputRef}
               type="text"
@@ -131,7 +106,7 @@ const NavSearch: React.FC = () => {
                 <button
                   key={u.id}
                   onClick={() => goTo(u.username)}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/[0.05] transition-colors text-left group"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-violet/[0.08] transition-colors text-left group"
                 >
                   <Avatar username={u.username} color={u.avatar_color} size="sm" />
                   <span className="text-sm font-medium text-text-primary group-hover:text-violet transition-colors">
@@ -141,10 +116,10 @@ const NavSearch: React.FC = () => {
               ))}
             </div>
           ) : query.trim() && !searching ? (
-            <p className="px-4 py-5 text-xs text-text-muted text-center">No users found for "{query}"</p>
-          ) : !query.trim() ? (
+            <p className="px-4 py-5 text-xs text-text-muted text-center">No users found</p>
+          ) : (
             <p className="px-4 py-5 text-xs text-text-subtle text-center">Type a username to search</p>
-          ) : null}
+          )}
         </div>
       )}
     </div>
@@ -158,16 +133,15 @@ export const Navbar: React.FC = () => {
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenuOpen(false);
-      }
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
   return (
-    <nav className="sticky top-0 z-30 glass border-b border-white/[0.05] pt-[env(safe-area-inset-top)]"
+    <nav
+      className="sticky top-0 z-30 glass border-b border-white/[0.05] pt-[env(safe-area-inset-top)]"
       style={{ boxShadow: '0 1px 0 rgba(139,92,246,0.08)' }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center gap-2">
@@ -177,14 +151,12 @@ export const Navbar: React.FC = () => {
           <div
             className="w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-105"
             style={{
-              background: 'linear-gradient(135deg, rgba(139,92,246,0.2), rgba(124,58,237,0.1))',
-              border: '1px solid rgba(139,92,246,0.3)',
-              boxShadow: '0 0 12px rgba(139,92,246,0.15)',
+              background: 'linear-gradient(135deg, rgba(139,92,246,0.22), rgba(124,58,237,0.1))',
+              border: '1px solid rgba(139,92,246,0.35)',
+              boxShadow: '0 0 14px rgba(139,92,246,0.18)',
             }}
           >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M2 7L5.5 10.5L12 3" stroke="#A78BFA" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <CheckSquare size={15} color="#A78BFA" strokeWidth={2} />
           </div>
           <span className="font-heading font-bold text-sm text-text-primary hidden sm:block tracking-tight">
             HabitSync
@@ -193,14 +165,14 @@ export const Navbar: React.FC = () => {
 
         {/* Desktop nav */}
         <div className="hidden sm:flex items-center gap-0.5 flex-1">
-          {NAV_ITEMS.map(item => (
+          {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
             <NavLink
-              key={item.to}
-              to={item.to}
+              key={to}
+              to={to}
               className={({ isActive }) => clx('nav-link', isActive && 'active')}
             >
-              {item.icon}
-              {item.label}
+              <Icon size={15} strokeWidth={1.8} />
+              {label}
             </NavLink>
           ))}
         </div>
@@ -210,20 +182,20 @@ export const Navbar: React.FC = () => {
 
         {/* Mobile nav icons */}
         <div className="flex sm:hidden items-center gap-0.5">
-          {NAV_ITEMS.map(item => (
+          {NAV_ITEMS.map(({ to, icon: Icon }) => (
             <NavLink
-              key={item.to}
-              to={item.to}
+              key={to}
+              to={to}
               className={({ isActive }) =>
                 clx(
                   'p-2.5 rounded-xl transition-all duration-200',
                   isActive
                     ? 'text-violet bg-violet/10'
-                    : 'text-text-muted hover:text-text-primary hover:bg-white/[0.05]',
+                    : 'text-text-muted hover:text-text-primary hover:bg-violet/[0.07]',
                 )
               }
             >
-              {item.icon}
+              <Icon size={17} strokeWidth={1.8} />
             </NavLink>
           ))}
         </div>
@@ -237,24 +209,25 @@ export const Navbar: React.FC = () => {
               onClick={() => setMenuOpen(v => !v)}
               className={clx(
                 'flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-xl transition-all duration-200',
-                menuOpen ? 'bg-white/[0.07]' : 'hover:bg-white/[0.05]',
+                menuOpen
+                  ? 'bg-violet/[0.1] ring-1 ring-violet/20'
+                  : 'hover:bg-violet/[0.07]',
               )}
               aria-label="User menu"
             >
               <Avatar username={profile.username} color={profile.avatar_color} size="sm" />
               <span className="text-sm text-text-muted hidden sm:block">@{profile.username}</span>
-              <svg
+              <ChevronDown
+                size={12}
                 className={clx('text-text-subtle transition-transform duration-200 hidden sm:block', menuOpen && 'rotate-180')}
-                width="12" height="12" viewBox="0 0 12 12" fill="none"
-              >
-                <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+                strokeWidth={2}
+              />
             </button>
 
             {menuOpen && (
-              <div className="absolute right-0 top-[calc(100%+8px)] w-56 glass-card rounded-2xl shadow-elevated z-50 overflow-hidden animate-slide-up">
-                <div className="px-4 py-3.5 border-b border-border/50">
-                  <div className="flex items-center gap-2.5 mb-0.5">
+              <div className="absolute right-0 top-[calc(100%+8px)] w-56 dropdown-card rounded-2xl z-50 overflow-hidden animate-slide-up">
+                <div className="px-4 py-3.5 border-b border-white/[0.06]">
+                  <div className="flex items-center gap-2.5">
                     <Avatar username={profile.username} color={profile.avatar_color} size="sm" />
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-text-primary">@{profile.username}</p>
@@ -265,14 +238,9 @@ export const Navbar: React.FC = () => {
                 <div className="p-1.5">
                   <button
                     onClick={() => { setMenuOpen(false); signOut(); }}
-                    className="w-full text-left flex items-center gap-2.5 px-3 py-2.5 text-sm rounded-xl transition-colors duration-150"
-                    style={{ color: '#EF4444' }}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(239,68,68,0.08)')}
-                    onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                    className="w-full text-left flex items-center gap-2.5 px-3 py-2.5 text-sm rounded-xl transition-all duration-150 text-red/90 hover:text-red hover:bg-red/[0.08]"
                   >
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <path d="M5 12H3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h2M9.5 9.5L12 7m0 0L9.5 4.5M12 7H5.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
+                    <LogOut size={14} strokeWidth={1.8} />
                     Sign out
                   </button>
                 </div>

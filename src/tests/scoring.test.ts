@@ -22,7 +22,7 @@ const makeHabit = (overrides: Partial<Habit> = {}): Habit => ({
   cal_min: null,
   cal_max: null,
   is_calorie_habit: false,
-  sort_order: 0,
+  order: 0,
   created_at: '2024-01-01T00:00:00Z',
   ...overrides,
 });

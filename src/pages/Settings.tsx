@@ -9,13 +9,14 @@ import { ProfileSettings } from '@/components/settings/ProfileSettings';
 import { Skeleton } from '@/components/ui/LoadingSpinner';
 import { Avatar } from '@/components/ui/Avatar';
 import { clx } from '@/lib/utils';
+import { UserCircle2, ListChecks, Users } from 'lucide-react';
 
 type Tab = 'profile' | 'habits' | 'friends';
 
-const TABS: { id: Tab; label: string; icon: string }[] = [
-  { id: 'profile', label: 'Profile',   icon: '👤' },
-  { id: 'habits',  label: 'My Habits', icon: '📋' },
-  { id: 'friends', label: 'Friends',   icon: '👥' },
+const TABS: { id: Tab; label: string; icon: React.ElementType; desc: string }[] = [
+  { id: 'profile', label: 'Profile',   icon: UserCircle2, desc: 'Username & appearance' },
+  { id: 'habits',  label: 'My Habits', icon: ListChecks,  desc: 'Add & configure habits' },
+  { id: 'friends', label: 'Friends',   icon: Users,       desc: 'Accountability partners' },
 ];
 
 export const Settings: React.FC = () => {
@@ -38,45 +39,56 @@ export const Settings: React.FC = () => {
           <p className="text-text-muted text-sm mt-0.5">Manage your habits and account.</p>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-6">
-          {/* Sidebar */}
-          <aside className="md:w-48 flex-shrink-0">
-            {/* Profile card in sidebar */}
+        <div className="flex flex-col md:flex-row gap-5">
+          {/* ── Sidebar ─────────────────────────────────────── */}
+          <aside className="md:w-52 flex-shrink-0">
+            {/* Profile card */}
             {profile && (
-              <div className="bg-card border border-border rounded-2xl p-3 mb-3 shadow-card">
+              <div
+                className="rounded-2xl p-3.5 mb-3"
+                style={{
+                  background: 'rgb(12,13,22)',
+                  border: '1px solid rgb(28,30,52)',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.4)',
+                }}
+              >
                 <div className="flex items-center gap-2.5">
                   <Avatar username={profile.username} color={profile.avatar_color} size="sm" />
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-text-primary truncate">@{profile.username}</p>
-                    <p className="text-xs text-text-subtle truncate">{profile.email}</p>
+                    <p className="text-sm font-semibold text-text-primary truncate">@{profile.username}</p>
+                    <p className="text-[11px] text-text-subtle truncate">{profile.email}</p>
                   </div>
                 </div>
               </div>
             )}
 
             <nav className="flex md:flex-col gap-1 overflow-x-auto pb-2 scrollbar-hide">
-              {TABS.map(tab => (
+              {TABS.map(({ id, label, icon: Icon, desc }) => (
                 <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={clx(
-                    'flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 whitespace-nowrap',
-                    activeTab === tab.id
-                      ? 'bg-white/[0.07] border border-border text-text-primary shadow-card'
-                      : 'text-text-muted hover:bg-white/[0.04] hover:text-text-primary',
-                  )}
+                  key={id}
+                  onClick={() => setActiveTab(id)}
+                  className={clx('settings-tab', activeTab === id && 'active')}
                 >
-                  <span className="text-base leading-none">{tab.icon}</span>
-                  {tab.label}
+                  <span className="tab-icon">
+                    <Icon size={15} strokeWidth={1.8} />
+                  </span>
+                  <div className="text-left hidden sm:block">
+                    <div className="text-sm font-medium leading-none">{label}</div>
+                    <div className="text-[10px] mt-0.5 opacity-60">{desc}</div>
+                  </div>
+                  <span className="sm:hidden text-sm font-medium">{label}</span>
                 </button>
               ))}
             </nav>
           </aside>
 
-          {/* Content */}
+          {/* ── Content ──────────────────────────────────────── */}
           <section className="flex-1 min-w-0">
             {(activeTab !== 'profile' && isLoading) ? (
-              <div className="bg-card border border-border rounded-2xl p-6 space-y-3">
+              <div
+                className="rounded-2xl p-6 space-y-3"
+                style={{ background: 'rgb(12,13,22)', border: '1px solid rgb(28,30,52)' }}
+              >
                 <Skeleton className="h-6 w-40" />
                 <Skeleton className="h-4 w-64" />
                 <div className="space-y-2 pt-2">
@@ -84,7 +96,15 @@ export const Settings: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="bg-card border border-border rounded-2xl p-6 animate-fade-in shadow-card">
+              <div
+                key={activeTab}
+                className="rounded-2xl p-6 page-transition"
+                style={{
+                  background: 'rgb(12,13,22)',
+                  border: '1px solid rgb(28,30,52)',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3)',
+                }}
+              >
                 {activeTab === 'profile' && (
                   <div className="space-y-5">
                     <div>
