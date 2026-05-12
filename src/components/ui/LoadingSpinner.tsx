@@ -26,16 +26,30 @@ export const Skeleton: React.FC<{ className?: string }> = ({ className = '' }) =
 
 /* ── Full page loader ────────────────────────────────────────── */
 export const PageLoader: React.FC = () => (
-  <div className="min-h-screen bg-bg flex items-center justify-center">
-    <div className="flex flex-col items-center gap-5">
-      {/* Animated logo */}
-      <div className="relative mb-4">
-        <Logo size={72} className="animate-glow-pulse drop-shadow-[0_0_24px_rgba(139,92,246,0.4)]" />
+  <div className="fixed inset-0 z-50 bg-bg flex items-center justify-center overflow-hidden">
+    {/* Ambient background glow */}
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-violet/10 blur-[80px] rounded-full animate-pulse-soft" />
+    
+    <div className="relative z-10 flex flex-col items-center gap-6">
+      {/* The Logo with a subtle breathing/floating animation */}
+      <div className="animate-float" style={{ animationDuration: '4s' }}>
+        <Logo size={72} className="drop-shadow-[0_0_30px_rgba(139,92,246,0.3)]" />
       </div>
-      <LoadingSpinner size={28} />
-      <p className="text-text-subtle text-sm tracking-[0.2em] uppercase font-semibold mt-4">
+      
+      {/* Premium typography */}
+      <p 
+        className="text-text-primary text-sm tracking-[0.4em] uppercase font-heading font-medium opacity-0 animate-fade-in"
+        style={{ animationFillMode: 'forwards', animationDelay: '100ms' }}
+      >
         Lumina
       </p>
+      
+      {/* Minimalist pulse dots */}
+      <div className="flex gap-1.5 opacity-0 animate-fade-in" style={{ animationFillMode: 'forwards', animationDelay: '300ms' }}>
+        <div className="w-1.5 h-1.5 rounded-full bg-violet/50 animate-pulse" />
+        <div className="w-1.5 h-1.5 rounded-full bg-violet/50 animate-pulse" style={{ animationDelay: '200ms' }} />
+        <div className="w-1.5 h-1.5 rounded-full bg-violet/50 animate-pulse" style={{ animationDelay: '400ms' }} />
+      </div>
     </div>
   </div>
 );
