@@ -75,14 +75,14 @@ export const OnboardingModal: React.FC<{ onDone: () => void }> = ({ onDone }) =>
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
       <motion.div 
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className="bg-card border border-border rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden text-center flex flex-col"
+        className="bg-card border border-border rounded-[2rem] w-full max-w-sm shadow-2xl overflow-hidden text-center flex flex-col my-auto max-h-[calc(100dvh-2rem)]"
       >
         {/* Progress dots */}
-        <div className="flex justify-center gap-1.5 pt-6">
+        <div className="flex justify-center gap-1.5 pt-6 shrink-0">
           {STEPS.map((_, i) => (
             <div key={i} className={clx(
               'h-1.5 rounded-full transition-all duration-300',
@@ -90,9 +90,9 @@ export const OnboardingModal: React.FC<{ onDone: () => void }> = ({ onDone }) =>
             )} />
           ))}
         </div>
-
+ 
         {/* Content Area with Animation */}
-        <div className="relative h-[280px] px-8 py-8 overflow-hidden">
+        <div className="relative min-h-[240px] px-6 py-6 overflow-hidden flex-1 flex flex-col justify-center">
           <AnimatePresence initial={false} custom={direction} mode="wait">
             <motion.div
               key={step}
@@ -103,22 +103,22 @@ export const OnboardingModal: React.FC<{ onDone: () => void }> = ({ onDone }) =>
               exit="exit"
               transition={{
                 x: { type: "spring", stiffness: 300, damping: 30 },
-                opacity: { duration: 0.2 }
+                opacity: { duration: 0.15 }
               }}
-              className="absolute inset-0 flex flex-col items-center justify-center px-8"
+              className="flex flex-col items-center justify-center"
             >
-              <div className="text-6xl mb-6">{current.emoji}</div>
-              <h2 className="font-heading font-bold text-xl text-text-primary mb-3">{current.title}</h2>
-              <p className="text-sm text-text-muted leading-relaxed text-center px-2">{current.description}</p>
+              <div className="text-5xl sm:text-6xl mb-4 sm:mb-6">{current.emoji}</div>
+              <h2 className="font-heading font-bold text-lg sm:text-xl text-text-primary mb-2 sm:mb-3">{current.title}</h2>
+              <p className="text-xs sm:text-sm text-text-muted leading-relaxed text-center px-2">{current.description}</p>
             </motion.div>
           </AnimatePresence>
         </div>
-
+ 
         {/* Actions */}
-        <div className="flex items-center gap-2 px-6 pb-6">
+        <div className="flex items-center gap-2 px-6 pb-6 mt-auto shrink-0">
           {step > 0 && (
             <button onClick={handleBack}
-              className="flex-1 py-3 rounded-2xl border border-border text-sm text-text-muted hover:text-text-primary hover:border-border transition-all font-medium">
+              className="flex-1 py-3 rounded-2xl border border-border text-sm text-text-muted hover:text-text-primary transition-all font-medium">
               Back
             </button>
           )}
@@ -127,10 +127,10 @@ export const OnboardingModal: React.FC<{ onDone: () => void }> = ({ onDone }) =>
             {isLast ? "Let's go! 🚀" : 'Next →'}
           </button>
         </div>
-
+ 
         {/* Skip */}
         {!isLast && (
-          <button onClick={onDone} className="text-[10px] text-text-subtle hover:text-text-muted pb-5 transition-colors uppercase tracking-widest font-bold">
+          <button onClick={onDone} className="text-[10px] text-text-subtle hover:text-text-muted pb-4 transition-colors uppercase tracking-widest font-bold shrink-0">
             Skip intro
           </button>
         )}
