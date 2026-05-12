@@ -8,17 +8,24 @@ import {
   ChevronDown,
   LogOut,
   CheckSquare,
+  ListChecks,
+  Users,
+  Download,
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { Avatar } from './Avatar';
 import { clx } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
-import type { UserProfile } from '@/types';
+import type { UserProfile, Habit, HabitLog } from '@/types';
+import { Modal } from '@/components/ui/Modal';
+import { ProfileSettings } from '@/components/settings/ProfileSettings';
+import { exportHabitsCsv } from '@/lib/exportCsv';
 
 const NAV_ITEMS = [
   { to: '/tracker',   label: 'Tracker',   icon: LayoutGrid },
   { to: '/dashboard', label: 'Dashboard', icon: BarChart2 },
-  { to: '/settings',  label: 'Settings',  icon: Settings },
+  { to: '/habits',    label: 'Habits',    icon: ListChecks },
+  { to: '/friends',   label: 'Friends',   icon: Users },
 ];
 
 /** Quick user search dropdown */
@@ -127,12 +134,26 @@ const NavSearch: React.FC = () => {
 };
 
 export const Navbar: React.FC = () => {
-  const { profile, signOut } = useAuthStore();
+  const { profile, session, signOut } = useAuthStore();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const [pillStyle, setPillStyle] = useState({ left: 0, width: 0, opacity: 0 });
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = async () => {
+    if (!session?.user.id) return;
+    setMenuOpen(false);
+    setExporting(true);
+    const { data: habits } = await supabase.from('habits').select('*').eq('user_id', session.user.id);
+    const { data: logs } = await supabase.from('habit_logs').select('*').eq('user_id', session.user.id);
+    if (habits && logs) {
+      exportHabitsCsv(habits as Habit[], logs as HabitLog[]);
+    }
+    setExporting(false);
+  };
 
   useEffect(() => {
     if (!navRef.current) return;
@@ -268,10 +289,33 @@ export const Navbar: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <div className="p-1.5">
+                <div className="p-1.5 space-y-0.5">
+                  <button
+                    onClick={() => { setMenuOpen(false); setShowSettings(true); }}
+                    className="w-full text-left flex items-center gap-2.5 px-3 py-2 text-sm rounded-xl transition-all duration-150 text-text-muted hover:text-text-primary hover:bg-white/[0.05]"
+                  >
+                    <Settings size={14} strokeWidth={1.8} />
+                    Profile Settings
+                  </button>
+                  <button
+                    onClick={handleExport}
+                    disabled={exporting}
+                    className="w-full text-left flex items-center gap-2.5 px-3 py-2 text-sm rounded-xl transition-all duration-150 text-text-muted hover:text-text-primary hover:bg-white/[0.05]"
+                  >
+                    {exporting ? (
+                      <svg width="14" height="14" viewBox="0 0 24 24" className="animate-spin" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.5" opacity="0.25"/>
+                        <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+                      </svg>
+                    ) : (
+                      <Download size={14} strokeWidth={1.8} />
+                    )}
+                    Export Data
+                  </button>
+                  <div className="h-px bg-white/[0.05] my-1" />
                   <button
                     onClick={() => { setMenuOpen(false); signOut(); }}
-                    className="w-full text-left flex items-center gap-2.5 px-3 py-2.5 text-sm rounded-xl transition-all duration-150 text-red/90 hover:text-red hover:bg-red/[0.08]"
+                    className="w-full text-left flex items-center gap-2.5 px-3 py-2 text-sm rounded-xl transition-all duration-150 text-red/90 hover:text-red hover:bg-red/[0.08]"
                   >
                     <LogOut size={14} strokeWidth={1.8} />
                     Sign out
@@ -282,6 +326,12 @@ export const Navbar: React.FC = () => {
           </div>
         )}
       </div>
+
+      {showSettings && (
+        <Modal title="Profile Settings" onClose={() => setShowSettings(false)} open={showSettings}>
+          <ProfileSettings />
+        </Modal>
+      )}
     </nav>
   );
 };

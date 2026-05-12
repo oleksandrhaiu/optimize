@@ -6,7 +6,8 @@ import { Register } from '@/pages/Register';
 import { InviteAccept } from '@/pages/InviteAccept';
 import { Tracker } from '@/pages/Tracker';
 import { Dashboard } from '@/pages/Dashboard';
-import { Settings } from '@/pages/Settings';
+import { HabitsPage } from '@/pages/HabitsPage';
+import { FriendsPage } from '@/pages/FriendsPage';
 import { SetupProfile } from '@/pages/SetupProfile';
 import { UserProfilePage } from '@/pages/UserProfile';
 import { PageLoader } from '@/components/ui/LoadingSpinner';
@@ -73,7 +74,8 @@ const App: React.FC = () => {
       <Route element={<ProtectedLayout />}>
         <Route path="/tracker" element={<Tracker />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/settings" element={<Settings />} />
+        <Route path="/habits" element={<HabitsPage />} />
+        <Route path="/friends" element={<FriendsPage />} />
         <Route path="/u/:username" element={<UserProfilePage />} />
       </Route>
 
