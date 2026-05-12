@@ -14,6 +14,7 @@ import { useFriends } from '@/hooks/useFriends';
 import { useRealtimeSync } from '@/hooks/useRealtimeSync';
 import { usePresence } from '@/hooks/usePresence';
 import { currentMonthYear, calcWeekScores, calcDayScore, todayStr, dateKey, getDaysArray } from '@/lib/utils';
+import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
 import type { MonthYear, Habit } from '@/types';
 import confettiData from '@/assets/animations/check-success.json';
 
@@ -145,7 +146,7 @@ export const Tracker: React.FC = () => {
             {/* Right column */}
             <div className="space-y-4">
               {/* Stats row */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-3 animate-slide-up" style={{ animationFillMode: 'both' }}>
                 {/* Today */}
                 <div
                   className="rounded-2xl p-4 flex flex-col gap-1"
@@ -157,7 +158,7 @@ export const Tracker: React.FC = () => {
                 >
                   <p className="text-xs text-text-muted">Today</p>
                   <p className="font-heading text-2xl font-bold" style={{ color: scoreColor }}>
-                    {todayScore}%
+                    <AnimatedNumber value={todayScore} suffix="%" />
                   </p>
                   <p className="text-[10px] text-text-subtle">{completedToday}/{habits.length} done</p>
                 </div>
@@ -172,7 +173,9 @@ export const Tracker: React.FC = () => {
                   }}
                 >
                   <p className="text-xs text-text-muted">This week</p>
-                  <p className="font-heading text-2xl font-bold text-violet">{avgWeek}%</p>
+                  <p className="font-heading text-2xl font-bold text-violet">
+                    <AnimatedNumber value={avgWeek} suffix="%" />
+                  </p>
                   <p className="text-[10px] text-text-subtle">avg score</p>
                 </div>
 
@@ -186,7 +189,9 @@ export const Tracker: React.FC = () => {
                   }}
                 >
                   <p className="text-xs text-text-muted">Perfect days</p>
-                  <p className="font-heading text-2xl font-bold" style={{ color: '#10B981' }}>{greenDays}</p>
+                  <p className="font-heading text-2xl font-bold" style={{ color: '#10B981' }}>
+                    <AnimatedNumber value={greenDays} />
+                  </p>
                   <p className="text-[10px] text-text-subtle">this month</p>
                 </div>
               </div>
@@ -194,16 +199,20 @@ export const Tracker: React.FC = () => {
               {/* Week bar chart */}
               {weekScores.some(s => s > 0) && (
                 <div
-                  className="rounded-2xl p-4"
+                  className="rounded-2xl p-4 animate-slide-up"
                   style={{
                     background: 'rgb(12,13,22)',
                     border: '1px solid rgb(28,30,52)',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3)',
+                    animationFillMode: 'both',
+                    animationDelay: '100ms',
                   }}
                 >
                   <div className="flex items-center justify-between mb-4">
                     <p className="text-sm font-semibold text-text-primary font-heading">Last 7 days</p>
-                    <span className="text-xs text-text-muted font-mono">{avgWeek}% avg</span>
+                    <span className="text-xs text-text-muted font-mono">
+                      <AnimatedNumber value={avgWeek} suffix="% avg" />
+                    </span>
                   </div>
                   <div className="flex items-end gap-1.5">
                     {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((day, i) => {
