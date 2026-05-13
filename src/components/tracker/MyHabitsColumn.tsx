@@ -58,7 +58,7 @@ export const MyHabitsColumn: React.FC<MyHabitsColumnProps> = ({
   const scoreColor = todayScore >= 80 ? '#10B981' : todayScore >= 50 ? '#F59E0B' : todayScore > 0 ? '#EF4444' : undefined;
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 w-full min-w-0">
 
       {/* ── Calendar Strip ─────────────────────────────────────────── */}
       <div className="mb-2">

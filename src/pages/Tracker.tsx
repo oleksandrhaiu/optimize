@@ -162,22 +162,24 @@ export const Tracker: React.FC = () => {
         {isLoading ? (
           <TrackerSkeleton />
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 lg:gap-8 animate-fade-in items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6 animate-fade-in items-start">
             {/* Left: habits column */}
-            <MyHabitsColumn
-              habits={habits}
-              logs={logs}
-              year={monthYear.year}
-              month={monthYear.month}
-              selectedDay={selectedDay}
-              onDaySelect={setSelectedDay}
-              onToggle={handleToggle}
-              onNote={handleNote}
-              onHabitClick={setHistoryHabit}
-            />
+            <div className="min-w-0 w-full">
+              <MyHabitsColumn
+                habits={habits}
+                logs={logs}
+                year={monthYear.year}
+                month={monthYear.month}
+                selectedDay={selectedDay}
+                onDaySelect={setSelectedDay}
+                onToggle={handleToggle}
+                onNote={handleNote}
+                onHabitClick={setHistoryHabit}
+              />
+            </div>
 
             {/* Right column */}
-            <div className="space-y-4">
+            <div className="space-y-4 min-w-0">
               {/* Stats row */}
               <div className="grid grid-cols-3 gap-3 animate-slide-up" style={{ animationFillMode: 'both' }}>
                 {/* Today */}

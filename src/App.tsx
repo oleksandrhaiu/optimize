@@ -27,10 +27,8 @@ const ProtectedLayout: React.FC = () => {
   if (session && !profile) return <Navigate to="/setup-profile" replace />;
   
   return (
-    <div className="min-h-screen bg-bg flex flex-col relative pb-20 md:pb-0">
-      <div className="hidden md:block">
-        <Navbar />
-      </div>
+    <div className="min-h-screen bg-bg flex flex-col relative pb-16 md:pb-0">
+      <Navbar />
       <div key={location.pathname} className="page-transition flex-1">
         <Outlet />
       </div>

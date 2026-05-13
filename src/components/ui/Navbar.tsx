@@ -222,26 +222,6 @@ export const Navbar: React.FC = () => {
         {/* Spacer mobile */}
         <div className="flex-1 sm:hidden" />
 
-        {/* Mobile nav icons */}
-        <div className="flex sm:hidden items-center gap-0.5">
-          {NAV_ITEMS.map(({ to, icon: Icon }) => (
-            <NavLink
-              key={to}
-              to={to}
-              className={({ isActive }) =>
-                clx(
-                  'p-2.5 rounded-xl transition-all duration-200',
-                  isActive
-                    ? 'text-violet bg-violet/10'
-                    : 'text-text-muted hover:text-text-primary hover:bg-violet/[0.07]',
-                )
-              }
-            >
-              <Icon size={17} strokeWidth={1.8} />
-            </NavLink>
-          ))}
-        </div>
-
         <NavSearch />
 
         {/* User menu */}
