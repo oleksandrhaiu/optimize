@@ -135,6 +135,48 @@ const FrequencyPicker: React.FC<{
   );
 };
 
+/* ── Privacy Toggle ────────────────────────────────────────────── */
+const PrivacyToggle: React.FC<{ isPrivate: boolean; onChange: () => void }> = ({ isPrivate, onChange }) => {
+  return (
+    <button
+      type="button"
+      onClick={onChange}
+      title={isPrivate ? 'Private Habit (Only you)' : 'Public Habit (Visible to friends)'}
+      className="lg:opacity-0 group-hover:opacity-100 flex items-center bg-bg border border-border/60 rounded-lg p-[2px] relative transition-all duration-300 hover:border-border/80 cursor-pointer w-[64px] h-7 flex-shrink-0"
+    >
+      {/* Sliding Pill */}
+      <div
+        className={clx(
+          "absolute top-[2px] bottom-[2px] w-[28px] rounded-[6px] transition-all duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)] shadow-sm",
+          isPrivate 
+            ? "bg-border/60 translate-x-[30px]" 
+            : "bg-accent/20 border border-accent/20 translate-x-0"
+        )}
+      />
+      
+      {/* Public Icon */}
+      <div
+        className={clx(
+          "flex-1 flex items-center justify-center text-xs transition-colors duration-300 z-10",
+          !isPrivate ? "text-accent drop-shadow-sm scale-110" : "text-text-subtle scale-100 grayscale opacity-50"
+        )}
+      >
+        🌍
+      </div>
+      
+      {/* Private Icon */}
+      <div
+        className={clx(
+          "flex-1 flex items-center justify-center text-xs transition-colors duration-300 z-10",
+          isPrivate ? "text-text-primary drop-shadow-sm scale-110" : "text-text-subtle scale-100 grayscale opacity-50"
+        )}
+      >
+        🔒
+      </div>
+    </button>
+  );
+};
+
 /* ── HabitItem ───────────────────────────────────────────────── */
 interface HabitItemProps {
   habit: Habit;
@@ -266,18 +308,7 @@ export const HabitItem: React.FC<HabitItemProps> = ({ habit, onUpdate, onArchive
           )} title={habit.type} />
 
           {/* Privacy toggle */}
-          <button
-            onClick={togglePrivate}
-            title={habit.is_private ? 'Private (only you)' : 'Public (friends can see)'}
-            className={clx(
-              'text-sm leading-none transition-all w-6 h-6 rounded-lg flex items-center justify-center',
-              habit.is_private
-                ? 'bg-border/40 text-text-primary'
-                : 'lg:opacity-0 group-hover:opacity-100 text-text-subtle hover:bg-border/20 hover:text-text-muted',
-            )}
-          >
-            {habit.is_private ? '🔒' : '🌍'}
-          </button>
+          <PrivacyToggle isPrivate={habit.is_private} onChange={togglePrivate} />
 
           {/* Calorie toggle — numeric only */}
           {habit.type === 'numeric' && (
