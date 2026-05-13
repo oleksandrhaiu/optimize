@@ -82,23 +82,36 @@ export const EditHabitPage: React.FC = () => {
 
   const [habit, setHabit] = useState<Habit | null>(null);
   const [showEmoji, setShowEmoji] = useState(false);
+  const saveTimeout = useRef<NodeJS.Timeout>();
   
-  // Load local state
+  // Load local state only once initially
   useEffect(() => {
     if (loading) return;
     if (archivedHabits.length === 0) fetchArchivedHabits();
     
-    const found = habits.find(h => h.id === id) || archivedHabits.find(h => h.id === id);
-    if (found) setHabit(found);
-  }, [id, habits, archivedHabits, loading, fetchArchivedHabits]);
+    if (!habit) {
+      const found = habits.find(h => h.id === id) || archivedHabits.find(h => h.id === id);
+      if (found) setHabit(found);
+    }
+  }, [id, habits, archivedHabits, loading, fetchArchivedHabits, habit]);
 
   if (loading || !habit) {
     return <PageLoader />;
   }
 
   const handleChange = (updates: Partial<Habit>) => {
-    setHabit(prev => prev ? { ...prev, ...updates } : null);
-    updateHabit(habit.id, updates); // Save immediately
+    setHabit(prev => {
+      if (!prev) return null;
+      const next = { ...prev, ...updates };
+      
+      // Debounce auto-save to prevent flooding DB and UI stutter
+      if (saveTimeout.current) clearTimeout(saveTimeout.current);
+      saveTimeout.current = setTimeout(() => {
+        updateHabit(next.id, updates);
+      }, 400);
+
+      return next;
+    });
   };
 
   const handleCustomDayToggle = (dayIdx: number) => {

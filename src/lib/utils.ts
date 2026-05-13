@@ -73,6 +73,11 @@ export function lastNDates(n: number): string[] {
  * Takes frequency and frequency_days into account.
  */
 export function isHabitScheduledOn(habit: Habit, dateStr: string): boolean {
+  // If date is before the habit was even created, it's not scheduled
+  if (habit.created_at && dateStr < habit.created_at.substring(0, 10)) {
+    return false;
+  }
+
   const date = parseDate(dateStr);
   const dow = weekdayIndex(date); // 0=Mon..6=Sun
   switch (habit.frequency ?? 'daily') {
