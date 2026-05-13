@@ -1,80 +1,77 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { LayoutGrid, BarChart2, ListChecks, Users } from 'lucide-react';
 import { clx } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
+
+const NAV_ITEMS = [
+  { to: '/dashboard', label: 'Home',    icon: BarChart2 },
+  { to: '/tracker',   label: 'Tracker', icon: LayoutGrid },
+  { to: '/habits',    label: 'Habits',  icon: ListChecks },
+  { to: '/friends',   label: 'Social',  icon: Users }
+];
 
 export const BottomNav: React.FC = () => {
   const { session } = useAuthStore();
   const location = useLocation();
+  const navRef = useRef<HTMLDivElement>(null);
+  const [pillStyle, setPillStyle] = useState({ left: 0, width: 0, opacity: 0 });
+
+  useEffect(() => {
+    if (!navRef.current) return;
+    // Small timeout to ensure DOM paints and NavLinks have the "active" class applied by React Router
+    const t = setTimeout(() => {
+      const activeEl = navRef.current?.querySelector('.active') as HTMLElement;
+      if (activeEl) {
+        setPillStyle({
+          left: activeEl.offsetLeft,
+          width: activeEl.offsetWidth,
+          opacity: 1
+        });
+      } else {
+        setPillStyle(prev => ({ ...prev, opacity: 0 }));
+      }
+    }, 10);
+    return () => clearTimeout(t);
+  }, [location.pathname]);
 
   if (!session) return null;
 
-  const NAV_ITEMS = [
-    {
-      to: '/dashboard',
-      label: 'Home',
-      icon: (active: boolean) => (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? '0' : '2'} strokeLinecap="round" strokeLinejoin="round">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-          <polyline points="9 22 9 12 15 12 15 22"></polyline>
-        </svg>
-      )
-    },
-    {
-      to: '/tracker',
-      label: 'Tracker',
-      icon: (active: boolean) => (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? '0' : '2'} strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-        </svg>
-      )
-    },
-    {
-      to: '/habits',
-      label: 'Habits',
-      icon: (active: boolean) => (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? '0' : '2'} strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-          <line x1="9" y1="9" x2="15" y2="9"></line>
-          <line x1="9" y1="15" x2="15" y2="15"></line>
-        </svg>
-      )
-    },
-    {
-      to: '/friends',
-      label: 'Social',
-      icon: (active: boolean) => (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill={active ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={active ? '0' : '2'} strokeLinecap="round" strokeLinejoin="round">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-          <circle cx="9" cy="7" r="4"></circle>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-        </svg>
-      )
-    }
-  ];
-
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-bg/90 backdrop-blur-xl border-t border-border/40 pb-safe">
-      <div className="flex items-center justify-around px-2 py-2">
-        {NAV_ITEMS.map((item) => {
-          const isActive = location.pathname.startsWith(item.to);
-          return (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={clx(
-                "flex flex-col items-center gap-1 p-2 rounded-xl transition-all duration-300 min-w-[64px]",
-                isActive ? "text-accent" : "text-text-muted hover:text-text-primary"
-              )}
-            >
-              <div className={clx("transition-transform duration-300", isActive && "scale-110")}>
-                {item.icon(isActive)}
-              </div>
-              <span className="text-[10px] font-semibold tracking-wide">{item.label}</span>
-            </NavLink>
-          );
-        })}
+      <div className="flex items-center justify-around px-2 py-2 relative" ref={navRef}>
+        {/* Sliding pill */}
+        <div
+          className="absolute top-1 bottom-1 rounded-2xl transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] z-0"
+          style={{
+            left: pillStyle.left,
+            width: pillStyle.width,
+            opacity: pillStyle.opacity,
+            background: 'linear-gradient(to bottom, rgba(139,92,246,0.15), rgba(139,92,246,0.05))',
+            border: '1px solid rgba(139,92,246,0.2)',
+            boxShadow: '0 0 10px rgba(139,92,246,0.1)',
+          }}
+        />
+        {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
+            className={({ isActive }) => clx(
+              "flex flex-col items-center gap-1 py-2 px-4 rounded-2xl transition-all duration-300 relative z-10",
+              isActive ? "text-violet active" : "text-text-muted hover:text-text-primary"
+            )}
+            style={{ background: 'transparent' }} // Let pill handle bg
+          >
+            {({ isActive }) => (
+              <>
+                <div className={clx("transition-transform duration-300", isActive && "scale-110")}>
+                  <Icon size={20} strokeWidth={isActive ? 2.5 : 1.8} />
+                </div>
+                <span className="text-[10px] font-semibold tracking-wide">{label}</span>
+              </>
+            )}
+          </NavLink>
+        ))}
       </div>
     </div>
   );
