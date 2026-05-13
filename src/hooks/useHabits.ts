@@ -2,16 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { Habit } from '@/types';
 
-const DEFAULT_HABITS: Omit<Habit, 'id' | 'user_id' | 'created_at'>[] = [
-  { name: 'Water', type: 'numeric', unit: 'glasses', icon: '💧', order: 0, goal: 8, cal_min: null, cal_max: null, is_calorie_habit: false },
-  { name: 'Workout', type: 'checkbox', unit: null, icon: '🏋️', order: 1, goal: null, cal_min: null, cal_max: null, is_calorie_habit: false },
-  { name: 'Calories', type: 'numeric', unit: 'kcal', icon: '🔥', order: 2, goal: null, cal_min: 1800, cal_max: 2400, is_calorie_habit: true },
-  { name: 'Reading', type: 'numeric', unit: 'pages', icon: '📖', order: 3, goal: 20, cal_min: null, cal_max: null, is_calorie_habit: false },
-  { name: 'Sleep', type: 'numeric', unit: 'hrs', icon: '😴', order: 4, goal: 8, cal_min: null, cal_max: null, is_calorie_habit: false },
-];
-
 export function useHabits(userId: string | undefined) {
   const [habits, setHabits] = useState<Habit[]>([]);
+  const [archivedHabits, setArchivedHabits] = useState<Habit[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,22 +15,51 @@ export function useHabits(userId: string | undefined) {
       .from('habits')
       .select('*')
       .eq('user_id', userId)
+      .eq('is_archived', false)
       .order('order', { ascending: true });
 
     if (error) { setError(error.message); setLoading(false); return; }
-
     setHabits(data as Habit[] ?? []);
     setLoading(false);
   }, [userId]);
 
+  const fetchArchivedHabits = useCallback(async () => {
+    if (!userId) return;
+    const { data, error } = await supabase
+      .from('habits')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('is_archived', true)
+      .order('order', { ascending: true });
+
+    if (!error) setArchivedHabits(data as Habit[] ?? []);
+    return error;
+  }, [userId]);
+
   useEffect(() => { fetchHabits(); }, [fetchHabits]);
 
-  const addHabit = useCallback(async (name: string, type: 'checkbox' | 'numeric', extra?: Partial<Habit>) => {
+  const addHabit = useCallback(async (
+    name: string,
+    type: 'checkbox' | 'numeric',
+    extra?: Partial<Habit>,
+  ) => {
     if (!userId) return;
     const maxOrder = habits.reduce((m, h) => Math.max(m, h.order), -1);
     const { data, error } = await supabase
       .from('habits')
-      .insert({ user_id: userId, name, type, order: maxOrder + 1, is_calorie_habit: false, ...extra })
+      .insert({
+        user_id: userId,
+        name,
+        type,
+        order: maxOrder + 1,
+        is_calorie_habit: false,
+        frequency: 'daily',
+        frequency_days: null,
+        is_private: false,
+        is_archived: false,
+        streak_shield_used_at: null,
+        ...extra,
+      })
       .select()
       .single();
     if (!error && data) setHabits(prev => [...prev, data as Habit]);
@@ -50,19 +72,56 @@ export function useHabits(userId: string | undefined) {
     return error;
   }, []);
 
+  /** Soft-delete: hides from tracker but preserves history */
+  const archiveHabit = useCallback(async (id: string) => {
+    const { error } = await supabase.from('habits').update({ is_archived: true }).eq('id', id);
+    if (!error) {
+      setHabits(prev => {
+        const habit = prev.find(h => h.id === id);
+        if (habit) setArchivedHabits(a => [...a, { ...habit, is_archived: true }]);
+        return prev.filter(h => h.id !== id);
+      });
+    }
+    return error;
+  }, []);
+
+  /** Restore habit from archive */
+  const restoreHabit = useCallback(async (id: string) => {
+    const { error } = await supabase.from('habits').update({ is_archived: false }).eq('id', id);
+    if (!error) {
+      setArchivedHabits(prev => {
+        const habit = prev.find(h => h.id === id);
+        if (habit) setHabits(a => [...a, { ...habit, is_archived: false }]);
+        return prev.filter(h => h.id !== id);
+      });
+    }
+    return error;
+  }, []);
+
+  /** Hard-delete: permanently removes habit and all logs */
   const deleteHabit = useCallback(async (id: string) => {
     const { error } = await supabase.from('habits').delete().eq('id', id);
-    if (!error) setHabits(prev => prev.filter(h => h.id !== id));
+    if (!error) {
+      setHabits(prev => prev.filter(h => h.id !== id));
+      setArchivedHabits(prev => prev.filter(h => h.id !== id));
+    }
     return error;
   }, []);
 
   const reorderHabits = useCallback(async (reordered: Habit[]) => {
     setHabits(reordered);
-    const updates = reordered.map((h, i) => ({ id: h.id, order: i, user_id: h.user_id, name: h.name, type: h.type, is_calorie_habit: h.is_calorie_habit }));
+    const updates = reordered.map((h, i) => ({
+      id: h.id, order: i, user_id: h.user_id, name: h.name,
+      type: h.type, is_calorie_habit: h.is_calorie_habit,
+    }));
     for (const u of updates) {
       await supabase.from('habits').update({ order: u.order }).eq('id', u.id);
     }
   }, []);
 
-  return { habits, loading, error, refetch: fetchHabits, addHabit, updateHabit, deleteHabit, reorderHabits };
+  return {
+    habits, archivedHabits, loading, error,
+    refetch: fetchHabits, fetchArchivedHabits,
+    addHabit, updateHabit, archiveHabit, restoreHabit, deleteHabit, reorderHabits,
+  };
 }

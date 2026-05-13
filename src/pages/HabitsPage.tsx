@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { useHabits } from '@/hooks/useHabits';
 import { HabitList } from '@/components/settings/HabitList';
@@ -7,7 +7,14 @@ import { Skeleton } from '@/components/ui/LoadingSpinner';
 export const HabitsPage: React.FC = () => {
   const { session } = useAuthStore();
   const userId = session?.user.id;
-  const { habits, loading, addHabit, updateHabit, deleteHabit, reorderHabits } = useHabits(userId);
+  const {
+    habits, archivedHabits, loading,
+    addHabit, updateHabit, archiveHabit, restoreHabit, deleteHabit, reorderHabits,
+    fetchArchivedHabits,
+  } = useHabits(userId);
+
+  // Load archived habits when page mounts
+  useEffect(() => { fetchArchivedHabits(); }, [fetchArchivedHabits]);
 
   return (
     <div>
@@ -28,8 +35,11 @@ export const HabitsPage: React.FC = () => {
           ) : (
             <HabitList
               habits={habits}
+              archivedHabits={archivedHabits}
               onAdd={addHabit}
               onUpdate={updateHabit}
+              onArchive={archiveHabit}
+              onRestore={restoreHabit}
               onDelete={deleteHabit}
               onReorder={reorderHabits}
             />

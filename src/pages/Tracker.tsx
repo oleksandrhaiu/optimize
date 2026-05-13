@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Lottie from 'lottie-react';
 import { Navbar } from '@/components/ui/Navbar';
 import { MyHabitsColumn } from '@/components/tracker/MyHabitsColumn';
 import { FriendCard } from '@/components/tracker/FriendCard';
 import { HabitHistoryModal } from '@/components/tracker/HabitHistoryModal';
 import { MonthNav } from '@/components/tracker/MonthNav';
 import { OnboardingModal, useOnboarding } from '@/components/onboarding/OnboardingModal';
+import { StreakMilestone } from '@/components/tracker/StreakMilestone';
+import { WeeklyReview } from '@/components/tracker/WeeklyReview';
 import { TrackerSkeleton } from '@/components/ui/LoadingSpinner';
 import { useAuthStore } from '@/store/authStore';
 import { useHabits } from '@/hooks/useHabits';
@@ -13,10 +14,13 @@ import { useHabitLogs } from '@/hooks/useHabitLogs';
 import { useFriends } from '@/hooks/useFriends';
 import { useRealtimeSync } from '@/hooks/useRealtimeSync';
 import { usePresence } from '@/hooks/usePresence';
-import { currentMonthYear, calcWeekScores, calcDayScore, todayStr, dateKey, getDaysArray } from '@/lib/utils';
+import { useWeeklyReview } from '@/hooks/useWeeklyReview';
+import {
+  currentMonthYear, calcWeekScores, calcDayScore, todayStr, dateKey,
+  getDaysArray, getStreakWithShield, checkStreakMilestone, isHabitScheduledOn,
+} from '@/lib/utils';
 import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
 import type { MonthYear, Habit } from '@/types';
-import confettiData from '@/assets/animations/check-success.json';
 
 export const Tracker: React.FC = () => {
   const { profile, session } = useAuthStore();
@@ -34,8 +38,29 @@ export const Tracker: React.FC = () => {
   const { onlineIds, lastSeen } = usePresence(userId, friends.map(f => f.profile.id));
 
   const { show: showOnboarding, dismiss: dismissOnboarding } = useOnboarding(habits.length);
+  const { shouldShow: showWeeklyReview, reviewData, dismiss: dismissWeeklyReview } = useWeeklyReview(habits, logs);
 
-  // 100% celebration
+  // ── Streak with shield ──────────────────────────────────────────────────────
+  // Use the first habit's shield date as a proxy (ideally would be user-level)
+  const shieldUsedAt = habits[0]?.streak_shield_used_at ?? null;
+  const { streak, shieldActive, shieldAvailable } = getStreakWithShield(habits, logs, shieldUsedAt);
+
+  // ── Streak milestone ────────────────────────────────────────────────────────
+  const prevStreakRef = useRef<number>(0);
+  const isFirstStreakRun = useRef(true);
+  const [milestoneDays, setMilestoneDays] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (habitsLoading || logsLoading) return;
+    if (isFirstStreakRun.current) { prevStreakRef.current = streak; isFirstStreakRun.current = false; return; }
+    if (streak > prevStreakRef.current) {
+      const milestone = checkStreakMilestone(streak);
+      if (milestone) setMilestoneDays(milestone);
+    }
+    prevStreakRef.current = streak;
+  }, [streak, habitsLoading, logsLoading]);
+
+  // ── 100% celebration ────────────────────────────────────────────────────────
   const prevScoreRef = useRef<number>(0);
   const isFirstRun   = useRef(true);
   const today        = todayStr();
@@ -69,15 +94,17 @@ export const Tracker: React.FC = () => {
     ? Math.round(weekScores.reduce((a, b) => a + b, 0) / weekScores.length) : 0;
   const days      = getDaysArray(monthYear.month, monthYear.year);
   const greenDays = days.filter(d => calcDayScore(habits, logs, dateKey(monthYear.year, monthYear.month, d)) >= 80).length;
-  const completedToday = habits.filter(h => {
+
+  // Only count habits scheduled for today
+  const todayHabits = habits.filter(h => !h.is_archived && isHabitScheduledOn(h, today));
+  const completedToday = todayHabits.filter(h => {
     const log = logs.find(l => l.habit_id === h.id && l.date === today);
     if (!log) return false;
     return h.type === 'checkbox' ? log.value === 'true' : parseFloat(log.value) > 0;
   }).length;
+
   const onlineFriends = friends.filter(f => onlineIds.has(f.profile.id)).length;
-
   const scoreColor = todayScore >= 80 ? '#10B981' : todayScore >= 50 ? '#F59E0B' : '#EF4444';
-
   const isLoading = habitsLoading || logsLoading;
 
   return (
@@ -87,6 +114,12 @@ export const Tracker: React.FC = () => {
       {showOnboarding && !habitsLoading && <OnboardingModal onDone={dismissOnboarding} />}
       {historyHabit && (
         <HabitHistoryModal habit={historyHabit} logs={logs} onClose={() => setHistoryHabit(null)} />
+      )}
+      {milestoneDays && (
+        <StreakMilestone streak={milestoneDays} onDismiss={() => setMilestoneDays(null)} />
+      )}
+      {showWeeklyReview && !showOnboarding && (
+        <WeeklyReview reviewData={reviewData} onDismiss={dismissWeeklyReview} />
       )}
 
       {/* 100% Celebration overlay */}
@@ -159,37 +192,36 @@ export const Tracker: React.FC = () => {
                     transition: 'border-color 1.5s ease-out',
                   }}
                 >
-                  <div 
+                  <div
                     className="absolute inset-0 pointer-events-none"
-                    style={{ 
-                      backgroundColor: scoreColor, 
-                      opacity: 0.06,
-                      transition: 'background-color 1.5s ease-out'
-                    }} 
+                    style={{ backgroundColor: scoreColor, opacity: 0.06, transition: 'background-color 1.5s ease-out' }}
                   />
                   <div className="relative z-10">
                     <p className="text-xs text-text-muted">Today</p>
                     <p className="font-heading text-2xl font-bold" style={{ color: scoreColor, transition: 'color 1.5s ease-out' }}>
                       <AnimatedNumber value={todayScore} suffix="%" />
                     </p>
-                    <p className="text-[10px] text-text-subtle">{completedToday}/{habits.length} done</p>
+                    <p className="text-[10px] text-text-subtle">{completedToday}/{todayHabits.length} done</p>
                   </div>
                 </div>
 
-                {/* Week */}
+                {/* Streak */}
                 <div
-                  className="rounded-2xl p-4 flex flex-col gap-1"
+                  className="rounded-2xl p-4 flex flex-col gap-1 relative overflow-hidden"
                   style={{
-                    background: 'linear-gradient(145deg, rgba(139,92,246,0.06), rgba(12,13,22,0.6))',
-                    border: '1px solid rgba(139,92,246,0.15)',
+                    background: `linear-gradient(145deg, ${shieldActive ? 'rgba(167,139,250,0.10)' : 'rgba(245,158,11,0.06)'}, rgba(12,13,22,0.6))`,
+                    border: `1px solid ${shieldActive ? 'rgba(167,139,250,0.25)' : 'rgba(245,158,11,0.15)'}`,
                     boxShadow: '0 1px 3px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3)',
                   }}
                 >
-                  <p className="text-xs text-text-muted">This week</p>
-                  <p className="font-heading text-2xl font-bold text-violet">
-                    <AnimatedNumber value={avgWeek} suffix="%" />
+                  <p className="text-xs text-text-muted">Streak</p>
+                  <p className="font-heading text-2xl font-bold" style={{ color: shieldActive ? '#A78BFA' : '#F59E0B' }}>
+                    <AnimatedNumber value={streak} />
+                    <span className="text-base ml-0.5">🔥</span>
                   </p>
-                  <p className="text-[10px] text-text-subtle">avg score</p>
+                  <p className="text-[10px] text-text-subtle">
+                    {shieldActive ? '🛡️ shield used' : shieldAvailable ? '🛡️ shield ready' : 'days in a row'}
+                  </p>
                 </div>
 
                 {/* Green days */}
@@ -209,7 +241,7 @@ export const Tracker: React.FC = () => {
                 </div>
               </div>
 
-              {/* Week bar chart (Animated height) */}
+              {/* Week bar chart */}
               <div
                 className="grid transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
                 style={{

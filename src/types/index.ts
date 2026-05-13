@@ -23,6 +23,12 @@ export interface Habit {
   cal_min: number | null;
   cal_max: number | null;
   is_calorie_habit: boolean;
+  // ── v3 additions ──────────────────────────────────────────
+  frequency: 'daily' | 'weekdays' | 'weekends' | 'custom';
+  frequency_days: number[] | null; // [0..6] Mon=0 Sun=6, used with 'custom'
+  is_private: boolean;             // hidden from friends
+  is_archived: boolean;            // soft-deleted, history preserved
+  streak_shield_used_at: string | null; // YYYY-MM-DD of last shield use
   created_at: string;
 }
 

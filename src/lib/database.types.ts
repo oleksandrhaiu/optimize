@@ -98,13 +98,18 @@ export interface Database {
           cal_max: number | null
           cal_min: number | null
           created_at: string
+          frequency: string
+          frequency_days: number[] | null
           goal: number | null
           unit: string | null
           icon: string | null
           id: string
+          is_archived: boolean
           is_calorie_habit: boolean
+          is_private: boolean
           name: string
           order: number
+          streak_shield_used_at: string | null
           type: string
           user_id: string
         }
@@ -112,13 +117,18 @@ export interface Database {
           cal_max?: number | null
           cal_min?: number | null
           created_at?: string
+          frequency?: string
+          frequency_days?: number[] | null
           goal?: number | null
           unit?: string | null
           icon?: string | null
           id?: string
+          is_archived?: boolean
           is_calorie_habit?: boolean
+          is_private?: boolean
           name: string
           order?: number
+          streak_shield_used_at?: string | null
           type: string
           user_id: string
         }
@@ -126,13 +136,18 @@ export interface Database {
           cal_max?: number | null
           cal_min?: number | null
           created_at?: string
+          frequency?: string
+          frequency_days?: number[] | null
           goal?: number | null
           unit?: string | null
           icon?: string | null
           id?: string
+          is_archived?: boolean
           is_calorie_habit?: boolean
+          is_private?: boolean
           name?: string
           order?: number
+          streak_shield_used_at?: string | null
           type?: string
           user_id?: string
         }

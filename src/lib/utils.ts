@@ -68,6 +68,22 @@ export function lastNDates(n: number): string[] {
   return dates;
 }
 
+/**
+ * Returns true if a habit is scheduled on the given date.
+ * Takes frequency and frequency_days into account.
+ */
+export function isHabitScheduledOn(habit: Habit, dateStr: string): boolean {
+  const date = parseDate(dateStr);
+  const dow = weekdayIndex(date); // 0=Mon..6=Sun
+  switch (habit.frequency ?? 'daily') {
+    case 'daily':    return true;
+    case 'weekdays': return dow <= 4; // Mon–Fri
+    case 'weekends': return dow >= 5; // Sat–Sun
+    case 'custom':   return Array.isArray(habit.frequency_days) && habit.frequency_days.includes(dow);
+    default:         return true;
+  }
+}
+
 /** All dates between startDate and endDate (inclusive) */
 export function getDatesInRange(startStr: string, endStr: string): string[] {
   const start = parseDate(startStr);
@@ -101,17 +117,19 @@ export function isHabitDone(habit: Habit, value: string | null | undefined): boo
 
 /**
  * Calculates the daily completion percentage for a set of habits and logs.
+ * Only considers habits scheduled for that specific date (respects frequency).
  * Checkbox: true = done. Numeric: respects cal_min or goal if present, otherwise > 0.
  */
 export function calcDayScore(habits: Habit[], logs: HabitLog[], dateStr: string): number {
-  if (habits.length === 0) return 0;
+  const scheduled = habits.filter(h => !h.is_archived && isHabitScheduledOn(h, dateStr));
+  if (scheduled.length === 0) return 0;
   const logMap = new Map(logs.filter(l => l.date === dateStr).map(l => [l.habit_id, l.value]));
   let done = 0;
-  for (const h of habits) {
+  for (const h of scheduled) {
     const val = logMap.get(h.id);
     if (isHabitDone(h, val)) done++;
   }
-  return Math.round((done / habits.length) * 100);
+  return Math.round((done / scheduled.length) * 100);
 }
 
 /** Calculates scores for the last 7 days */
@@ -198,4 +216,60 @@ export function generateToken(): string {
 
 export function clx(...classes: (string | false | null | undefined)[]): string {
   return classes.filter(Boolean).join(' ');
+}
+
+// ─── Streak shield ────────────────────────────────────────────────────────────
+
+/**
+ * Calculates streak with shield protection.
+ * Shield rule: 1 missed scheduled day per 7-day window doesn't break the streak.
+ * shield_used_at tracks when the last shield was consumed.
+ */
+export function getStreakWithShield(
+  habits: Habit[],
+  logs: HabitLog[],
+  shieldUsedAt: string | null,
+): { streak: number; shieldActive: boolean; shieldAvailable: boolean } {
+  const today = todayStr();
+  const dates = lastNDates(90); // look back 90 days
+  
+  let streak = 0;
+  let shieldUsed = false;
+  const shieldCooldownDays = 7;
+
+  // Check if shield is available (not used in last 7 days)
+  const shieldAvailable = !shieldUsedAt || (
+    (parseDate(today).getTime() - parseDate(shieldUsedAt).getTime()) / 86400000 >= shieldCooldownDays
+  );
+
+  for (let i = dates.length - 1; i >= 0; i--) {
+    const date = dates[i];
+    if (date > today) continue;
+
+    // Check if any habit is scheduled this day
+    const scheduledHabits = habits.filter(h => !h.is_archived && isHabitScheduledOn(h, date));
+    if (scheduledHabits.length === 0) continue; // skip unscheduled days
+
+    const score = calcDayScore(habits, logs, date);
+    
+    if (score >= 80) {
+      streak++;
+    } else if (!shieldUsed && shieldAvailable) {
+      // Use shield for this one miss
+      shieldUsed = true;
+      streak++;
+    } else {
+      break;
+    }
+  }
+
+  return { streak, shieldActive: shieldUsed, shieldAvailable };
+}
+
+// ─── Streak milestones ────────────────────────────────────────────────────────
+
+const STREAK_MILESTONES = [7, 14, 30, 60, 100, 365];
+
+export function checkStreakMilestone(streak: number): number | null {
+  return STREAK_MILESTONES.includes(streak) ? streak : null;
 }
