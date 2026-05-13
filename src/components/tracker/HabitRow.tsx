@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { HoldToComplete } from '@/components/ui/HoldToComplete';
+import { CustomCheckbox } from '@/components/ui/CustomCheckbox';
 import { NumericInput } from '@/components/ui/NumericInput';
 import { useAuthStore } from '@/store/authStore';
 import { playSound } from '@/lib/sounds';
@@ -34,15 +34,14 @@ export const HabitRow: React.FC<HabitRowProps> = ({
 
   const { profile } = useAuthStore();
 
-  const handleCheckbox = useCallback(() => {
-    const v = !isHabitDone(habit, log?.value);
+  const handleCheckbox = useCallback((v: boolean) => {
     playSound(v ? 'pop' : 'unpop', profile?.sound_enabled);
     onToggle(habit.id, date, v ? 'true' : 'false');
     if (v) {
       setJustCompleted(true);
       setTimeout(() => setJustCompleted(false), 600);
     }
-  }, [habit, log?.value, date, onToggle, profile?.sound_enabled]);
+  }, [habit.id, date, onToggle, profile?.sound_enabled]);
 
   const handleNumeric = useCallback((v: number | null) => {
     if (v !== null) {
@@ -73,67 +72,53 @@ export const HabitRow: React.FC<HabitRowProps> = ({
             : { borderLeft: '2px solid transparent' }
         }
       >
-        {/* Left: Interactive Icon */}
-        {habit.type === 'checkbox' ? (
-          <HoldToComplete
-            onComplete={handleCheckbox}
-            isDone={isDone}
-            disabled={readOnly}
-            className={clx(
-              "flex-shrink-0 w-12 h-12 sm:w-10 sm:h-10 rounded-2xl flex items-center justify-center text-2xl sm:text-xl border-2 transition-colors",
-              isDone 
-                ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-500" 
-                : "border-border/60 bg-card hover:border-accent/50"
-            )}
-          >
-            {isDone ? '✓' : habit.icon}
-          </HoldToComplete>
-        ) : (
-          <div className={clx(
-            "flex-shrink-0 w-12 h-12 sm:w-10 sm:h-10 rounded-2xl flex items-center justify-center text-2xl sm:text-xl border-2 transition-colors",
-            isDone
-              ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-500"
-              : "border-border/60 bg-card"
-          )}>
-            {habit.icon}
-          </div>
-        )}
-
-        {/* Middle: Name & Data */}
-        <button
-          type="button"
-          onClick={() => onNameClick?.(habit)}
-          className="flex-1 flex flex-col items-start min-w-0 text-left"
-        >
-          <span className={clx(
-            'text-sm font-bold truncate transition-colors duration-200',
-            isDone
-              ? 'text-text-muted line-through decoration-text-subtle/50'
-              : readOnly
-                ? 'text-text-muted'
-                : 'text-text-primary',
-          )}>
-            {habit.name}
-          </span>
-          {/* Note preview or Unit */}
-          {(log?.note || unit) && (
-            <span className="text-[10px] text-text-subtle truncate max-w-full mt-0.5">
-              {log?.note ? `📝 ${log.note}` : unit}
+        {/* Left: icon + name */}
+        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+          {habit.icon && (
+            <span
+              className={clx(
+                'text-base leading-normal flex-shrink-0 transition-all duration-300',
+                justCompleted && 'scale-125',
+              )}
+            >
+              {habit.icon}
             </span>
           )}
-        </button>
+          <button
+            type="button"
+            onClick={() => onNameClick?.(habit)}
+            className={clx(
+              'text-sm truncate text-left transition-colors duration-200',
+              isDone
+                ? 'text-text-muted line-through decoration-text-subtle/50'
+                : readOnly
+                  ? 'text-text-muted'
+                  : 'text-text-primary',
+              onNameClick && !readOnly && 'hover:text-violet cursor-pointer',
+            )}
+          >
+            {habit.name}
+            {unit && (
+              <span className="text-[10px] text-text-subtle ml-1.5" style={{ textDecoration: 'none' }}>
+                ({unit})
+              </span>
+            )}
+          </button>
+        </div>
 
-        {/* Right: Controls & Badges */}
+        {/* Right controls */}
         <div className="flex items-center gap-2 flex-shrink-0">
-          {/* Note Edit Button */}
+          {/* Note button */}
           {!readOnly && onNote && (
             <button
               onClick={() => setShowNote(v => !v)}
+              title={log?.note ? 'Edit note' : 'Add note'}
               className={clx(
-                'w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-200',
+                'sm:opacity-0 group-hover:opacity-100 opacity-100 w-8 h-8 sm:w-6 sm:h-6',
+                'flex items-center justify-center rounded-lg transition-all duration-200',
                 showNote || log?.note
-                  ? 'text-violet bg-violet/10'
-                  : 'text-text-subtle hover:text-text-muted hover:bg-white/[0.04] sm:opacity-0 group-hover:opacity-100',
+                  ? 'sm:opacity-100 text-violet bg-violet/10'
+                  : 'text-text-subtle hover:text-text-muted hover:bg-white/[0.04]',
               )}
             >
               <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
@@ -145,7 +130,7 @@ export const HabitRow: React.FC<HabitRowProps> = ({
           {/* Goal badge */}
           {hasGoal && numericValue !== null && (
             <span
-              className="text-[10px] font-mono flex-shrink-0 px-2 py-1 rounded-md"
+              className="text-[10px] font-mono flex-shrink-0 px-1.5 py-0.5 rounded-md"
               style={
                 goalMet
                   ? { background: 'rgba(16,185,129,0.15)', color: '#34D399' }
@@ -156,8 +141,10 @@ export const HabitRow: React.FC<HabitRowProps> = ({
             </span>
           )}
 
-          {/* Numeric Input */}
-          {habit.type === 'numeric' && (
+          {/* Input */}
+          {habit.type === 'checkbox' ? (
+            <CustomCheckbox checked={checked} onChange={handleCheckbox} disabled={readOnly} size="sm" />
+          ) : (
             <NumericInput
               value={numericValue}
               onChange={handleNumeric}

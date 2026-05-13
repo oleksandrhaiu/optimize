@@ -145,7 +145,7 @@ export const Tracker: React.FC = () => {
         </div>
       )}
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-4 space-y-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
@@ -162,24 +162,22 @@ export const Tracker: React.FC = () => {
         {isLoading ? (
           <TrackerSkeleton />
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6 animate-fade-in items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6 animate-fade-in">
             {/* Left: habits column */}
-            <div className="min-w-0 w-full">
-              <MyHabitsColumn
-                habits={habits}
-                logs={logs}
-                year={monthYear.year}
-                month={monthYear.month}
-                selectedDay={selectedDay}
-                onDaySelect={setSelectedDay}
-                onToggle={handleToggle}
-                onNote={handleNote}
-                onHabitClick={setHistoryHabit}
-              />
-            </div>
+            <MyHabitsColumn
+              habits={habits}
+              logs={logs}
+              year={monthYear.year}
+              month={monthYear.month}
+              selectedDay={selectedDay}
+              onDaySelect={setSelectedDay}
+              onToggle={handleToggle}
+              onNote={handleNote}
+              onHabitClick={setHistoryHabit}
+            />
 
             {/* Right column */}
-            <div className="space-y-4 min-w-0">
+            <div className="space-y-4">
               {/* Stats row */}
               <div className="grid grid-cols-3 gap-3 animate-slide-up" style={{ animationFillMode: 'both' }}>
                 {/* Today */}
