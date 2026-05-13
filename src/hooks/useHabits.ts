@@ -43,7 +43,7 @@ export function useHabits(userId: string | undefined) {
     type: 'checkbox' | 'numeric',
     extra?: Partial<Habit>,
   ) => {
-    if (!userId) return;
+    if (!userId) return { data: null, error: new Error('User not logged in') };
     const maxOrder = habits.reduce((m, h) => Math.max(m, h.order), -1);
     const { data, error } = await supabase
       .from('habits')
@@ -63,7 +63,7 @@ export function useHabits(userId: string | undefined) {
       .select()
       .single();
     if (!error && data) setHabits(prev => [...prev, data as Habit]);
-    return error;
+    return { data: data as Habit | null, error };
   }, [userId, habits]);
 
   const updateHabit = useCallback(async (id: string, updates: Partial<Habit>) => {

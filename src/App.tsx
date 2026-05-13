@@ -11,6 +11,7 @@ import { FriendsPage } from '@/pages/FriendsPage';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { SetupProfile } from '@/pages/SetupProfile';
 import { UserProfilePage } from '@/pages/UserProfile';
+import { EditHabitPage } from '@/pages/EditHabitPage';
 import { PageLoader } from '@/components/ui/LoadingSpinner';
 import { Navbar } from '@/components/ui/Navbar';
 
@@ -84,6 +85,7 @@ const App: React.FC = () => {
             <Route path="/tracker" element={<Tracker />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/habits" element={<HabitsPage />} />
+            <Route path="/habits/:id" element={<EditHabitPage />} />
             <Route path="/friends" element={<FriendsPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/u/:username" element={<UserProfilePage />} />

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   DndContext, closestCenter, KeyboardSensor,
   PointerSensor, useSensor, useSensors, DragEndEvent,
@@ -65,8 +66,7 @@ const TYPE_OPTIONS = [
 interface HabitListProps {
   habits: Habit[];
   archivedHabits: Habit[];
-  onAdd: (name: string, type: 'checkbox' | 'numeric', extra?: Partial<Habit>) => void;
-  onUpdate: (id: string, updates: Partial<Habit>) => void;
+  onAdd: (name: string, type: 'checkbox' | 'numeric', extra?: Partial<Habit>) => Promise<{ data: Habit | null, error: any }>;
   onArchive: (id: string) => void;
   onRestore: (id: string) => void;
   onDelete: (id: string) => void;
@@ -74,8 +74,9 @@ interface HabitListProps {
 }
 
 export const HabitList: React.FC<HabitListProps> = ({
-  habits, archivedHabits, onAdd, onUpdate, onArchive, onRestore, onDelete, onReorder,
+  habits, archivedHabits, onAdd, onArchive, onRestore, onDelete, onReorder,
 }) => {
+  const navigate = useNavigate();
   const [newName, setNewName] = useState('');
   const [newType, setNewType] = useState<'checkbox' | 'numeric'>('checkbox');
   const [showTemplates, setShowTemplates] = useState(habits.length === 0);
@@ -95,18 +96,20 @@ export const HabitList: React.FC<HabitListProps> = ({
     }
   };
 
-  const handleAdd = (e: React.FormEvent) => {
+  const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newName.trim()) {
-      onAdd(newName.trim(), newType);
+      const { data } = await onAdd(newName.trim(), newType);
+      if (data) navigate(`/habits/${data.id}`);
       setNewName('');
       setShowTemplates(false);
     }
   };
 
-  const handleTemplate = (tpl: typeof TEMPLATE_CATEGORIES[0]['templates'][0]) => {
+  const handleTemplate = async (tpl: typeof TEMPLATE_CATEGORIES[0]['templates'][0]) => {
     const { name, type, desc: _desc, ...extra } = tpl;
-    onAdd(name, type, extra as Partial<Habit>);
+    const { data } = await onAdd(name, type, extra as Partial<Habit>);
+    if (data) navigate(`/habits/${data.id}`);
     setShowTemplates(false);
   };
 
@@ -210,7 +213,7 @@ export const HabitList: React.FC<HabitListProps> = ({
               ) : (
                 <div className="divide-y divide-border/30">
                   {habits.map(habit => (
-                    <HabitItem key={habit.id} habit={habit} onUpdate={onUpdate} onArchive={onArchive} />
+                    <HabitItem key={habit.id} habit={habit} />
                   ))}
                 </div>
               )}

@@ -37,7 +37,6 @@ export const HabitsPage: React.FC = () => {
               habits={habits}
               archivedHabits={archivedHabits}
               onAdd={addHabit}
-              onUpdate={updateHabit}
               onArchive={archiveHabit}
               onRestore={restoreHabit}
               onDelete={deleteHabit}
