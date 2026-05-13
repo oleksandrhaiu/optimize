@@ -145,7 +145,7 @@ export const Tracker: React.FC = () => {
         </div>
       )}
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-4 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
@@ -162,7 +162,7 @@ export const Tracker: React.FC = () => {
         {isLoading ? (
           <TrackerSkeleton />
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6 animate-fade-in">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 lg:gap-8 animate-fade-in items-start">
             {/* Left: habits column */}
             <MyHabitsColumn
               habits={habits}

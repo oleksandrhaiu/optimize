@@ -25,6 +25,15 @@ interface MyHabitsColumnProps {
 export const MyHabitsColumn: React.FC<MyHabitsColumnProps> = ({
   habits, logs, year, month, selectedDay, onDaySelect, onToggle, onNote, onHabitClick,
 }) => {
+  const selectedDayRef = useRef<HTMLButtonElement>(null);
+  
+  // Scroll to selected day on mount
+  useEffect(() => {
+    if (selectedDayRef.current) {
+      selectedDayRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }, [selectedDay, month, year]);
+
   const days = getDaysArray(month, year);
   const today = todayStr();
   const selectedDate = dateKey(year, month, selectedDay);
@@ -51,40 +60,19 @@ export const MyHabitsColumn: React.FC<MyHabitsColumnProps> = ({
   return (
     <div className="flex flex-col gap-3">
 
-      {/* ── Calendar ─────────────────────────────────────────── */}
-      <div
-        className="rounded-2xl overflow-hidden"
-        style={{
-          background: 'rgb(12,13,22)',
-          border: '1px solid rgb(28,30,52)',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3)',
-        }}
-      >
-        {/* Month header */}
-        <div className="flex items-center justify-between px-4 pt-3.5 pb-2">
-          <span className="text-xs font-semibold text-text-muted font-heading tracking-wide">
+      {/* ── Calendar Strip ─────────────────────────────────────────── */}
+      <div className="mb-2">
+        <div className="flex items-center justify-between px-2 mb-3">
+          <span className="text-sm font-semibold text-text-primary font-heading tracking-wide">
             {MONTH_NAMES[month]} {year}
           </span>
-          <span
-            className="text-xs font-mono font-medium"
-            style={{ color: greenDays > 0 ? '#10B981' : 'rgb(62,66,104)' }}
-          >
-            {greenDays > 0 ? `${greenDays} perfect` : 'Start tracking!'}
+          <span className="text-xs font-medium text-text-subtle">
+            {greenDays > 0 ? `${greenDays} perfect days` : 'Start tracking!'}
           </span>
         </div>
 
-        {/* Day-of-week headers */}
-        <div className="grid grid-cols-7 gap-0.5 px-2 mb-1">
-          {DAY_LABELS.map(d => (
-            <div key={d} className="text-center text-[10px] font-medium text-text-subtle py-0.5">
-              {d}
-            </div>
-          ))}
-        </div>
-
-        {/* Calendar grid */}
-        <div className="grid grid-cols-7 gap-0.5 px-2 pb-3">
-          {Array.from({ length: offset }).map((_, i) => <div key={`e${i}`} />)}
+        {/* Scrollable Weekly Strip */}
+        <div className="flex overflow-x-auto hide-scrollbar gap-2 px-2 pb-2 snap-x snap-mandatory">
           {days.map((day, i) => {
             const dk = dateKey(year, month, day);
             const isToday = dk === today;
@@ -95,40 +83,44 @@ export const MyHabitsColumn: React.FC<MyHabitsColumnProps> = ({
               : s >= 80  ? '#10B981'
               : s >= 50  ? '#F59E0B'
               : '#EF4444';
+            
+            const dateObj = new Date(year, month, day);
+            const dowLabel = DAY_LABELS[(dateObj.getDay() + 6) % 7]; // 0=Mon, 6=Sun
 
             return (
               <button
                 key={day}
+                ref={isSelected ? selectedDayRef : null}
                 data-day={day}
                 onClick={() => onDaySelect(day)}
                 className={clx(
-                  'relative flex flex-col items-center justify-center gap-0.5 h-9 rounded-xl',
-                  'text-xs font-mono font-medium transition-all duration-200 select-none',
+                  'flex-shrink-0 flex flex-col items-center justify-center w-[52px] h-[64px] rounded-2xl snap-center',
+                  'transition-all duration-200 select-none relative',
                   isSelected
-                    ? 'text-white'
+                    ? 'bg-accent/20 border border-accent/40 shadow-sm'
                     : isToday
-                      ? 'text-violet'
-                      : 'text-text-muted hover:text-text-primary',
+                      ? 'bg-bg border border-border hover:bg-card'
+                      : 'bg-card border border-border/50 hover:border-text-muted',
                 )}
-                style={
-                  isSelected
-                    ? {
-                        background: 'linear-gradient(135deg, #8B5CF6, #7C3AED)',
-                        boxShadow: '0 0 12px rgba(139,92,246,0.4)',
-                      }
-                    : isToday
-                      ? {
-                          background: 'rgba(139,92,246,0.1)',
-                          boxShadow: '0 0 0 1px rgba(139,92,246,0.25)',
-                        }
-                      : undefined
-                }
               >
-                {day}
-                {s > 0 && !isSelected && dotColor && (
+                <span className={clx(
+                  "text-[10px] font-semibold uppercase tracking-wider mb-0.5",
+                  isSelected ? "text-accent" : "text-text-subtle"
+                )}>
+                  {dowLabel}
+                </span>
+                <span className={clx(
+                  "text-lg font-heading font-bold",
+                  isSelected ? "text-text-primary" : isToday ? "text-text-primary" : "text-text-muted"
+                )}>
+                  {day}
+                </span>
+                
+                {/* Score Dot */}
+                {s > 0 && dotColor && (
                   <span
-                    className="absolute bottom-1 w-1 h-1 rounded-full"
-                    style={{ backgroundColor: dotColor }}
+                    className="absolute bottom-1.5 w-1.5 h-1.5 rounded-full"
+                    style={{ backgroundColor: dotColor, opacity: isSelected ? 1 : 0.7 }}
                   />
                 )}
               </button>

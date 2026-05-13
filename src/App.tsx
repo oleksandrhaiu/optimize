@@ -14,6 +14,7 @@ import { UserProfilePage } from '@/pages/UserProfile';
 import { EditHabitPage } from '@/pages/EditHabitPage';
 import { PageLoader } from '@/components/ui/LoadingSpinner';
 import { Navbar } from '@/components/ui/Navbar';
+import { BottomNav } from '@/components/ui/BottomNav';
 
 const ProtectedLayout: React.FC = () => {
   const { session, profile, initialized, loadingProfile } = useAuth();
@@ -26,11 +27,14 @@ const ProtectedLayout: React.FC = () => {
   if (session && !profile) return <Navigate to="/setup-profile" replace />;
   
   return (
-    <div className="min-h-screen bg-bg flex flex-col relative">
-      <Navbar />
+    <div className="min-h-screen bg-bg flex flex-col relative pb-20 md:pb-0">
+      <div className="hidden md:block">
+        <Navbar />
+      </div>
       <div key={location.pathname} className="page-transition flex-1">
         <Outlet />
       </div>
+      <BottomNav />
     </div>
   );
 };
