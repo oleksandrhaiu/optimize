@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { HabitRow } from './HabitRow';
 import type { Habit, HabitLog } from '@/types';
-import { getDaysArray, dateKey, calcDayScore, todayStr, isHabitDone } from '@/lib/utils';
+import { getDaysArray, dateKey, calcDayScore, todayStr, isHabitDone, isHabitScheduledOn } from '@/lib/utils';
 import { clx } from '@/lib/utils';
 
 const MONTH_NAMES = [
@@ -33,12 +33,14 @@ export const MyHabitsColumn: React.FC<MyHabitsColumnProps> = ({
   const todayScore = calcDayScore(habits, logs, selectedDate);
   const greenDays = dayScores.filter(s => s >= 80).length;
 
-  const completedToday = habits.filter(h => {
+  const scheduledHabits = habits.filter(h => !h.is_archived && isHabitScheduledOn(h, selectedDate));
+
+  const completedToday = scheduledHabits.filter(h => {
     const log = logs.find(l => l.habit_id === h.id && l.date === selectedDate);
     return isHabitDone(h, log?.value);
   }).length;
 
-  const progressPct = habits.length > 0 ? Math.round((completedToday / habits.length) * 100) : 0;
+  const progressPct = scheduledHabits.length > 0 ? Math.round((completedToday / scheduledHabits.length) * 100) : 0;
 
   const firstDayOfMonth = new Date(year, month, 1).getDay();
   const offset = (firstDayOfMonth + 6) % 7;
@@ -152,7 +154,7 @@ export const MyHabitsColumn: React.FC<MyHabitsColumnProps> = ({
                 {selectedDate === today ? 'Today' : `${MONTH_NAMES[month]} ${selectedDay}`}
               </h3>
               <p className="text-[11px] text-text-muted mt-0.5">
-                {completedToday}/{habits.length} completed
+                {completedToday}/{scheduledHabits.length} completed
               </p>
             </div>
             {todayScore > 0 && (
@@ -189,7 +191,7 @@ export const MyHabitsColumn: React.FC<MyHabitsColumnProps> = ({
 
         {/* Habit rows */}
         <div className="p-2">
-          {habits.length === 0 ? (
+          {scheduledHabits.length === 0 ? (
             <div className="text-center py-10 space-y-2">
               <p className="text-3xl">📝</p>
               <p className="text-text-muted text-sm font-medium">No habits yet</p>
@@ -197,7 +199,7 @@ export const MyHabitsColumn: React.FC<MyHabitsColumnProps> = ({
             </div>
           ) : (
             <div className="space-y-0.5">
-              {habits.map(habit => (
+              {scheduledHabits.map(habit => (
                 <HabitRow
                   key={habit.id}
                   habit={habit}

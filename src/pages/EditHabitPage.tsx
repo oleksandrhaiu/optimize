@@ -82,7 +82,7 @@ export const EditHabitPage: React.FC = () => {
 
   const [habit, setHabit] = useState<Habit | null>(null);
   const [showEmoji, setShowEmoji] = useState(false);
-  const saveTimeout = useRef<NodeJS.Timeout>();
+  const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   // Load local state only once initially
   useEffect(() => {
