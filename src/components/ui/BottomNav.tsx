@@ -5,8 +5,8 @@ import { clx } from '@/lib/utils';
 import { useAuthStore } from '@/store/authStore';
 
 const NAV_ITEMS = [
-  { to: '/dashboard', label: 'Home',    icon: BarChart2 },
-  { to: '/tracker',   label: 'Tracker', icon: LayoutGrid },
+  { to: '/tracker',   label: 'Home',    icon: LayoutGrid },
+  { to: '/dashboard', label: 'Tracker', icon: BarChart2 },
   { to: '/habits',    label: 'Habits',  icon: ListChecks },
   { to: '/friends',   label: 'Social',  icon: Users }
 ];
