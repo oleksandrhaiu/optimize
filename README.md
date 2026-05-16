@@ -21,7 +21,7 @@ A full-stack social habit tracker. Track your daily habits, share your accountab
 ### 1. Supabase Setup
 1. Create a new project on [Supabase](https://supabase.com).
 2. Open your Supabase Dashboard -> SQL Editor -> New Query.
-3. Copy the contents of `supabase/migrations/001_initial_schema.sql` and run it. This will create all tables, RLS policies, and enable Realtime for habits and logs.
+3. Run all migrations in order: `001_initial_schema.sql` through `005_fix_rls_and_auth.sql` (SQL Editor → New Query for each file).
 
 ### 2. Environment Variables
 1. Copy `.env.example` to `.env`

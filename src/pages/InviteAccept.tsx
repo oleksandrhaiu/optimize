@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuthStore } from '@/store/authStore';
 import { acceptInvite } from '@/hooks/useFriends';
@@ -10,6 +10,8 @@ export const InviteAccept: React.FC = () => {
   const { session, initialized } = useAuthStore();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('');
+  const [alreadyFriends, setAlreadyFriends] = useState(false);
+  const acceptedRef = useRef(false);
 
   useEffect(() => {
     if (!initialized) return;
@@ -18,17 +20,20 @@ export const InviteAccept: React.FC = () => {
       return;
     }
     if (!token) { navigate('/tracker'); return; }
+    if (acceptedRef.current) return;
+    acceptedRef.current = true;
 
-    acceptInvite(token, session.user.id).then(({ error }) => {
+    acceptInvite(token, session.user.id).then(({ error, alreadyFriends: already }) => {
       if (error) {
         setMessage(error);
         setStatus('error');
       } else {
+        setAlreadyFriends(Boolean(already));
         setStatus('success');
         setTimeout(() => navigate('/tracker'), 2000);
       }
     });
-  }, [initialized, session, token]);
+  }, [initialized, session, token, navigate]);
 
   if (status === 'loading') return <PageLoader />;
 
@@ -42,8 +47,14 @@ export const InviteAccept: React.FC = () => {
                 <path d="M5 16L12 23L27 7" stroke="#00C896" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
-            <h2 className="font-heading font-bold text-xl text-text-primary">Friend added!</h2>
-            <p className="text-text-muted text-sm">Redirecting to your tracker…</p>
+            <h2 className="font-heading font-bold text-xl text-text-primary">
+              {alreadyFriends ? 'Already friends!' : 'Friend added!'}
+            </h2>
+            <p className="text-text-muted text-sm">
+              {alreadyFriends
+                ? 'You are already connected. Redirecting…'
+                : 'Redirecting to your tracker…'}
+            </p>
           </>
         ) : (
           <>

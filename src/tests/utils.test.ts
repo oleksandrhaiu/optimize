@@ -8,6 +8,7 @@ import {
   lastNDates,
   getDatesInRange,
   weekdayIndex,
+  weekdayLabel,
   getInitials,
   clx,
 } from '@/lib/utils';
@@ -111,6 +112,11 @@ describe('getDatesInRange', () => {
 });
 
 // ─── weekdayIndex ─────────────────────────────────────────────────────────────
+describe('weekdayLabel', () => {
+  it('returns Mo for 2024-01-01', () => expect(weekdayLabel('2024-01-01')).toBe('Mo'));
+  it('returns Su for 2024-01-07', () => expect(weekdayLabel('2024-01-07')).toBe('Su'));
+});
+
 describe('weekdayIndex', () => {
   // 2024-01-01 is Monday
   it('Monday = 0', () => expect(weekdayIndex(new Date(2024, 0, 1))).toBe(0));

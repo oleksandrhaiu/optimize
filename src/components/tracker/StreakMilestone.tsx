@@ -17,12 +17,14 @@ interface StreakMilestoneProps {
 
 export const StreakMilestone: React.FC<StreakMilestoneProps> = ({ streak, onDismiss }) => {
   const config = MILESTONE_CONFIG[streak];
-  if (!config) return null;
 
   useEffect(() => {
+    if (!config) return;
     const timer = setTimeout(onDismiss, 5000);
     return () => clearTimeout(timer);
-  }, [onDismiss]);
+  }, [config, onDismiss]);
+
+  if (!config) return null;
 
   return (
     <AnimatePresence>
@@ -43,7 +45,6 @@ export const StreakMilestone: React.FC<StreakMilestoneProps> = ({ streak, onDism
             boxShadow: `0 0 60px ${config.color}20, 0 40px 80px rgba(0,0,0,0.5)`,
           }}
         >
-          {/* Glow ring */}
           <div
             className="absolute inset-0 rounded-[2rem] pointer-events-none"
             style={{
@@ -51,7 +52,6 @@ export const StreakMilestone: React.FC<StreakMilestoneProps> = ({ streak, onDism
             }}
           />
 
-          {/* Emoji */}
           <motion.div
             animate={{ rotate: [0, -10, 10, -5, 5, 0], scale: [1, 1.15, 1] }}
             transition={{ duration: 0.8, delay: 0.3 }}
@@ -60,7 +60,6 @@ export const StreakMilestone: React.FC<StreakMilestoneProps> = ({ streak, onDism
             {config.emoji}
           </motion.div>
 
-          {/* Streak number */}
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}

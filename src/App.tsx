@@ -60,8 +60,6 @@ const SetupRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 const App: React.FC = () => {
-  const { session, profile, initialized, loadingProfile } = useAuth();
-
   useEffect(() => {
     // Always dark mode
     document.documentElement.removeAttribute('data-theme');
@@ -69,13 +67,8 @@ const App: React.FC = () => {
     document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#07080F');
   }, []);
 
-  const isAuthLoading = !initialized || (session && loadingProfile && !profile);
-
   return (
     <>
-      {isAuthLoading ? (
-        <PageLoader />
-      ) : (
         <Routes>
           <Route path="/" element={<Navigate to="/tracker" replace />} />
           <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
@@ -95,7 +88,6 @@ const App: React.FC = () => {
 
           <Route path="*" element={<Navigate to="/tracker" replace />} />
         </Routes>
-      )}
     </>
   );
 };

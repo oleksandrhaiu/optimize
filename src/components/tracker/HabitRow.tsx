@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { CustomCheckbox } from '@/components/ui/CustomCheckbox';
 import { NumericInput } from '@/components/ui/NumericInput';
 import { useAuthStore } from '@/store/authStore';
@@ -22,6 +22,10 @@ export const HabitRow: React.FC<HabitRowProps> = ({
   const [showNote, setShowNote] = useState(false);
   const [noteText, setNoteText] = useState(log?.note ?? '');
   const [justCompleted, setJustCompleted] = useState(false);
+
+  useEffect(() => {
+    setNoteText(log?.note ?? '');
+  }, [log?.note, habit.id, date]);
 
   const checked      = log?.value === 'true';
   const numericValue = log ? (parseFloat(log.value) || null) : null;

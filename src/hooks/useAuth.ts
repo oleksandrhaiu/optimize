@@ -9,18 +9,16 @@ export function useAuth() {
   useEffect(() => {
     let mounted = true;
 
-    // Minimum 1.5s loader to prevent flash
     const minDelay = new Promise(resolve => setTimeout(resolve, 1500));
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
       if (!mounted) return;
-      setSession(session);
-      
-      if (session?.user) {
+      setSession(initialSession);
+
+      if (initialSession?.user) {
         Promise.all([
-          fetchProfile(session.user.id),
-          minDelay
+          fetchProfile(initialSession.user.id),
+          minDelay,
         ]).finally(() => {
           if (mounted) {
             setLoading(false);
@@ -37,18 +35,17 @@ export function useAuth() {
       }
     });
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
       if (!mounted) return;
-      
-      const prevUserId = session?.user?.id;
+
+      const prevUserId = useAuthStore.getState().session?.user?.id;
       const newUserId = newSession?.user?.id;
+      const currentProfile = useAuthStore.getState().profile;
 
       setSession(newSession);
 
       if (newUserId) {
-        // Only fetch if it's a different user or we don't have a profile yet
-        if (newUserId !== prevUserId || !profile) {
+        if (newUserId !== prevUserId || !currentProfile) {
           fetchProfile(newUserId);
         }
       } else {
@@ -60,7 +57,7 @@ export function useAuth() {
       mounted = false;
       subscription.unsubscribe();
     };
-  }, []);
+  }, [setSession, setLoading, fetchProfile]);
 
   return { session, profile, loading, loadingProfile, initialized };
 }

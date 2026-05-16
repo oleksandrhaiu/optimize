@@ -246,6 +246,18 @@ export interface Database {
         }
         Returns: boolean
       }
+      get_login_email: {
+        Args: {
+          p_username: string
+        }
+        Returns: string
+      }
+      accept_invite: {
+        Args: {
+          p_token: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never

@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Navbar } from '@/components/ui/Navbar';
 import { useAuthStore } from '@/store/authStore';
 import { useHabits } from '@/hooks/useHabits';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
@@ -81,11 +80,13 @@ export const Dashboard: React.FC = () => {
     if (!userId) return;
     setLogsLoading(true);
     const { startDate, endDate } = getDateRangeInfo(range);
+    const streakStart = formatDate(new Date(Date.now() - 89 * 86400000));
+    const queryStart = startDate < streakStart ? startDate : streakStart;
     const { data } = await supabase
       .from('habit_logs')
       .select('*')
       .eq('user_id', userId)
-      .gte('date', startDate)
+      .gte('date', queryStart)
       .lte('date', endDate);
     setLogs((data as HabitLog[]) ?? []);
     setLogsLoading(false);

@@ -49,11 +49,16 @@ export function monthName(month: number): string {
 }
 
 /** Day of week short names Mon–Sun (0=Mon) */
-export const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+export const WEEKDAY_LABELS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
 /** Returns 0=Mon … 6=Sun for a Date */
 export function weekdayIndex(date: Date): number {
   return (date.getDay() + 6) % 7;
+}
+
+/** Short weekday label (Mo–Su) for a YYYY-MM-DD date */
+export function weekdayLabel(dateStr: string): string {
+  return WEEKDAY_LABELS[weekdayIndex(parseDate(dateStr))];
 }
 
 /** Last N dates as YYYY-MM-DD ending today */
@@ -233,16 +238,27 @@ export function clx(...classes: (string | false | null | undefined)[]): string {
  * Shield rule: 1 missed scheduled day per 7-day window doesn't break the streak.
  * shield_used_at tracks when the last shield was consumed.
  */
+/** Latest shield-used date across habits (user-level proxy) */
+export function latestShieldUsedAt(habits: Habit[]): string | null {
+  let latest: string | null = null;
+  for (const h of habits) {
+    const d = h.streak_shield_used_at;
+    if (d && (!latest || d > latest)) latest = d;
+  }
+  return latest;
+}
+
 export function getStreakWithShield(
   habits: Habit[],
   logs: HabitLog[],
   shieldUsedAt: string | null,
-): { streak: number; shieldActive: boolean; shieldAvailable: boolean } {
+): { streak: number; shieldActive: boolean; shieldAvailable: boolean; shieldConsumedOn: string | null } {
   const today = todayStr();
   const dates = lastNDates(90); // look back 90 days
   
   let streak = 0;
   let shieldUsed = false;
+  let shieldConsumedOn: string | null = null;
   const shieldCooldownDays = 7;
 
   // Check if shield is available (not used in last 7 days)
@@ -263,15 +279,15 @@ export function getStreakWithShield(
     if (score >= 80) {
       streak++;
     } else if (!shieldUsed && shieldAvailable) {
-      // Use shield for this one miss
       shieldUsed = true;
+      shieldConsumedOn = date;
       streak++;
     } else {
       break;
     }
   }
 
-  return { streak, shieldActive: shieldUsed, shieldAvailable };
+  return { streak, shieldActive: shieldUsed, shieldAvailable, shieldConsumedOn };
 }
 
 // ─── Streak milestones ────────────────────────────────────────────────────────

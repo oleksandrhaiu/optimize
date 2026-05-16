@@ -1,13 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
+import { daysInMonth, dateKey } from '@/lib/utils';
 import type { HabitLog } from '@/types';
 
 export function useHabitLogs(userId: string | undefined, year: number, month: number) {
   const [logs, setLogs] = useState<HabitLog[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`;
-  const endDate   = `${year}-${String(month + 1).padStart(2, '0')}-31`;
+  const startDate = dateKey(year, month, 1);
+  const endDate = dateKey(year, month, daysInMonth(month, year));
 
   const fetchLogs = useCallback(async () => {
     if (!userId) return;

@@ -69,10 +69,12 @@ export function useFriends(userId: string | undefined) {
 
   useEffect(() => { fetchFriends(); }, [fetchFriends]);
 
+  const friendIdsKey = friends.map(f => f.profile.id).sort().join(',');
+
   // Realtime profile updates
   useEffect(() => {
-    if (friends.length === 0) return;
-    const friendIds = friends.map(f => f.profile.id);
+    if (!friendIdsKey) return;
+    const friendIds = friendIdsKey.split(',');
 
     const channel = supabase
       .channel('friend-profiles')
@@ -96,7 +98,7 @@ export function useFriends(userId: string | undefined) {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [friends.length]); // simple trigger on length change
+  }, [friendIdsKey]);
 
   const removeFriend = useCallback(async (friendId: string) => {
     if (!userId) return;
@@ -128,39 +130,23 @@ export function useFriends(userId: string | undefined) {
   return { friends, loading, refetch: fetchFriends, removeFriend, updateFriendLog };
 }
 
-export async function acceptInvite(token: string, userId: string): Promise<{ error: string | null }> {
-  // Lookup token
-  const { data: tokenRow } = await supabase
-    .from('invite_tokens')
-    .select('*')
-    .eq('token', token)
-    .eq('used', false)
-    .single();
+export type AcceptInviteResult = {
+  error: string | null;
+  alreadyFriends?: boolean;
+};
 
-  if (!tokenRow) return { error: 'Invalid or already used invite link.' };
-  if (tokenRow.creator_user_id === userId) return { error: 'You cannot add yourself as a friend.' };
+export async function acceptInvite(_token: string, _userId: string): Promise<AcceptInviteResult> {
+  const { data, error } = await supabase.rpc('accept_invite', { p_token: _token });
 
-  // Check not already friends
-  const { data: existing } = await supabase
-    .from('friendships')
-    .select('id')
-    .or(
-      `and(user_a_id.eq.${userId},user_b_id.eq.${tokenRow.creator_user_id}),and(user_a_id.eq.${tokenRow.creator_user_id},user_b_id.eq.${userId})`,
-    )
-    .single();
+  if (error) return { error: error.message };
 
-  if (existing) return { error: null }; // already friends, no-op
+  const result = data as { ok?: boolean; error?: string; already_friends?: boolean } | null;
+  if (!result?.ok) {
+    return { error: result?.error ?? 'Failed to accept invite.' };
+  }
 
-  // Create friendship
-  const { error: fErr } = await supabase.from('friendships').insert({
-    user_a_id: tokenRow.creator_user_id,
-    user_b_id: userId,
-    status: 'accepted',
-  });
-  if (fErr) return { error: fErr.message };
-
-  // Mark token as used
-  await supabase.from('invite_tokens').update({ used: true }).eq('id', tokenRow.id);
-
-  return { error: null };
+  return {
+    error: null,
+    alreadyFriends: Boolean(result.already_friends),
+  };
 }

@@ -2,8 +2,9 @@ import { useMemo } from 'react';
 import type { Habit, HabitLog, DashboardStats } from '@/types';
 import {
   buildDailyStats,
-  calcCurrentStreak,
   calcBestStreak,
+  getStreakWithShield,
+  latestShieldUsedAt,
   WEEKDAY_LABELS,
   weekdayIndex,
   parseDate,
@@ -16,7 +17,11 @@ export function useDashboardStats(
 ): DashboardStats {
   return useMemo(() => {
     const dailyStats = buildDailyStats(habits, logs, dateRange);
-    const currentStreak = calcCurrentStreak(dailyStats);
+    const { streak: currentStreak } = getStreakWithShield(
+      habits,
+      logs,
+      latestShieldUsedAt(habits),
+    );
     const bestStreak = calcBestStreak(dailyStats);
 
     const calorieHabit = habits.find(h => h.is_calorie_habit);
@@ -30,7 +35,6 @@ export function useDashboardStats(
 
     const greenDays = dailyStats.filter(d => d.isGreenDay).length;
 
-    // Weekday averages (Mon=0 … Sun=6)
     const weekdayTotals = Array(7).fill(0);
     const weekdayCounts = Array(7).fill(0);
     for (const stat of dailyStats) {

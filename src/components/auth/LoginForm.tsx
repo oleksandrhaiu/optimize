@@ -25,20 +25,18 @@ export const LoginForm: React.FC = () => {
 
     let loginEmail = email;
 
-    // Support username login
+    // Support username login via RPC (works before auth session exists)
     if (!email.includes('@')) {
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('email')
-        .ilike('username', email)
-        .maybeSingle();
+      const { data: resolvedEmail, error: userError } = await supabase.rpc('get_login_email', {
+        p_username: email.trim(),
+      });
 
-      if (userError || !userData) {
+      if (userError || !resolvedEmail) {
         setError('User not found');
         setLoading(false);
         return;
       }
-      loginEmail = userData.email;
+      loginEmail = resolvedEmail as string;
     }
 
     const { error: authError } = await supabase.auth.signInWithPassword({ email: loginEmail, password });

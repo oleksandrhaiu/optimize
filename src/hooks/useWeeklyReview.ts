@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import type { Habit, HabitLog } from '@/types';
-import { calcDayScore, lastNDates, isHabitScheduledOn, todayStr } from '@/lib/utils';
+import { calcDayScore, lastNDates, isHabitScheduledOn, todayStr, formatDate, isHabitDone } from '@/lib/utils';
 
 const STORAGE_KEY = 'lumina.weeklyReview';
 
@@ -12,7 +12,7 @@ function getLastSundayStr(): string {
   const daysBack = dayOfWeek === 0 ? 0 : dayOfWeek;
   const sunday = new Date(today);
   sunday.setDate(today.getDate() - daysBack);
-  return sunday.toISOString().slice(0, 10);
+  return formatDate(sunday);
 }
 
 function isSunday(): boolean {
@@ -65,11 +65,7 @@ export function useWeeklyReview(habits: Habit[], logs: HabitLog[]) {
 
         const completedDays = scheduledDays.filter(date => {
           const log = logs.find(l => l.habit_id === habit.id && l.date === date);
-          if (!log) return false;
-          if (habit.type === 'checkbox') return log.value === 'true';
-          const num = parseFloat(log.value);
-          if (habit.goal) return num >= habit.goal;
-          return num > 0;
+          return isHabitDone(habit, log?.value);
         });
 
         return {

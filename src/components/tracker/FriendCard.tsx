@@ -4,7 +4,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Sparkline } from './Sparkline';
 import { formatLastSeen } from '@/hooks/usePresence';
 import type { FriendWithData } from '@/types';
-import { todayStr, clx } from '@/lib/utils';
+import { todayStr, isHabitDone } from '@/lib/utils';
 
 interface FriendCardProps {
   friend: FriendWithData;
@@ -105,9 +105,7 @@ export const FriendCard: React.FC<FriendCardProps> = ({
         ) : (
           habits.slice(0, 6).map(habit => {
             const log = logs.find(l => l.habit_id === habit.id && l.date === today);
-            const done = log
-              ? (habit.type === 'checkbox' ? log.value === 'true' : parseFloat(log.value) > 0)
-              : false;
+            const done = isHabitDone(habit, log?.value);
             return (
               <div key={habit.id} className="flex items-center justify-between gap-2">
                 <span className="text-xs text-text-muted truncate flex items-center gap-1.5 min-w-0">

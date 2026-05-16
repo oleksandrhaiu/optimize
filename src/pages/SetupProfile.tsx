@@ -26,10 +26,11 @@ export const SetupProfile: React.FC = () => {
     setError(null);
     
     try {
+      const normalizedUsername = username.trim().toLowerCase();
       const { error: insertError } = await supabase.from('users').insert({
         id: session.user.id,
         email: session.user.email || '',
-        username,
+        username: normalizedUsername,
         avatar_color: '#4B9EFF'
       });
 

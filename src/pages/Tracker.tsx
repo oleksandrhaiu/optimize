@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Navbar } from '@/components/ui/Navbar';
 import { MyHabitsColumn } from '@/components/tracker/MyHabitsColumn';
 import { FriendCard } from '@/components/tracker/FriendCard';
 import { HabitHistoryModal } from '@/components/tracker/HabitHistoryModal';
@@ -17,7 +16,8 @@ import { usePresence } from '@/hooks/usePresence';
 import { useWeeklyReview } from '@/hooks/useWeeklyReview';
 import {
   currentMonthYear, calcWeekScores, calcDayScore, todayStr, dateKey,
-  getDaysArray, getStreakWithShield, checkStreakMilestone, isHabitScheduledOn,
+  getDaysArray, daysInMonth, getStreakWithShield, checkStreakMilestone,
+  isHabitScheduledOn, isHabitDone, latestShieldUsedAt, weekdayLabel, lastNDates,
 } from '@/lib/utils';
 import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
 import type { MonthYear, Habit } from '@/types';
@@ -30,7 +30,7 @@ export const Tracker: React.FC = () => {
   const [selectedDay, setSelectedDay] = useState<number>(new Date().getDate());
   const [historyHabit, setHistoryHabit] = useState<Habit | null>(null);
 
-  const { habits, loading: habitsLoading } = useHabits(userId);
+  const { habits, loading: habitsLoading, updateHabit } = useHabits(userId);
   const { logs, loading: logsLoading, setLog, setNote } = useHabitLogs(userId, monthYear.year, monthYear.month);
   const { friends, loading: friendsLoading, updateFriendLog } = useFriends(userId);
 
@@ -41,9 +41,25 @@ export const Tracker: React.FC = () => {
   const { shouldShow: showWeeklyReview, reviewData, dismiss: dismissWeeklyReview } = useWeeklyReview(habits, logs);
 
   // ── Streak with shield ──────────────────────────────────────────────────────
-  // Use the first habit's shield date as a proxy (ideally would be user-level)
-  const shieldUsedAt = habits[0]?.streak_shield_used_at ?? null;
-  const { streak, shieldActive, shieldAvailable } = getStreakWithShield(habits, logs, shieldUsedAt);
+  const shieldUsedAt = latestShieldUsedAt(habits);
+  const { streak, shieldActive, shieldAvailable, shieldConsumedOn } = getStreakWithShield(
+    habits, logs, shieldUsedAt,
+  );
+
+  const shieldPersistedRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!shieldConsumedOn || !userId || habits.length === 0) return;
+    if (shieldPersistedRef.current === shieldConsumedOn) return;
+    if (habits.some(h => h.streak_shield_used_at === shieldConsumedOn)) {
+      shieldPersistedRef.current = shieldConsumedOn;
+      return;
+    }
+    shieldPersistedRef.current = shieldConsumedOn;
+    const active = habits.filter(h => !h.is_archived);
+    void Promise.all(
+      active.map(h => updateHabit(h.id, { streak_shield_used_at: shieldConsumedOn })),
+    );
+  }, [shieldConsumedOn, userId, habits, updateHabit]);
 
   // ── Streak milestone ────────────────────────────────────────────────────────
   const prevStreakRef = useRef<number>(0);
@@ -81,14 +97,27 @@ export const Tracker: React.FC = () => {
   const handleToggle = async (habitId: string, date: string, value: string) => setLog(habitId, date, value);
   const handleNote   = async (habitId: string, date: string, note: string) => setNote(habitId, date, note);
 
-  const handlePrevMonth = () => setMonthYear(prev => {
-    const d = new Date(prev.year, prev.month - 1, 1);
-    return { month: d.getMonth(), year: d.getFullYear() };
-  });
-  const handleNextMonth = () => setMonthYear(prev => {
-    const d = new Date(prev.year, prev.month + 1, 1);
-    return { month: d.getMonth(), year: d.getFullYear() };
-  });
+  const clampSelectedDay = (my: MonthYear, day: number) =>
+    Math.min(day, daysInMonth(my.month, my.year));
+
+  const handlePrevMonth = () => {
+    setMonthYear(prev => {
+      const d = new Date(prev.year, prev.month - 1, 1);
+      const next = { month: d.getMonth(), year: d.getFullYear() };
+      setSelectedDay(day => clampSelectedDay(next, day));
+      return next;
+    });
+  };
+  const handleNextMonth = () => {
+    setMonthYear(prev => {
+      const d = new Date(prev.year, prev.month + 1, 1);
+      const next = { month: d.getMonth(), year: d.getFullYear() };
+      setSelectedDay(day => clampSelectedDay(next, day));
+      return next;
+    });
+  };
+
+  const weekDates = lastNDates(7);
 
   const avgWeek = weekScores.length > 0
     ? Math.round(weekScores.reduce((a, b) => a + b, 0) / weekScores.length) : 0;
@@ -99,8 +128,7 @@ export const Tracker: React.FC = () => {
   const todayHabits = habits.filter(h => !h.is_archived && isHabitScheduledOn(h, today));
   const completedToday = todayHabits.filter(h => {
     const log = logs.find(l => l.habit_id === h.id && l.date === today);
-    if (!log) return false;
-    return h.type === 'checkbox' ? log.value === 'true' : parseFloat(log.value) > 0;
+    return isHabitDone(h, log?.value);
   }).length;
 
   const onlineFriends = friends.filter(f => onlineIds.has(f.profile.id)).length;
@@ -265,13 +293,14 @@ export const Tracker: React.FC = () => {
                     </span>
                   </div>
                   <div className="flex items-end gap-1.5">
-                    {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((day, i) => {
+                    {weekDates.map((dateStr, i) => {
+                      const day    = weekdayLabel(dateStr);
                       const score  = weekScores[i] ?? 0;
                       const h      = Math.max(4, Math.round((score / 100) * 52));
                       const color  = score >= 80 ? '#10B981' : score >= 50 ? '#F59E0B' : score > 0 ? '#EF4444' : 'rgba(28,30,52,0.8)';
                       const isToday = i === 6;
                       return (
-                        <div key={day} className="flex-1 flex flex-col items-center gap-1.5">
+                        <div key={dateStr} className="flex-1 flex flex-col items-center gap-1.5">
                           {score > 0 && (
                             <span className="text-[9px] font-mono" style={{ color }}>
                               {score}%
@@ -286,7 +315,7 @@ export const Tracker: React.FC = () => {
                                 : color,
                               boxShadow: isToday ? `0 0 10px ${color}40` : 'none',
                             }}
-                            title={`${day}: ${score}%`}
+                            title={`${dateStr}: ${score}%`}
                           />
                           <span
                             className="text-[9px] font-medium"
