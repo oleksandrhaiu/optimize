@@ -46,6 +46,72 @@ const colorConfig = {
   },
 };
 
+const PremiumFlame: React.FC = () => (
+  <div className="relative w-8 h-8 flex items-center justify-center ml-1.5 flex-shrink-0">
+    <style>{`
+      @keyframes premiumFlicker {
+        0% { transform: scaleY(1) skewX(0deg); }
+        50% { transform: scaleY(1.08) skewX(-2deg); }
+        100% { transform: scaleY(0.96) skewX(2deg); }
+      }
+      @keyframes premiumInner {
+        0% { transform: scaleY(0.95) skewX(1deg); }
+        50% { transform: scaleY(1.05) skewX(-1deg); }
+        100% { transform: scaleY(1) skewX(0deg); }
+      }
+      .flame-outer { animation: premiumFlicker 1.8s ease-in-out infinite alternate; transform-origin: 50% 90%; }
+      .flame-inner { animation: premiumInner 1.4s ease-in-out infinite alternate; transform-origin: 50% 90%; }
+    `}</style>
+    
+    {/* Ambient Glow Behind Flame */}
+    <div className="absolute inset-0 bg-gradient-to-t from-amber-500/40 to-orange-600/40 rounded-full filter blur-md animate-pulse" />
+    
+    <svg viewBox="0 0 24 24" className="w-full h-full relative z-10 overflow-visible">
+      <defs>
+        <linearGradient id="flameOuter" x1="0%" y1="100%" x2="0%" y2="0%">
+          <stop offset="0%" stopColor="#EA580C" /> {/* Orange 600 */}
+          <stop offset="50%" stopColor="#F97316" /> {/* Orange 500 */}
+          <stop offset="100%" stopColor="#EF4444" /> {/* Red 500 */}
+        </linearGradient>
+        <linearGradient id="flameInner" x1="0%" y1="100%" x2="0%" y2="0%">
+          <stop offset="0%" stopColor="#F59E0B" /> {/* Amber 500 */}
+          <stop offset="100%" stopColor="#FBBF24" /> {/* Amber 400 */}
+        </linearGradient>
+        <linearGradient id="flameCore" x1="0%" y1="100%" x2="0%" y2="0%">
+          <stop offset="0%" stopColor="#FDE047" /> {/* Yellow 300 */}
+          <stop offset="100%" stopColor="#FEF08A" /> {/* Yellow 100 */}
+        </linearGradient>
+        <filter id="premiumGlow" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="1.5" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+      </defs>
+
+      {/* Outer Flame (Orange/Red base with smooth movement) */}
+      <path
+        d="M12 2C12 2 7 7 7 12C7 15.31 9.69 18 13 18C16.31 18 19 15.31 19 12C19 8.5 15.5 5.5 12 2Z"
+        fill="url(#flameOuter)"
+        filter="url(#premiumGlow)"
+        className="flame-outer"
+      />
+
+      {/* Middle Flame (Amber/Gold body) */}
+      <path
+        d="M13 6C13 6 9.5 9.5 9.5 13C9.5 14.93 11.07 16.5 13 16.5C14.93 16.5 16.5 14.93 16.5 13C16.5 10.5 14.5 8 13 6Z"
+        fill="url(#flameInner)"
+        className="flame-inner"
+      />
+
+      {/* Inner Bright Core (Yellow/White hot center) */}
+      <path
+        d="M13 10C13 10 11 12 11 14C11 15.1 11.9 16 13 16C14.1 16 15 15.1 15 14C15 12.5 13.8 11.2 13 10Z"
+        fill="url(#flameCore)"
+        className="animate-pulse transform-origin-bottom"
+      />
+    </svg>
+  </div>
+);
+
 export const StatCard: React.FC<StatCardProps> = ({
   label, value, unit, icon, color = 'green', subtitle, streakHighlight,
 }) => {
@@ -85,17 +151,8 @@ export const StatCard: React.FC<StatCardProps> = ({
           {unit && (
             <span className="text-sm font-normal text-text-muted mt-0.5">{unit}</span>
           )}
-          {/* Premium Professional Streak Indicator */}
-          {showFire && (
-            <div className="ml-2 flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber/10 via-amber/20 to-orange-500/10 border border-amber/30 shadow-[0_0_15px_rgba(245,158,11,0.15)] backdrop-blur-md animate-pulse">
-              <span className="text-xs filter drop-shadow-[0_0_8px_rgba(245,158,11,0.9)]">
-                {label === 'Best Streak' ? '👑' : '🔥'}
-              </span>
-              <span className="text-[10px] font-bold uppercase tracking-wider bg-gradient-to-r from-amber via-yellow-200 to-amber bg-clip-text text-transparent font-heading">
-                {label === 'Best Streak' ? 'All-Time Best' : 'On Fire'}
-              </span>
-            </div>
-          )}
+          {/* Premium Professional Flame Animation */}
+          {showFire && <PremiumFlame />}
         </div>
         {subtitle && (
           <p className="text-text-subtle text-xs mt-1">{subtitle}</p>
