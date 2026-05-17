@@ -1,6 +1,4 @@
 import React from 'react';
-import Lottie from 'lottie-react';
-import streakFireData from '@/assets/animations/streak-fire.json';
 import { clx } from '@/lib/utils';
 
 interface StatCardProps {
@@ -10,7 +8,7 @@ interface StatCardProps {
   icon: React.ReactNode;
   color?: 'green' | 'blue' | 'amber' | 'red';
   subtitle?: string;
-  streakHighlight?: boolean; // show fire animation for streaks >= 3
+  streakHighlight?: boolean; // show premium badge for streaks >= 3
 }
 
 const colorConfig = {
@@ -77,7 +75,7 @@ export const StatCard: React.FC<StatCardProps> = ({
       {/* Content */}
       <div className="min-w-0 flex-1">
         <p className="text-text-muted text-xs font-medium mb-1.5">{label}</p>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-wrap">
           <p
             className="font-mono-nums text-2xl font-bold animate-count-up"
             style={{ color: c.text }}
@@ -87,15 +85,15 @@ export const StatCard: React.FC<StatCardProps> = ({
           {unit && (
             <span className="text-sm font-normal text-text-muted mt-0.5">{unit}</span>
           )}
-          {/* Lottie fire for streak */}
+          {/* Premium Professional Streak Indicator */}
           {showFire && (
-            <div className="w-7 h-7 ml-0.5 flex-shrink-0">
-              <Lottie
-                animationData={streakFireData}
-                loop={true}
-                autoplay={true}
-                style={{ width: '100%', height: '100%' }}
-              />
+            <div className="ml-2 flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber/10 via-amber/20 to-orange-500/10 border border-amber/30 shadow-[0_0_15px_rgba(245,158,11,0.15)] backdrop-blur-md animate-pulse">
+              <span className="text-xs filter drop-shadow-[0_0_8px_rgba(245,158,11,0.9)]">
+                {label === 'Best Streak' ? '👑' : '🔥'}
+              </span>
+              <span className="text-[10px] font-bold uppercase tracking-wider bg-gradient-to-r from-amber via-yellow-200 to-amber bg-clip-text text-transparent font-heading">
+                {label === 'Best Streak' ? 'All-Time Best' : 'On Fire'}
+              </span>
             </div>
           )}
         </div>
