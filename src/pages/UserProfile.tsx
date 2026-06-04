@@ -6,7 +6,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Skeleton } from '@/components/ui/LoadingSpinner';
 import { useAuthStore } from '@/store/authStore';
 import { useFriends } from '@/hooks/useFriends';
-import { calcDayScore, calcWeekScores, lastNDates, todayStr, formatDate } from '@/lib/utils';
+import { calcDayScore, calcWeekScores, lastNDates, todayStr, formatDate, getStreakWithShield, latestShieldUsedAt } from '@/lib/utils';
 import { fetchLogsForUser } from '@/hooks/useHabitLogs';
 import type { UserProfile, Habit, HabitLog } from '@/types';
 
@@ -52,12 +52,16 @@ export const UserProfilePage: React.FC = () => {
         .from('habits')
         .select('*')
         .eq('user_id', profileData.id)
+        .eq('is_private', false)
         .order('order', { ascending: true });
 
       const h = (habitsData ?? []) as Habit[];
       setHabits(h);
 
-      const fetchedLogs = await fetchLogsForUser(profileData.id, weekDates[0], today);
+      const weekDatesLocal = lastNDates(7);
+      const startDate90 = formatDate(new Date(Date.now() - 89 * 86400000));
+      const startDate = startDate90 < weekDatesLocal[0] ? startDate90 : weekDatesLocal[0];
+      const fetchedLogs = await fetchLogsForUser(profileData.id, startDate, today);
       setLogs(fetchedLogs);
       setLoading(false);
     };
@@ -99,14 +103,8 @@ export const UserProfilePage: React.FC = () => {
   const todayScore = calcDayScore(habits, logs, today);
   const avgWeek = weekScores.length > 0
     ? Math.round(weekScores.reduce((a, b) => a + b, 0) / weekScores.length) : 0;
-  const streak = (() => {
-    let s = 0;
-    for (let i = weekDates.length - 1; i >= 0; i--) {
-      if (calcDayScore(habits, logs, weekDates[i]) >= 80) s++;
-      else break;
-    }
-    return s;
-  })();
+  const shieldUsedAt = latestShieldUsedAt(habits);
+  const { streak } = getStreakWithShield(habits, logs, shieldUsedAt);
 
   const scoreColor = todayScore >= 80 ? 'text-accent' : todayScore >= 50 ? 'text-amber' : 'text-text-muted';
 

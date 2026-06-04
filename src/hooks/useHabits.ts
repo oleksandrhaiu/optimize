@@ -110,13 +110,11 @@ export function useHabits(userId: string | undefined) {
 
   const reorderHabits = useCallback(async (reordered: Habit[]) => {
     setHabits(reordered);
-    const updates = reordered.map((h, i) => ({
-      id: h.id, order: i, user_id: h.user_id, name: h.name,
-      type: h.type, is_calorie_habit: h.is_calorie_habit,
-    }));
-    for (const u of updates) {
-      await supabase.from('habits').update({ order: u.order }).eq('id', u.id);
-    }
+    await Promise.all(
+      reordered.map((h, i) =>
+        supabase.from('habits').update({ order: i }).eq('id', h.id),
+      ),
+    );
   }, []);
 
   return {

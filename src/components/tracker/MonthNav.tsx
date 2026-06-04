@@ -37,7 +37,7 @@ export const MonthNav: React.FC<MonthNavProps> = ({ monthYear, onPrev, onNext })
         className={clx(
           'w-8 h-8 rounded-lg border border-border flex items-center justify-center transition-all',
           isCurrentMonth
-            ? 'text-border cursor-not-allowed'
+            ? 'opacity-30 cursor-not-allowed text-text-subtle'
             : 'text-text-muted hover:text-text-primary hover:border-text-muted',
         )}
         aria-label="Next month"

@@ -82,13 +82,18 @@ export const EditHabitPage: React.FC = () => {
 
   const [habit, setHabit] = useState<Habit | null>(null);
   const [showEmoji, setShowEmoji] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  
+  const hasFetchedArchivedRef = useRef(false);
+
   // Load local state only once initially
   useEffect(() => {
     if (loading) return;
-    if (archivedHabits.length === 0) fetchArchivedHabits();
-    
+    if (!hasFetchedArchivedRef.current) {
+      hasFetchedArchivedRef.current = true;
+      fetchArchivedHabits();
+    }
+
     if (!habit) {
       const found = habits.find(h => h.id === id) || archivedHabits.find(h => h.id === id);
       if (found) setHabit(found);
@@ -103,11 +108,13 @@ export const EditHabitPage: React.FC = () => {
     setHabit(prev => {
       if (!prev) return null;
       const next = { ...prev, ...updates };
-      
-      // Debounce auto-save to prevent flooding DB and UI stutter
+
+      // Debounce auto-save
       if (saveTimeout.current) clearTimeout(saveTimeout.current);
-      saveTimeout.current = setTimeout(() => {
-        updateHabit(next.id, updates);
+      setIsSaving(true);
+      saveTimeout.current = setTimeout(async () => {
+        await updateHabit(next.id, updates);
+        setIsSaving(false);
       }, 400);
 
       return next;
@@ -135,9 +142,19 @@ export const EditHabitPage: React.FC = () => {
           </svg>
           Back to Habits
         </button>
-        <div className="text-xs font-medium px-3 py-1 bg-accent/10 text-accent rounded-full border border-accent/20">
-          Auto-saving
-        </div>
+        {isSaving ? (
+          <div className="flex items-center gap-1.5 text-xs font-medium px-3 py-1 bg-accent/10 text-accent rounded-full border border-accent/20 animate-pulse">
+            <svg width="10" height="10" viewBox="0 0 24 24" className="animate-spin" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2.5" opacity="0.25"/>
+              <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
+            </svg>
+            Saving…
+          </div>
+        ) : (
+          <div className="text-xs font-medium px-3 py-1 text-text-subtle rounded-full">
+            Saved ✓
+          </div>
+        )}
       </div>
 
       {/* 1. General */}

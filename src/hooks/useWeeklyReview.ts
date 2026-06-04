@@ -6,9 +6,7 @@ const STORAGE_KEY = 'lumina.weeklyReview';
 
 function getLastSundayStr(): string {
   const today = new Date();
-  // 0=Sun in JS
   const dayOfWeek = today.getDay();
-  // Days since last Sunday (if today is Sunday, it's 0 days ago)
   const daysBack = dayOfWeek === 0 ? 0 : dayOfWeek;
   const sunday = new Date(today);
   sunday.setDate(today.getDate() - daysBack);
@@ -26,25 +24,36 @@ interface WeeklyReviewData {
   totalScheduledDays: number;
 }
 
+const EMPTY_REVIEW: WeeklyReviewData = {
+  weekCompletionPct: 0,
+  greenDays: 0,
+  bestHabits: [],
+  totalScheduledDays: 7,
+};
+
 export function useWeeklyReview(habits: Habit[], logs: HabitLog[]) {
   const lastSunday = getLastSundayStr();
-  const alreadyShownThisWeek = localStorage.getItem(STORAGE_KEY) === lastSunday;
 
+  // useState so dismissing in one tab reflects in another on next mount
+  const [alreadyShown] = useState(() =>
+    localStorage.getItem(STORAGE_KEY) === lastSunday,
+  );
   const [dismissed, setDismissed] = useState(false);
-  // Show only on Sundays, if not already shown this week, and if user has some habits
-  const shouldShow = isSunday() && !alreadyShownThisWeek && habits.length > 0 && !dismissed;
+
+  const shouldShow = isSunday() && !alreadyShown && habits.length > 0 && !dismissed;
 
   const dismiss = () => {
     localStorage.setItem(STORAGE_KEY, lastSunday);
     setDismissed(true);
   };
 
+  // Only compute review data when it will actually be shown (Sundays)
   const reviewData: WeeklyReviewData = useMemo(() => {
-    // Last 7 days (the current week)
+    if (!shouldShow) return EMPTY_REVIEW;
+
     const last7 = lastNDates(7);
     const today = todayStr();
 
-    // Calculate day scores
     const dayScores = last7.map(date => ({
       date,
       score: calcDayScore(habits, logs, date),
@@ -56,7 +65,6 @@ export function useWeeklyReview(habits: Habit[], logs: HabitLog[]) {
 
     const greenDays = dayScores.filter(d => d.score >= 80).length;
 
-    // Per-habit completion rates for this week
     const habitRates = habits
       .filter(h => !h.is_archived)
       .map(habit => {
@@ -85,7 +93,7 @@ export function useWeeklyReview(habits: Habit[], logs: HabitLog[]) {
       bestHabits,
       totalScheduledDays: last7.length,
     };
-  }, [habits, logs]);
+  }, [shouldShow, habits, logs]);
 
   return { shouldShow, reviewData, dismiss };
 }

@@ -194,8 +194,8 @@ export const MyHabitsColumn: React.FC<MyHabitsColumnProps> = ({
           {scheduledHabits.length === 0 ? (
             <div className="text-center py-10 space-y-2">
               <p className="text-3xl">📝</p>
-              <p className="text-text-muted text-sm font-medium">No habits yet</p>
-              <p className="text-text-subtle text-xs">Add some in Settings.</p>
+              <p className="text-text-muted text-sm font-medium">No habits scheduled</p>
+              <p className="text-text-subtle text-xs">Add habits in the Habits tab.</p>
             </div>
           ) : (
             <div className="space-y-0.5">

@@ -35,33 +35,32 @@ export function useFriends(userId: string | undefined) {
 
     if (!profiles) { setLoading(false); return; }
 
-    // Fetch habits + logs for each friend
+    // Batch fetch: 2 queries for all friends instead of N×2
     const today = todayStr();
     const weekDates = lastNDates(7);
     const startDate = weekDates[0];
 
-    const friendData: FriendWithData[] = await Promise.all(
-      (profiles as UserProfile[]).map(async profile => {
-        const { data: habits } = await supabase
-          .from('habits')
-          .select('*')
-          .eq('user_id', profile.id)
-          .order('order', { ascending: true });
+    const [{ data: allHabits }, allLogs] = await Promise.all([
+      supabase
+        .from('habits')
+        .select('*')
+        .in('user_id', friendIds)
+        .eq('is_private', false)
+        .order('order', { ascending: true }),
+      fetchLogsForUser('__batch__', startDate, today, friendIds),
+    ]);
 
-        const logs = await fetchLogsForUser(profile.id, startDate, today);
-        const h = habits ?? [];
-        const todayScore = calcDayScore(h as any, logs, today);
-        const weekScores = calcWeekScores(h as any, logs);
-
-        return {
-          profile,
-          habits: h as any,
-          logs,
-          todayScore,
-          weekScores,
-        };
-      }),
-    );
+    const friendData: FriendWithData[] = (profiles as UserProfile[]).map(profile => {
+      const h = (allHabits ?? []).filter((hb: any) => hb.user_id === profile.id) as any[];
+      const logs = allLogs.filter(l => l.user_id === profile.id);
+      return {
+        profile,
+        habits: h,
+        logs,
+        todayScore: calcDayScore(h, logs, today),
+        weekScores: calcWeekScores(h, logs),
+      };
+    });
 
     setFriends(friendData);
     setLoading(false);

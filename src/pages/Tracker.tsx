@@ -6,6 +6,7 @@ import { MonthNav } from '@/components/tracker/MonthNav';
 import { OnboardingModal, useOnboarding } from '@/components/onboarding/OnboardingModal';
 import { StreakMilestone } from '@/components/tracker/StreakMilestone';
 import { WeeklyReview } from '@/components/tracker/WeeklyReview';
+import confetti from 'canvas-confetti';
 import { TrackerSkeleton } from '@/components/ui/LoadingSpinner';
 import { useAuthStore } from '@/store/authStore';
 import { useHabits } from '@/hooks/useHabits';
@@ -26,7 +27,7 @@ export const Tracker: React.FC = () => {
   const { profile, session } = useAuthStore();
   const userId = session?.user.id;
 
-  const [monthYear, setMonthYear]     = useState<MonthYear>(currentMonthYear);
+  const [monthYear, setMonthYear]     = useState<MonthYear>(() => currentMonthYear());
   const [selectedDay, setSelectedDay] = useState<number>(new Date().getDate());
   const [historyHabit, setHistoryHabit] = useState<Habit | null>(null);
 
@@ -89,7 +90,27 @@ export const Tracker: React.FC = () => {
     if (isFirstRun.current) { prevScoreRef.current = todayScore; isFirstRun.current = false; return; }
     if (prevScoreRef.current < 100 && todayScore === 100 && habits.length > 0) {
       setCelebrate(true);
-      setTimeout(() => setCelebrate(false), 4000);
+
+      // Trigger premium confetti fireworks
+      const duration = 3500;
+      const animationEnd = Date.now() + duration;
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+
+      const interval = setInterval(() => {
+        const timeLeft = animationEnd - Date.now();
+        if (timeLeft <= 0) {
+          clearInterval(interval);
+          return;
+        }
+        const particleCount = 50 * (timeLeft / duration);
+        confetti({ ...defaults, particleCount, origin: { x: Math.random(), y: Math.random() - 0.2 } });
+      }, 250);
+
+      const timer = setTimeout(() => setCelebrate(false), 4000);
+      return () => {
+        clearInterval(interval);
+        clearTimeout(timer);
+      };
     }
     prevScoreRef.current = todayScore;
   }, [todayScore, habits.length, habitsLoading, logsLoading]);

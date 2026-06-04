@@ -22,7 +22,7 @@ const getRating = (pct: number): { label: string; color: string; emoji: string }
 };
 
 export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ reviewData, onDismiss }) => {
-  const { weekCompletionPct, greenDays, bestHabits } = reviewData;
+  const { weekCompletionPct, greenDays, bestHabits, totalScheduledDays } = reviewData;
   const rating = getRating(weekCompletionPct);
 
   return (
@@ -79,7 +79,7 @@ export const WeeklyReview: React.FC<WeeklyReviewProps> = ({ reviewData, onDismis
             </div>
             <div className="rounded-xl p-4 text-center" style={{ background: 'rgba(139,92,246,0.06)', border: '1px solid rgba(139,92,246,0.15)' }}>
               <p className="font-heading font-bold text-2xl text-violet">
-                7
+                <AnimatedNumber value={totalScheduledDays} />
               </p>
               <p className="text-[10px] text-text-muted mt-0.5">days tracked</p>
             </div>

@@ -8,7 +8,9 @@ import { AVATAR_COLORS } from '@/lib/utils';
 const AVATAR_EMOJIS = [
   '🦊', '🐺', '🦁', '🐯', '🦄', '🐸', '🐼', '🦅',
   '🌊', '🔥', '⚡', '🌙', '🌿', '💎', '🎯', '🚀',
-];const THEMES = [
+];
+
+const THEMES = [
   { id: 'dark', name: 'Dark Mode', color: '#161820' },
   { id: 'light', name: 'Light Mode', color: '#FFFFFF' },
 ];

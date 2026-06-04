@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuthStore } from '@/store/authStore';
 import { useHabits } from '@/hooks/useHabits';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
@@ -24,7 +24,7 @@ const RANGES: { id: Range; label: string }[] = [
   { id: 'all',   label: 'All time' },
 ];
 
-function getDateRangeInfo(range: Range): { startDate: string; endDate: string; dates: string[] } {
+function getDateRangeInfo(range: Range, habits: { created_at?: string | null }[]): { startDate: string; endDate: string; dates: string[] } {
   const today = new Date();
   const endDate = formatDate(today);
   let startDate: string;
@@ -38,10 +38,18 @@ function getDateRangeInfo(range: Range): { startDate: string; endDate: string; d
   } else if (range === 'year') {
     startDate = `${today.getFullYear()}-01-01`;
   } else {
-    // All time - find earliest log or just 1 year back for now
-    const d = new Date(today);
-    d.setFullYear(d.getFullYear() - 1);
-    startDate = formatDate(d);
+    // All time — use earliest habit creation date, fallback to 2 years
+    const earliest = habits
+      .map(h => h.created_at)
+      .filter(Boolean)
+      .sort()[0];
+    if (earliest) {
+      startDate = formatDate(new Date(earliest));
+    } else {
+      const d = new Date(today);
+      d.setFullYear(d.getFullYear() - 2);
+      startDate = formatDate(d);
+    }
   }
 
   return { startDate, endDate, dates: getDatesInRange(startDate, endDate) };
@@ -55,6 +63,12 @@ export const Dashboard: React.FC = () => {
   const { habits, loading: habitsLoading } = useHabits(userId);
   const [range, setRange] = useState<Range>('month');
   const [logs, setLogs] = useState<HabitLog[]>([]);
+
+  // Stable string derived from habits — avoids habits array in fetchLogs deps
+  const earliestHabitDate = useMemo(() => {
+    const dates = habits.map(h => h.created_at).filter(Boolean).sort();
+    return dates[0] ?? null;
+  }, [habits]);
   const [logsLoading, setLogsLoading] = useState(true);
 
   // For sliding pill animation
@@ -79,7 +93,7 @@ export const Dashboard: React.FC = () => {
   const fetchLogs = useCallback(async () => {
     if (!userId) return;
     setLogsLoading(true);
-    const { startDate, endDate } = getDateRangeInfo(range);
+    const { startDate, endDate } = getDateRangeInfo(range, earliestHabitDate ? [{ created_at: earliestHabitDate }] : []);
     const streakStart = formatDate(new Date(Date.now() - 89 * 86400000));
     const queryStart = startDate < streakStart ? startDate : streakStart;
     const { data } = await supabase
@@ -90,11 +104,11 @@ export const Dashboard: React.FC = () => {
       .lte('date', endDate);
     setLogs((data as HabitLog[]) ?? []);
     setLogsLoading(false);
-  }, [userId, range]);
+  }, [userId, range, earliestHabitDate]);
 
   useEffect(() => { fetchLogs(); }, [fetchLogs]);
 
-  const rangeInfo = getDateRangeInfo(range);
+  const rangeInfo = getDateRangeInfo(range, habits);
   const stats = useDashboardStats(habits, logs, rangeInfo.dates);
   const loading = habitsLoading || logsLoading;
   const calorieHabit = habits.find(h => h.is_calorie_habit);
@@ -103,7 +117,7 @@ export const Dashboard: React.FC = () => {
     week: 'last 7 days',
     month: `${new Date(year, month, 1).toLocaleString('default', { month: 'long' })} ${year}`,
     year: String(year),
-    all: 'last year',
+    all: 'all time',
   }[range];
 
   return (

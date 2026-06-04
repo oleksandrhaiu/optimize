@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import confetti from 'canvas-confetti';
 
 const MILESTONE_CONFIG: Record<number, { emoji: string; label: string; color: string }> = {
   7:   { emoji: '🔥', label: '1 Week Streak!',    color: '#F59E0B' },
@@ -20,8 +21,27 @@ export const StreakMilestone: React.FC<StreakMilestoneProps> = ({ streak, onDism
 
   useEffect(() => {
     if (!config) return;
+
+    // Trigger premium confetti fireworks
+    const duration = 3500;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+
+    const interval = setInterval(() => {
+      const timeLeft = animationEnd - Date.now();
+      if (timeLeft <= 0) {
+        clearInterval(interval);
+        return;
+      }
+      const particleCount = 40 * (timeLeft / duration);
+      confetti({ ...defaults, particleCount, origin: { x: Math.random(), y: Math.random() - 0.2 } });
+    }, 250);
+
     const timer = setTimeout(onDismiss, 5000);
-    return () => clearTimeout(timer);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timer);
+    };
   }, [config, onDismiss]);
 
   if (!config) return null;

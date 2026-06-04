@@ -1,14 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 import { daysInMonth, dateKey } from '@/lib/utils';
+import { showErrorToast } from '@/components/ui/Toast';
 import type { HabitLog } from '@/types';
 
 export function useHabitLogs(userId: string | undefined, year: number, month: number) {
   const [logs, setLogs] = useState<HabitLog[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const startDate = dateKey(year, month, 1);
-  const endDate = dateKey(year, month, daysInMonth(month, year));
+  const startDate = useMemo(() => dateKey(year, month, 1), [year, month]);
+  const endDate   = useMemo(() => dateKey(year, month, daysInMonth(month, year)), [year, month]);
 
   const fetchLogs = useCallback(async () => {
     if (!userId) return;
@@ -48,6 +49,8 @@ export function useHabitLogs(userId: string | undefined, year: number, month: nu
         const filtered = prev.filter(l => !(l.habit_id === habitId && l.date === date));
         return [...filtered, data as HabitLog];
       });
+    } else if (error) {
+      showErrorToast('Failed to save — check your connection and try again.');
     }
     return error;
   }, [userId]);
@@ -71,17 +74,25 @@ export function useHabitLogs(userId: string | undefined, year: number, month: nu
   return { logs, loading, setLog, setNote, mergeLog, refetch: fetchLogs };
 }
 
-/** Fetch logs for a specific user (friends / history) */
+/** Fetch logs for a specific user or a batch of users (friends / history) */
 export async function fetchLogsForUser(
   userId: string,
   startDate: string,
   endDate: string,
+  userIds?: string[], // batch mode: fetch for multiple users at once
 ): Promise<HabitLog[]> {
-  const { data } = await supabase
+  const query = supabase
     .from('habit_logs')
     .select('*')
-    .eq('user_id', userId)
     .gte('date', startDate)
     .lte('date', endDate);
+
+  if (userIds && userIds.length > 0) {
+    query.in('user_id', userIds);
+  } else {
+    query.eq('user_id', userId);
+  }
+
+  const { data } = await query;
   return (data as HabitLog[]) ?? [];
 }

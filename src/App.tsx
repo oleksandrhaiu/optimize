@@ -15,6 +15,7 @@ import { EditHabitPage } from '@/pages/EditHabitPage';
 import { PageLoader } from '@/components/ui/LoadingSpinner';
 import { Navbar } from '@/components/ui/Navbar';
 import { BottomNav } from '@/components/ui/BottomNav';
+import { ToastContainer } from '@/components/ui/Toast';
 
 const ProtectedLayout: React.FC = () => {
   const { session, profile, initialized, loadingProfile } = useAuth();
@@ -69,6 +70,7 @@ const App: React.FC = () => {
 
   return (
     <>
+        <ToastContainer />
         <Routes>
           <Route path="/" element={<Navigate to="/tracker" replace />} />
           <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />

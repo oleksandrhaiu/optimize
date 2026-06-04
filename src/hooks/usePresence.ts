@@ -90,6 +90,8 @@ export function usePresence(myUserId: string | undefined, _friendIds: string[]):
   useEffect(() => {
     if (!myUserId) return;
     const updateLastSeen = () => {
+      // Skip when tab is hidden — avoids ghost "active" status
+      if (document.visibilityState !== 'visible') return;
       supabase
         .from('users')
         .update({ last_seen_at: new Date().toISOString() })

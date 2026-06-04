@@ -27,6 +27,9 @@ export const FriendCard: React.FC<FriendCardProps> = ({
   return (
     <div
       onClick={() => navigate(`/u/${profile.username}`)}
+      onKeyDown={e => (e.key === 'Enter' || e.key === ' ') && navigate(`/u/${profile.username}`)}
+      role="button"
+      tabIndex={0}
       className="relative z-10 flex flex-col gap-3 min-w-[210px] max-w-[240px] flex-shrink-0 cursor-pointer transition-all duration-300 group"
       style={{
         background: 'linear-gradient(145deg, rgba(17,19,32,0.9), rgba(12,13,22,0.95))',
