@@ -18,6 +18,8 @@ import { clx } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import type { UserProfile, Habit, HabitLog } from '@/types';
 import { exportHabitsCsv } from '@/lib/exportCsv';
+import { UpdatesHistoryModal } from '@/components/ui/WhatsNewModal';
+import { hasUnseenUpdate, markAsSeen } from '@/lib/changelog';
 
 const NAV_ITEMS = [
   { to: '/tracker',   label: 'Tracker',   icon: LayoutGrid },
@@ -134,11 +136,20 @@ const NavSearch: React.FC = () => {
 export const Navbar: React.FC = () => {
   const { profile, session, signOut } = useAuthStore();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [updatesOpen, setUpdatesOpen] = useState(false);
+  const [hasUnseen, setHasUnseen] = useState(() => hasUnseenUpdate());
   const menuRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const [pillStyle, setPillStyle] = useState({ left: 0, width: 0, opacity: 0 });
   const [exporting, setExporting] = useState(false);
+
+  const handleOpenUpdates = () => {
+    setMenuOpen(false);
+    setUpdatesOpen(true);
+    markAsSeen();
+    setHasUnseen(false);
+  };
 
   const handleExport = async () => {
     if (!session?.user.id) return;
@@ -267,6 +278,31 @@ export const Navbar: React.FC = () => {
                     Profile Settings
                   </NavLink>
                   <button
+                    onClick={handleOpenUpdates}
+                    className="w-full text-left flex items-center gap-2.5 px-3 py-2 text-sm rounded-xl transition-all duration-150 text-text-muted hover:text-text-primary hover:bg-white/[0.05]"
+                  >
+                    <span className="relative">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                      </svg>
+                      {hasUnseen && (
+                        <span
+                          className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full"
+                          style={{ background: '#8B5CF6', boxShadow: '0 0 6px rgba(139,92,246,0.8)' }}
+                        />
+                      )}
+                    </span>
+                    What's New
+                    {hasUnseen && (
+                      <span
+                        className="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                        style={{ background: 'rgba(139,92,246,0.2)', color: '#A78BFA' }}
+                      >
+                        NEW
+                      </span>
+                    )}
+                  </button>
+                  <button
                     onClick={handleExport}
                     disabled={exporting}
                     className="w-full text-left flex items-center gap-2.5 px-3 py-2 text-sm rounded-xl transition-all duration-150 text-text-muted hover:text-text-primary hover:bg-white/[0.05]"
@@ -295,6 +331,9 @@ export const Navbar: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Updates history modal */}
+      {updatesOpen && <UpdatesHistoryModal onClose={() => setUpdatesOpen(false)} />}
     </nav>
   );
 };

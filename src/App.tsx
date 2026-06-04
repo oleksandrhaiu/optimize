@@ -16,6 +16,7 @@ import { PageLoader } from '@/components/ui/LoadingSpinner';
 import { Navbar } from '@/components/ui/Navbar';
 import { BottomNav } from '@/components/ui/BottomNav';
 import { ToastContainer } from '@/components/ui/Toast';
+import { WhatsNewModal, useWhatsNew } from '@/components/ui/WhatsNewModal';
 
 const ProtectedLayout: React.FC = () => {
   const { session, profile, initialized, loadingProfile } = useAuth();
@@ -61,6 +62,8 @@ const SetupRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 };
 
 const App: React.FC = () => {
+  const { show: showWhatsNew, dismiss: dismissWhatsNew } = useWhatsNew();
+
   useEffect(() => {
     // Always dark mode
     document.documentElement.removeAttribute('data-theme');
@@ -71,6 +74,7 @@ const App: React.FC = () => {
   return (
     <>
         <ToastContainer />
+        {showWhatsNew && <WhatsNewModal onClose={dismissWhatsNew} />}
         <Routes>
           <Route path="/" element={<Navigate to="/tracker" replace />} />
           <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
