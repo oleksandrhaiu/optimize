@@ -23,6 +23,8 @@ import {
 import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
 import { useTranslation } from 'react-i18next';
 import type { MonthYear } from '@/types';
+import { SmartReturnCard } from '@/components/tracker/SmartReturnCard';
+import { useSmartReturn } from '@/hooks/useSmartReturn';
 
 export const Tracker: React.FC = () => {
   const { profile, session } = useAuthStore();
@@ -41,6 +43,7 @@ export const Tracker: React.FC = () => {
 
   const { show: showOnboarding, dismiss: dismissOnboarding } = useOnboarding(habits.length);
   const { shouldShow: showWeeklyReview, reviewData, dismiss: dismissWeeklyReview } = useWeeklyReview(habits, logs);
+  const smartReturn = useSmartReturn(habits, logs);
 
   // ── Streak with shield ──────────────────────────────────────────────────────
   const shieldUsedAt = latestShieldUsedAt(habits);
@@ -213,10 +216,10 @@ export const Tracker: React.FC = () => {
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="font-heading text-2xl font-bold text-text-primary">
-              Tracker
+              {t('tracker.title')}
             </h1>
             <p className="text-text-muted text-sm mt-0.5">
-              Hey <span className="text-violet">@{profile?.username}</span> — stay consistent 💪
+              {t('tracker.subtitle', { username: `@${profile?.username}` })}
             </p>
           </div>
           <MonthNav monthYear={monthYear} onPrev={handlePrevMonth} onNext={handleNextMonth} />
@@ -225,7 +228,17 @@ export const Tracker: React.FC = () => {
         {isLoading ? (
           <TrackerSkeleton />
         ) : (
-          <div className="space-y-0">
+          <div className="space-y-4">
+            {/* Smart Return card */}
+            {smartReturn.showCard && (
+              <SmartReturnCard
+                {...smartReturn}
+                onDismiss={smartReturn.dismiss}
+                onToggleHabit={(habitId) => {
+                  handleToggle(habitId, todayStr(), 'true');
+                }}
+              />
+            )}
             <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6 animate-fade-in">
             {/* Left: habits column */}
             <MyHabitsColumn
@@ -237,6 +250,7 @@ export const Tracker: React.FC = () => {
               onDaySelect={setSelectedDay}
               onToggle={handleToggle}
               onNote={handleNote}
+              neverMissTwiceIds={smartReturn.neverMissTwiceHabitIds}
             />
 
             {/* Right column */}
@@ -260,11 +274,11 @@ export const Tracker: React.FC = () => {
                     style={{ backgroundColor: scoreColor, opacity: 0.06, transition: 'background-color 1.5s ease-out' }}
                   />
                   <div className="relative z-10">
-                    <p className="text-xs text-text-muted">Today</p>
+                    <p className="text-xs text-text-muted">{t('tracker.today')}</p>
                     <p className="font-heading text-2xl font-bold" style={{ color: scoreColor, transition: 'color 1.5s ease-out' }}>
                       <AnimatedNumber value={todayScore} suffix="%" />
                     </p>
-                    <p className="text-[10px] text-text-subtle">{completedToday}/{todayHabits.length} done</p>
+                    <p className="text-[10px] text-text-subtle">{t('tracker.completedOf', { done: completedToday, total: todayHabits.length })}</p>
                   </div>
                 </div>
 
@@ -277,13 +291,13 @@ export const Tracker: React.FC = () => {
                     boxShadow: '0 1px 3px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3)',
                   }}
                 >
-                  <p className="text-xs text-text-muted">Streak</p>
+                  <p className="text-xs text-text-muted">{t('tracker.streak')}</p>
                   <p className="font-heading text-2xl font-bold" style={{ color: shieldActive ? '#A78BFA' : '#F59E0B' }}>
                     <AnimatedNumber value={streak} />
                     <span className="text-base ml-0.5">🔥</span>
                   </p>
                   <p className="text-[10px] text-text-subtle">
-                    {shieldActive ? '🛡️ shield used' : shieldAvailable ? '🛡️ shield ready' : 'days in a row'}
+                    {shieldActive ? `🛡️ ${t('tracker.shieldActive')}` : shieldAvailable ? `🛡️ ${t('tracker.shieldAvailable')}` : t('tracker.daysInARow')}
                   </p>
                 </div>
 
@@ -296,11 +310,11 @@ export const Tracker: React.FC = () => {
                     boxShadow: '0 1px 3px rgba(0,0,0,0.4), 0 8px 32px rgba(0,0,0,0.3)',
                   }}
                 >
-                  <p className="text-xs text-text-muted">Perfect days</p>
+                  <p className="text-xs text-text-muted">{t('tracker.perfectDays')}</p>
                   <p className="font-heading text-2xl font-bold" style={{ color: '#10B981' }}>
                     <AnimatedNumber value={greenDays} />
                   </p>
-                  <p className="text-[10px] text-text-subtle">this month</p>
+                  <p className="text-[10px] text-text-subtle">{t('tracker.thisMonth')}</p>
                 </div>
               </div>
 

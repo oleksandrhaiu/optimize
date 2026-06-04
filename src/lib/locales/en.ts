@@ -28,8 +28,13 @@ const en = {
     bestStreak: 'Best',
     perfect: 'Perfect',
     perfectDays: 'Perfect days',
+    nPerfect: '{{count}} perfect',
+    startTracking: 'Start tracking!',
+    completedOf: '{{done}}/{{total}} completed',
+    noHabitsScheduled: 'No habits scheduled',
+    noHabitsScheduledSub: 'Add habits in the Habits tab.',
     addHabit: 'Add a habit',
-    noHabitsTitle: "No habits yet",
+    noHabitsTitle: 'No habits yet',
     noHabitsSubtitle: 'Go to the Habits tab to create your first habit',
     addNote: 'Add note',
     editNote: 'Edit note',
@@ -39,6 +44,32 @@ const en = {
     noFriendsSubtitle: 'Go to Settings → Friends to invite people!',
     shieldActive: 'Shield active',
     shieldAvailable: 'Shield available',
+    daysInARow: 'days in a row',
+    thisMonth: 'this month',
+    last7Days: 'Last 7 days',
+    avg: 'avg',
+  },
+
+  // ── Smart Return (behavioral psychology) ───────────────────────────────────────────────────
+  smartReturn: {
+    welcomeBack: 'Welcome back 👋',
+    freshStart: 'Fresh start 🌱',
+    driftMessage: 'You were away for {{days}} days. No worries — everyone takes breaks. The only thing that matters is returning.',
+    resetMessage: "It's been {{days}} days. Life happens. Starting fresh is not failing — it's choosing to show up again.",
+    startWith: 'Your best bet today',
+    oneHabitToday: 'Just one habit today',
+    completionRate: '{{rate}}% historical completion',
+    doItNow: 'Mark done',
+    neverMissTwice: '“Never miss twice” — James Clear, Atomic Habits',
+    compassion: 'Self-compassion leads to better long-term habits than self-criticism.',
+    closesGap: 'Close the gap',
+  },
+
+  // ── Months ───────────────────────────────────────────────────────────────────────────
+  months: {
+    0: 'January', 1: 'February', 2: 'March', 3: 'April',
+    4: 'May', 5: 'June', 6: 'July', 7: 'August',
+    8: 'September', 9: 'October', 10: 'November', 11: 'December',
   },
 
   // ── Dashboard ─────────────────────────────────────────────────────────────────

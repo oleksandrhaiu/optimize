@@ -5,6 +5,7 @@ import { useAuthStore } from '@/store/authStore';
 import { playSound } from '@/lib/sounds';
 import type { Habit, HabitLog } from '@/types';
 import { clx, isHabitDone } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 interface HabitRowProps {
   habit: Habit;
@@ -13,11 +14,13 @@ interface HabitRowProps {
   onToggle: (habitId: string, date: string, value: string) => void;
   onNote?: (habitId: string, date: string, note: string) => void;
   readOnly?: boolean;
+  neverMissTwo?: boolean; // highlight: missed yesterday, can close gap today
 }
 
 export const HabitRow: React.FC<HabitRowProps> = ({
-  habit, date, log, onToggle, onNote, readOnly = false,
+  habit, date, log, onToggle, onNote, readOnly = false, neverMissTwo = false,
 }) => {
+  const { t } = useTranslation();
   const [showNote, setShowNote] = useState(false);
   const [noteText, setNoteText] = useState(log?.note ?? '');
   const [justCompleted, setJustCompleted] = useState(false);
@@ -95,7 +98,6 @@ export const HabitRow: React.FC<HabitRowProps> = ({
               if (habit.type === 'checkbox') {
                 handleCheckbox(!checked);
               } else {
-                // Numeric: increment by one step
                 handleNumeric(parseFloat(((numericValue ?? 0) + step).toFixed(2)));
               }
             }}
@@ -115,6 +117,21 @@ export const HabitRow: React.FC<HabitRowProps> = ({
                 ({unit})
               </span>
             )}
+            {/* Never Miss Twice badge */}
+            {neverMissTwo && !isDone && (
+              <span
+                className="inline-flex items-center gap-0.5 ml-2 text-[9px] font-bold px-1.5 py-0.5 rounded-full"
+                style={{
+                  background: 'rgba(245,158,11,0.15)',
+                  color: '#F59E0B',
+                  border: '1px solid rgba(245,158,11,0.25)',
+                  animation: 'pulse 2s ease-in-out infinite',
+                  textDecoration: 'none',
+                }}
+              >
+                ⚡ {t('smartReturn.closesGap')}
+              </span>
+            )}
           </button>
         </div>
 
@@ -124,7 +141,7 @@ export const HabitRow: React.FC<HabitRowProps> = ({
           {!readOnly && onNote && (
             <button
               onClick={() => setShowNote(v => !v)}
-              title={log?.note ? 'Edit note' : 'Add note'}
+              title={log?.note ? t('tracker.editNote') : t('tracker.addNote')}
               className={clx(
                 'sm:opacity-0 group-hover:opacity-100 opacity-100 w-8 h-8 sm:w-6 sm:h-6',
                 'flex items-center justify-center rounded-lg transition-all duration-200',
@@ -191,7 +208,7 @@ export const HabitRow: React.FC<HabitRowProps> = ({
           <textarea
             value={noteText}
             onChange={e => setNoteText(e.target.value)}
-            placeholder="Add a note for today…"
+            placeholder={t('tracker.addNoteToday')}
             autoFocus
             rows={2}
             className="w-full rounded-xl px-3 py-2 text-sm text-text-primary placeholder-text-subtle resize-none focus:outline-none transition-all duration-200"

@@ -3,6 +3,7 @@ import { HabitRow } from './HabitRow';
 import type { Habit, HabitLog } from '@/types';
 import { getDaysArray, dateKey, calcDayScore, todayStr, isHabitDone, isHabitScheduledOn } from '@/lib/utils';
 import { clx } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -19,11 +20,13 @@ interface MyHabitsColumnProps {
   onDaySelect: (day: number) => void;
   onToggle: (habitId: string, date: string, value: string) => void;
   onNote?: (habitId: string, date: string, note: string) => void;
+  neverMissTwiceIds?: Set<string>;
 }
 
 export const MyHabitsColumn: React.FC<MyHabitsColumnProps> = ({
-  habits, logs, year, month, selectedDay, onDaySelect, onToggle, onNote,
+  habits, logs, year, month, selectedDay, onDaySelect, onToggle, onNote, neverMissTwiceIds,
 }) => {
+  const { t } = useTranslation();
   const days = getDaysArray(month, year);
   const today = todayStr();
   const selectedDate = dateKey(year, month, selectedDay);
@@ -62,13 +65,13 @@ export const MyHabitsColumn: React.FC<MyHabitsColumnProps> = ({
         {/* Month header */}
         <div className="flex items-center justify-between px-4 pt-3.5 pb-2">
           <span className="text-xs font-semibold text-text-muted font-heading tracking-wide">
-            {MONTH_NAMES[month]} {year}
+            {t(`months.${month}`)} {year}
           </span>
           <span
             className="text-xs font-mono font-medium"
             style={{ color: greenDays > 0 ? '#10B981' : 'rgb(62,66,104)' }}
           >
-            {greenDays > 0 ? `${greenDays} perfect` : 'Start tracking!'}
+            {greenDays > 0 ? t('tracker.nPerfect', { count: greenDays }) : t('tracker.startTracking')}
           </span>
         </div>
 
@@ -150,10 +153,10 @@ export const MyHabitsColumn: React.FC<MyHabitsColumnProps> = ({
           <div className="flex items-center justify-between mb-2.5">
             <div>
               <h3 className="font-heading font-semibold text-text-primary text-sm">
-                {selectedDate === today ? 'Today' : `${MONTH_NAMES[month]} ${selectedDay}`}
+                {selectedDate === today ? t('tracker.today') : `${t(`months.${month}`)} ${selectedDay}`}
               </h3>
               <p className="text-[11px] text-text-muted mt-0.5">
-                {completedToday}/{scheduledHabits.length} completed
+                {t('tracker.completedOf', { done: completedToday, total: scheduledHabits.length })}
               </p>
             </div>
             {todayScore > 0 && (
@@ -193,8 +196,8 @@ export const MyHabitsColumn: React.FC<MyHabitsColumnProps> = ({
           {scheduledHabits.length === 0 ? (
             <div className="text-center py-10 space-y-2">
               <p className="text-3xl">📝</p>
-              <p className="text-text-muted text-sm font-medium">No habits scheduled</p>
-              <p className="text-text-subtle text-xs">Add habits in the Habits tab.</p>
+              <p className="text-text-muted text-sm font-medium">{t('tracker.noHabitsScheduled')}</p>
+              <p className="text-text-subtle text-xs">{t('tracker.noHabitsScheduledSub')}</p>
             </div>
           ) : (
             <div className="space-y-0.5">
@@ -206,6 +209,7 @@ export const MyHabitsColumn: React.FC<MyHabitsColumnProps> = ({
                   log={logs.find(l => l.habit_id === habit.id && l.date === selectedDate)}
                   onToggle={onToggle}
                   onNote={onNote}
+                  neverMissTwo={neverMissTwiceIds?.has(habit.id) && selectedDate === today}
                 />
               ))}
             </div>
