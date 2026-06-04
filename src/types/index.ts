@@ -82,6 +82,7 @@ export interface DashboardStats {
   greenDays: number;
   dailyStats: DailyStats[];
   weekdayAvg: number[]; // [Mon, Tue, Wed, Thu, Fri, Sat, Sun]
+  habitStreaks: { habitId: string; habitName: string; habitIcon: string | null; streak: number }[];
 }
 
 // ─── UI State ─────────────────────────────────────────────────────────────────

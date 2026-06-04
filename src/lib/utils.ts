@@ -297,3 +297,99 @@ const STREAK_MILESTONES = [7, 14, 30, 60, 100, 365];
 export function checkStreakMilestone(streak: number): number | null {
   return STREAK_MILESTONES.includes(streak) ? streak : null;
 }
+
+// ─── Per-habit streak ─────────────────────────────────────────────────────────
+
+/**
+ * Counts consecutive scheduled days where the habit was completed,
+ * going back from today. Skips non-scheduled days (they don't break the streak).
+ */
+export function calcHabitStreak(habit: Habit, logs: HabitLog[]): number {
+  const today = todayStr();
+  const dates = lastNDates(90);
+  let streak = 0;
+
+  for (let i = dates.length - 1; i >= 0; i--) {
+    const date = dates[i];
+    if (date > today) continue;
+    if (!isHabitScheduledOn(habit, date)) continue; // skip non-scheduled days
+
+    const log = logs.find(l => l.habit_id === habit.id && l.date === date);
+    if (isHabitDone(habit, log?.value)) {
+      streak++;
+    } else {
+      break;
+    }
+  }
+
+  return streak;
+}
+
+// ─── Recovery stats ───────────────────────────────────────────────────────────
+
+export interface RecoveryInfo {
+  isRecovering: boolean;   // should we show the banner?
+  gapDays: number;         // how many days they were away
+  recoveryDays: number;    // how many days back so far
+  recoveryTarget: number;  // target days (always 3)
+}
+
+/**
+ * Detects if the user had a gap of 3+ missed days and has since returned.
+ * Returns recovery info for showing the comeback banner.
+ */
+export function calcGapAndRecovery(habits: Habit[], logs: HabitLog[]): RecoveryInfo {
+  const RECOVERY_TARGET = 3;
+  const MIN_GAP = 3;
+  const today = todayStr();
+
+  const activeHabits = habits.filter(h => !h.is_archived);
+  if (activeHabits.length === 0) {
+    return { isRecovering: false, gapDays: 0, recoveryDays: 0, recoveryTarget: RECOVERY_TARGET };
+  }
+
+  // Build last 40 days of scores
+  const dates = lastNDates(40);
+
+  // 1. Walk back from today, count consecutive "active" recovery days (score > 0)
+  let recoveryDays = 0;
+  let i = dates.length - 1;
+  for (; i >= 0; i--) {
+    const date = dates[i];
+    if (date > today) continue;
+    const hasScheduled = activeHabits.some(h => isHabitScheduledOn(h, date));
+    if (!hasScheduled) continue;
+    const score = calcDayScore(activeHabits, logs, date);
+    if (score > 0) {
+      recoveryDays++;
+    } else {
+      break;
+    }
+  }
+
+  // If recovery is already past target, not "recovering" anymore
+  if (recoveryDays >= RECOVERY_TARGET || recoveryDays === 0) {
+    return { isRecovering: false, gapDays: 0, recoveryDays, recoveryTarget: RECOVERY_TARGET };
+  }
+
+  // 2. Before those active days, count consecutive missed days (score = 0 on scheduled days)
+  let gapDays = 0;
+  for (let j = i; j >= 0; j--) {
+    const date = dates[j];
+    if (date > today) continue;
+    const hasScheduled = activeHabits.some(h => isHabitScheduledOn(h, date));
+    if (!hasScheduled) continue;
+    const score = calcDayScore(activeHabits, logs, date);
+    if (score === 0) {
+      gapDays++;
+    } else {
+      break;
+    }
+  }
+
+  if (gapDays < MIN_GAP) {
+    return { isRecovering: false, gapDays, recoveryDays, recoveryTarget: RECOVERY_TARGET };
+  }
+
+  return { isRecovering: true, gapDays, recoveryDays, recoveryTarget: RECOVERY_TARGET };
+}

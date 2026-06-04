@@ -8,6 +8,7 @@ import {
   WEEKDAY_LABELS,
   weekdayIndex,
   parseDate,
+  calcHabitStreak,
 } from '@/lib/utils';
 
 export function useDashboardStats(
@@ -47,7 +48,18 @@ export function useDashboardStats(
       weekdayCounts[i] > 0 ? Math.round(total / weekdayCounts[i]) : 0,
     );
 
-    return { currentStreak, bestStreak, avgCalories, greenDays, dailyStats, weekdayAvg };
+    // Per-habit streaks (sorted best first)
+    const habitStreaks = habits
+      .filter(h => !h.is_archived)
+      .map(h => ({
+        habitId: h.id,
+        habitName: h.name,
+        habitIcon: h.icon,
+        streak: calcHabitStreak(h, logs),
+      }))
+      .sort((a, b) => b.streak - a.streak);
+
+    return { currentStreak, bestStreak, avgCalories, greenDays, dailyStats, weekdayAvg, habitStreaks };
   }, [habits, logs, dateRange]);
 }
 

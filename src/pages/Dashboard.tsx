@@ -14,6 +14,7 @@ import { CompletionChart } from '@/components/dashboard/CompletionChart';
 import { CalorieChart } from '@/components/dashboard/CalorieChart';
 import { WeekdayChart } from '@/components/dashboard/WeekdayChart';
 import { HeatmapGrid } from '@/components/dashboard/HeatmapGrid';
+import { HabitStreakList } from '@/components/dashboard/HabitStreakList';
 
 type Range = 'week' | 'month' | 'year' | 'all';
 
@@ -224,6 +225,19 @@ export const Dashboard: React.FC = () => {
               </>
             )}
           </div>
+
+          {/* Per-habit Streaks */}
+          {!loading && stats.habitStreaks.length > 0 && (
+            <div
+              className="rounded-2xl p-5"
+              style={{
+                background: 'linear-gradient(145deg, rgba(12,13,22,0.8), rgba(7,8,15,0.6))',
+                border: '1px solid rgba(28,30,52,0.7)',
+              }}
+            >
+              <HabitStreakList streaks={stats.habitStreaks} />
+            </div>
+          )}
         </div>
       </main>
     </div>

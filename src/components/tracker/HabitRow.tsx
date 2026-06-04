@@ -12,12 +12,11 @@ interface HabitRowProps {
   log: HabitLog | undefined;
   onToggle: (habitId: string, date: string, value: string) => void;
   onNote?: (habitId: string, date: string, note: string) => void;
-  onNameClick?: (habit: Habit) => void;
   readOnly?: boolean;
 }
 
 export const HabitRow: React.FC<HabitRowProps> = ({
-  habit, date, log, onToggle, onNote, onNameClick, readOnly = false,
+  habit, date, log, onToggle, onNote, readOnly = false,
 }) => {
   const [showNote, setShowNote] = useState(false);
   const [noteText, setNoteText] = useState(log?.note ?? '');
@@ -90,15 +89,24 @@ export const HabitRow: React.FC<HabitRowProps> = ({
           )}
           <button
             type="button"
-            onClick={() => onNameClick?.(habit)}
+            disabled={readOnly}
+            onClick={() => {
+              if (readOnly) return;
+              if (habit.type === 'checkbox') {
+                handleCheckbox(!checked);
+              } else {
+                // Numeric: increment by one step
+                handleNumeric(parseFloat(((numericValue ?? 0) + step).toFixed(2)));
+              }
+            }}
             className={clx(
               'text-sm truncate text-left transition-colors duration-200',
               isDone
                 ? 'text-text-muted line-through decoration-text-subtle/50'
                 : readOnly
                   ? 'text-text-muted'
-                  : 'text-text-primary',
-              onNameClick && !readOnly && 'hover:text-violet cursor-pointer',
+                  : 'text-text-primary hover:text-accent',
+              !readOnly && 'cursor-pointer',
             )}
           >
             {habit.name}

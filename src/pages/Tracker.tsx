@@ -19,9 +19,11 @@ import {
   currentMonthYear, calcWeekScores, calcDayScore, todayStr, dateKey,
   getDaysArray, daysInMonth, getStreakWithShield, checkStreakMilestone,
   isHabitScheduledOn, isHabitDone, latestShieldUsedAt, weekdayLabel, lastNDates,
+  calcGapAndRecovery,
 } from '@/lib/utils';
 import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
-import type { MonthYear, Habit } from '@/types';
+import { RecoveryBanner } from '@/components/tracker/RecoveryBanner';
+import type { MonthYear } from '@/types';
 
 export const Tracker: React.FC = () => {
   const { profile, session } = useAuthStore();
@@ -29,7 +31,6 @@ export const Tracker: React.FC = () => {
 
   const [monthYear, setMonthYear]     = useState<MonthYear>(() => currentMonthYear());
   const [selectedDay, setSelectedDay] = useState<number>(new Date().getDate());
-  const [historyHabit, setHistoryHabit] = useState<Habit | null>(null);
 
   const { habits, loading: habitsLoading, updateHabit } = useHabits(userId);
   const { logs, loading: logsLoading, setLog, setNote } = useHabitLogs(userId, monthYear.year, monthYear.month);
@@ -161,9 +162,6 @@ export const Tracker: React.FC = () => {
 
       {/* Modals */}
       {showOnboarding && !habitsLoading && <OnboardingModal onDone={dismissOnboarding} />}
-      {historyHabit && (
-        <HabitHistoryModal habit={historyHabit} logs={logs} onClose={() => setHistoryHabit(null)} />
-      )}
       {milestoneDays && (
         <StreakMilestone streak={milestoneDays} onDismiss={() => setMilestoneDays(null)} />
       )}
@@ -211,7 +209,11 @@ export const Tracker: React.FC = () => {
         {isLoading ? (
           <TrackerSkeleton />
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6 animate-fade-in">
+          <div className="space-y-0">
+            {/* Recovery Banner */}
+            {(() => { const r = calcGapAndRecovery(habits, logs); return r.isRecovering ? <RecoveryBanner info={r} /> : null; })()}
+
+            <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6 animate-fade-in">
             {/* Left: habits column */}
             <MyHabitsColumn
               habits={habits}
@@ -222,7 +224,6 @@ export const Tracker: React.FC = () => {
               onDaySelect={setSelectedDay}
               onToggle={handleToggle}
               onNote={handleNote}
-              onHabitClick={setHistoryHabit}
             />
 
             {/* Right column */}
@@ -407,6 +408,7 @@ export const Tracker: React.FC = () => {
                   </div>
                 )}
               </div>
+            </div>
             </div>
           </div>
         )}
