@@ -20,18 +20,27 @@ import type { UserProfile, Habit, HabitLog } from '@/types';
 import { exportHabitsCsv } from '@/lib/exportCsv';
 import { UpdatesHistoryModal } from '@/components/ui/WhatsNewModal';
 import { hasUnseenUpdate, markAsSeen } from '@/lib/changelog';
+import { useTranslation } from 'react-i18next';
+import i18n from '@/lib/i18n';
 
-const NAV_ITEMS = [
-  { to: '/tracker',   label: 'Tracker',   icon: LayoutGrid },
-  { to: '/dashboard', label: 'Dashboard', icon: BarChart2 },
-  { to: '/habits',    label: 'Habits',    icon: ListChecks },
-  { to: '/friends',   label: 'Friends',   icon: Users },
+const LANGUAGES = [
+  { code: 'en', label: 'EN', flag: '🇬🇧' },
+  { code: 'ru', label: 'RU', flag: '🇷🇺' },
+  { code: 'uk', label: 'UA', flag: '🇺🇦' },
+];
+
+const NAV_ITEMS_KEYS = [
+  { to: '/tracker',   labelKey: 'nav.tracker',   icon: LayoutGrid },
+  { to: '/dashboard', labelKey: 'nav.dashboard', icon: BarChart2 },
+  { to: '/habits',    labelKey: 'nav.habits',    icon: ListChecks },
+  { to: '/friends',   labelKey: 'nav.friends',   icon: Users },
 ];
 
 /** Quick user search dropdown */
 const NavSearch: React.FC = () => {
   const navigate = useNavigate();
   const { session } = useAuthStore();
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<UserProfile[]>([]);
@@ -97,7 +106,7 @@ const NavSearch: React.FC = () => {
               type="text"
               value={query}
               onChange={e => setQuery(e.target.value)}
-              placeholder="Search by username…"
+              placeholder={t('nav.searchPlaceholder')}
               className="flex-1 bg-transparent border-none focus:outline-none text-sm text-text-primary placeholder-text-subtle"
             />
             {searching && (
@@ -123,9 +132,9 @@ const NavSearch: React.FC = () => {
               ))}
             </div>
           ) : query.trim() && !searching ? (
-            <p className="px-4 py-5 text-xs text-text-muted text-center">No users found</p>
+            <p className="px-4 py-5 text-xs text-text-muted text-center">{t('nav.noUsersFound')}</p>
           ) : (
-            <p className="px-4 py-5 text-xs text-text-subtle text-center">Type a username to search</p>
+            <p className="px-4 py-5 text-xs text-text-subtle text-center">{t('nav.typeToSearch')}</p>
           )}
         </div>
       )}
@@ -135,9 +144,11 @@ const NavSearch: React.FC = () => {
 
 export const Navbar: React.FC = () => {
   const { profile, session, signOut } = useAuthStore();
+  const { t } = useTranslation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [updatesOpen, setUpdatesOpen] = useState(false);
   const [hasUnseen, setHasUnseen] = useState(() => hasUnseenUpdate());
+  const [currentLang, setCurrentLang] = useState(i18n.language?.slice(0, 2) || 'en');
   const menuRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
@@ -149,6 +160,11 @@ export const Navbar: React.FC = () => {
     setUpdatesOpen(true);
     markAsSeen();
     setHasUnseen(false);
+  };
+
+  const switchLang = (code: string) => {
+    i18n.changeLanguage(code);
+    setCurrentLang(code);
   };
 
   const handleExport = async () => {
@@ -217,15 +233,15 @@ export const Navbar: React.FC = () => {
               boxShadow: '0 0 10px rgba(139,92,246,0.1)',
             }}
           />
-          {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
+          {NAV_ITEMS_KEYS.map(({ to, labelKey, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}
               className={({ isActive }) => clx('nav-link relative z-10', isActive && 'active')}
-              style={{ background: 'transparent', border: 'transparent' }} // Let the pill provide the bg
+              style={{ background: 'transparent', border: 'transparent' }}
             >
               <Icon size={15} strokeWidth={1.8} />
-              {label}
+              {t(labelKey)}
             </NavLink>
           ))}
         </div>
@@ -275,7 +291,7 @@ export const Navbar: React.FC = () => {
                     className="w-full text-left flex items-center gap-2.5 px-3 py-2 text-sm rounded-xl transition-all duration-150 text-text-muted hover:text-text-primary hover:bg-white/[0.05]"
                   >
                     <Settings size={14} strokeWidth={1.8} />
-                    Profile Settings
+                    {t('nav.profileSettings')}
                   </NavLink>
                   <button
                     onClick={handleOpenUpdates}
@@ -298,10 +314,38 @@ export const Navbar: React.FC = () => {
                         className="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full"
                         style={{ background: 'rgba(139,92,246,0.2)', color: '#A78BFA' }}
                       >
-                        NEW
+                        {t('updates.new')}
                       </span>
                     )}
                   </button>
+
+                  {/* Language switcher */}
+                  <div className="px-3 py-2">
+                    <p className="text-[10px] text-text-subtle uppercase tracking-wider mb-2 font-semibold">{t('common.language')}</p>
+                    <div className="flex gap-1.5">
+                      {LANGUAGES.map(lang => (
+                        <button
+                          key={lang.code}
+                          onClick={() => switchLang(lang.code)}
+                          className={clx(
+                            'flex-1 py-1.5 rounded-lg text-xs font-bold transition-all duration-150',
+                            currentLang === lang.code
+                              ? 'text-violet'
+                              : 'text-text-subtle hover:text-text-primary hover:bg-white/[0.04]',
+                          )}
+                          style={currentLang === lang.code ? {
+                            background: 'rgba(139,92,246,0.15)',
+                            border: '1px solid rgba(139,92,246,0.3)',
+                          } : {
+                            background: 'rgba(28,30,52,0.4)',
+                            border: '1px solid rgba(28,30,52,0.6)',
+                          }}
+                        >
+                          {lang.flag} {lang.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                   <button
                     onClick={handleExport}
                     disabled={exporting}
@@ -315,7 +359,7 @@ export const Navbar: React.FC = () => {
                     ) : (
                       <Download size={14} strokeWidth={1.8} />
                     )}
-                    Export Data
+                    {t('nav.exportData')}
                   </button>
                   <div className="h-px bg-white/[0.05] my-1" />
                   <button
@@ -323,7 +367,7 @@ export const Navbar: React.FC = () => {
                     className="w-full text-left flex items-center gap-2.5 px-3 py-2 text-sm rounded-xl transition-all duration-150 text-red/90 hover:text-red hover:bg-red/[0.08]"
                   >
                     <LogOut size={14} strokeWidth={1.8} />
-                    Sign out
+                    {t('nav.signOut')}
                   </button>
                 </div>
               </div>

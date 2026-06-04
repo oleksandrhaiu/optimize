@@ -19,14 +19,14 @@ import {
   currentMonthYear, calcWeekScores, calcDayScore, todayStr, dateKey,
   getDaysArray, daysInMonth, getStreakWithShield, checkStreakMilestone,
   isHabitScheduledOn, isHabitDone, latestShieldUsedAt, weekdayLabel, lastNDates,
-  calcGapAndRecovery,
 } from '@/lib/utils';
 import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
-import { RecoveryBanner } from '@/components/tracker/RecoveryBanner';
+import { useTranslation } from 'react-i18next';
 import type { MonthYear } from '@/types';
 
 export const Tracker: React.FC = () => {
   const { profile, session } = useAuthStore();
+  const { t } = useTranslation();
   const userId = session?.user.id;
 
   const [monthYear, setMonthYear]     = useState<MonthYear>(() => currentMonthYear());
@@ -169,24 +169,40 @@ export const Tracker: React.FC = () => {
         <WeeklyReview reviewData={reviewData} onDismiss={dismissWeeklyReview} />
       )}
 
-      {/* 100% Celebration overlay */}
+      {/* 100% Celebration overlay — premium redesign */}
       {celebrate && (
-        <div className="fixed inset-0 z-40 pointer-events-none flex items-end justify-center pb-24">
+        <div className="fixed inset-0 z-40 pointer-events-none flex items-center justify-center px-6">
           <div
-            className="animate-slide-in-bottom flex items-center gap-3 px-6 py-4 rounded-2xl"
+            className="relative overflow-hidden rounded-[2rem] px-8 py-7 text-center max-w-xs w-full"
             style={{
-              background: 'rgba(12,13,22,0.92)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(16,185,129,0.3)',
-              boxShadow: '0 0 40px rgba(16,185,129,0.2), 0 24px 64px rgba(0,0,0,0.5)',
+              background: 'linear-gradient(145deg, rgba(10,11,20,0.98), rgba(16,185,129,0.06))',
+              backdropFilter: 'blur(24px)',
+              border: '1px solid rgba(16,185,129,0.35)',
+              boxShadow: '0 0 60px rgba(16,185,129,0.18), 0 0 0 1px rgba(16,185,129,0.08), 0 32px 64px rgba(0,0,0,0.6)',
+              animation: 'slideUpFade 0.5s cubic-bezier(0.34,1.56,0.64,1)',
             }}
           >
-            <span className="text-2xl">🎉</span>
-            <div>
-              <p className="font-heading font-bold text-base" style={{ color: '#34D399' }}>
-                Perfect Day!
+            {/* Glow orb */}
+            <div
+              className="absolute -top-8 left-1/2 -translate-x-1/2 w-40 h-40 rounded-full blur-3xl pointer-events-none"
+              style={{ background: 'rgba(16,185,129,0.2)' }}
+            />
+            {/* Stars */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              {['top-3 left-6', 'top-5 right-8', 'bottom-6 left-10', 'bottom-4 right-6', 'top-1/2 left-3'].map((pos, i) => (
+                <span key={i} className={`absolute ${pos} text-emerald-400/30 text-xs animate-pulse`} style={{ animationDelay: `${i * 0.2}s` }}>✦</span>
+              ))}
+            </div>
+            {/* Content */}
+            <div className="relative z-10">
+              <div className="text-5xl mb-3" style={{ filter: 'drop-shadow(0 0 12px rgba(16,185,129,0.4))' }}>🏆</div>
+              <p
+                className="font-heading font-black text-2xl mb-1"
+                style={{ background: 'linear-gradient(135deg, #34D399, #10B981)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
+              >
+                {t('tracker.perfectDay')}
               </p>
-              <p className="text-xs text-text-muted">All habits completed today</p>
+              <p className="text-sm text-text-muted">{t('tracker.perfectDaySubtitle')}</p>
             </div>
           </div>
         </div>
@@ -210,9 +226,6 @@ export const Tracker: React.FC = () => {
           <TrackerSkeleton />
         ) : (
           <div className="space-y-0">
-            {/* Recovery Banner */}
-            {(() => { const r = calcGapAndRecovery(habits, logs); return r.isRecovering ? <RecoveryBanner info={r} /> : null; })()}
-
             <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6 animate-fade-in">
             {/* Left: habits column */}
             <MyHabitsColumn
